@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Kerala - Safe Zones &amp; Response</name>
+    <description>Relief camps and coordination centers.</description>
+
+    <Style id="camp_icon">
+      <IconStyle>
+        <scale>1.1</scale>
+        <Icon>
+          <href>http://maps.google.com/mapfiles/kml/shapes/campground.png</href>
+        </Icon>
+        <color>ff00ff00</color> <!-- Green -->
+      </IconStyle>
+    </Style>
+
+    <Style id="hospital_icon">
+       <IconStyle>
+        <scale>1.1</scale>
+        <Icon>
+          <href>http://maps.google.com/mapfiles/kml/shapes/hospitals.png</href>
+        </Icon>
+        <color>ff00ff00</color>
+      </IconStyle>
+    </Style>
+
+    <Folder>
+      <name>Relief Camps</name>
+      <Placemark>
+        <name>Union Christian College (Camp)</name>
+        <description>Capacity: ~3000 people</description>
+        <styleUrl>#camp_icon</styleUrl>
+        <Point><coordinates>76.3350,10.1250,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>CMS College (Camp)</name>
+        <description>Capacity: ~1500 people</description>
+        <styleUrl>#camp_icon</styleUrl>
+        <Point><coordinates>76.5220,9.5900,0</coordinates></Point>
+      </Placemark>
+    </Folder>
+
+    <Folder>
+      <name>Coordination Centers</name>
+      <Placemark>
+        <name>Thrissur Town Hall (Logistics)</name>
+        <description>Supply hub for district relief.</description>
+        <styleUrl>#hospital_icon</styleUrl> <!-- Treating as key infrastructure -->
+        <Point><coordinates>76.2150,10.5280,0</coordinates></Point>
+      </Placemark>
+      
+       <Placemark>
+        <name>Trivandrum Collection Center</name>
+        <description>Central collection point.</description>
+        <styleUrl>#hospital_icon</styleUrl>
+        <Point><coordinates>76.9530,8.5100,0</coordinates></Point>
+      </Placemark>
+    </Folder>
+  </Document>
+</kml>

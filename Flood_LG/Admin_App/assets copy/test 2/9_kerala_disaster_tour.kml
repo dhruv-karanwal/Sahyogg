@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2">
+  <Document>
+    <name>Tour: Kerala Floods 2018</name>
+    <open>1</open>
+    <gx:Tour>
+      <name>Disaster Tour</name>
+      <gx:Playlist>
+        
+        <!-- 1. Overview of Kerala -->
+        <gx:FlyTo>
+          <gx:duration>5</gx:duration>
+          <gx:flyToMode>smooth</gx:flyToMode>
+          <LookAt>
+            <longitude>76.2711</longitude>
+            <latitude>10.8505</latitude>
+            <altitude>300000</altitude>
+            <heading>0</heading>
+            <tilt>10</tilt>
+            <range>400000</range>
+          </LookAt>
+        </gx:FlyTo>
+        <gx:Wait><gx:duration>3</gx:duration></gx:Wait>
+
+        <!-- 2. Fly to Idukki (Source of Rain) -->
+        <gx:FlyTo>
+          <gx:duration>5</gx:duration>
+          <gx:flyToMode>smooth</gx:flyToMode>
+          <LookAt>
+            <longitude>76.97</longitude>
+            <latitude>9.85</latitude>
+            <altitude>5000</altitude>
+            <heading>0</heading>
+            <tilt>45</tilt>
+            <range>20000</range>
+          </LookAt>
+        </gx:FlyTo>
+        <gx:Wait><gx:duration>4</gx:duration></gx:Wait>
+
+        <!-- 3. Fly to Periyar Flood (Aluva/Airport) -->
+        <gx:FlyTo>
+          <gx:duration>5</gx:duration>
+          <gx:flyToMode>smooth</gx:flyToMode>
+           <LookAt>
+            <longitude>76.4019</longitude>
+            <latitude>10.1518</latitude>
+            <altitude>1000</altitude>
+            <heading>0</heading>
+            <tilt>60</tilt>
+            <range>5000</range>
+          </LookAt>
+        </gx:FlyTo>
+        <gx:Wait><gx:duration>4</gx:duration></gx:Wait>
+
+        <!-- 4. Fly to Kuttanad (Agri Damage) -->
+        <gx:FlyTo>
+          <gx:duration>6</gx:duration>
+          <gx:flyToMode>smooth</gx:flyToMode>
+          <LookAt>
+            <longitude>76.40</longitude>
+            <latitude>9.40</latitude>
+            <altitude>1000</altitude>
+            <heading>0</heading>
+            <tilt>30</tilt>
+            <range>15000</range>
+          </LookAt>
+        </gx:FlyTo>
+        <gx:Wait><gx:duration>4</gx:duration></gx:Wait>
+
+        <!-- 5. End at Relief Camp in Aluva -->
+         <gx:FlyTo>
+          <gx:duration>5</gx:duration>
+          <gx:flyToMode>smooth</gx:flyToMode>
+          <LookAt>
+            <longitude>76.3315</longitude>
+            <latitude>10.1250</latitude>
+            <altitude>500</altitude>
+            <heading>0</heading>
+            <tilt>45</tilt>
+            <range>2000</range>
+          </LookAt>
+        </gx:FlyTo>
+        <gx:Wait><gx:duration>3</gx:duration></gx:Wait>
+
+      </gx:Playlist>
+    </gx:Tour>
+  </Document>
+</kml>

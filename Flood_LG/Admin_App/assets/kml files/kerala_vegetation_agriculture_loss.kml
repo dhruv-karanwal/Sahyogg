@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Kerala - Agriculture &amp; Vegetation Loss</name>
+    <description>
+      <![CDATA[
+      Agriculture Damage<br>
+      <span style="color:#00FF00;">█</span> Mild Damage<br>
+      <span style="color:#FFFF00;">█</span> Moderate Damage<br>
+      <span style="color:#FF0000;">█</span> Severe Damage
+      ]]>
+    </description>
+
+    <!-- Opacity 55% (8C) -->
+    <Style id="damage_mild">
+      <LineStyle><color>00ffffff</color><width>0</width></LineStyle>
+      <PolyStyle><color>8C008000</color></PolyStyle> <!-- Green -->
+    </Style>
+
+    <Style id="damage_moderate">
+      <LineStyle><color>00ffffff</color><width>0</width></LineStyle>
+      <PolyStyle><color>8C00FFFF</color></PolyStyle> <!-- Yellow -->
+    </Style>
+
+    <Style id="damage_severe">
+      <LineStyle><color>00ffffff</color><width>0</width></LineStyle>
+      <PolyStyle><color>8C0000FF</color></PolyStyle> <!-- Red -->
+    </Style>
+
+    <Folder>
+      <name>Crop Damage Zones</name>
+      
+      <!-- Kuttanad Paddy Fields (Severe) -->
+      <Placemark>
+        <name>Kuttanad (Paddy)</name>
+        <styleUrl>#damage_severe</styleUrl>
+         <Polygon>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                76.40,9.45,0
+                76.50,9.40,0
+                76.45,9.25,0
+                76.35,9.30,0
+                76.40,9.45,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+      </Placemark>
+
+      <!-- Idukki Spices (Moderate) -->
+      <Placemark>
+        <name>Idukki High Range (Spices)</name>
+        <styleUrl>#damage_moderate</styleUrl>
+        <Polygon>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                77.0,10.0,0
+                77.2,9.8,0
+                77.1,9.6,0
+                76.9,9.7,0
+                77.0,10.0,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+      </Placemark>
+
+       <!-- Wayanad (Mild/Moderate) -->
+      <Placemark>
+        <name>Wayanad (Plantations)</name>
+        <styleUrl>#damage_mild</styleUrl>
+        <Polygon>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                76.0,11.8,0
+                76.2,11.7,0
+                76.1,11.5,0
+                75.9,11.6,0
+                76.0,11.8,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+      </Placemark>
+
+    </Folder>
+  </Document>
+</kml>

@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Kerala - Rainfall Severity (Aug 2018)</name>
+    <description>Color-coded representation of excess rainfall accumulation during the August 2018 period.</description>
+    
+    <!-- Styles -->
+    <Style id="rainExtreme"> <!-- Red -->
+      <PolyStyle>
+        <color>990000ff</color> 
+        <fill>1</fill>
+        <outline>0</outline>
+      </PolyStyle>
+    </Style>
+    <Style id="rainHigh"> <!-- Orange -->
+      <PolyStyle>
+        <color>990080ff</color> 
+        <fill>1</fill>
+        <outline>0</outline>
+      </PolyStyle>
+    </Style>
+    <Style id="rainExcess"> <!-- Yellow -->
+      <PolyStyle>
+        <color>9900ffff</color> 
+        <fill>1</fill>
+        <outline>0</outline>
+      </PolyStyle>
+    </Style>
+
+    <Folder>
+      <name>Rainfall Severity Zones</name>
+      
+      <!-- Idukki (Extreme) -->
+      <Placemark>
+        <name>Idukki District</name>
+        <description>Extreme Rainfall: The highest rainfall recorded, triggering massive landslides and reservoir inflows.</description>
+        <styleUrl>#rainExtreme</styleUrl>
+        <Polygon>
+          <tessellate>1</tessellate>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                77.20,9.60,0
+                77.30,10.10,0
+                77.00,10.20,0
+                76.80,10.00,0
+                76.70,9.70,0
+                76.90,9.50,0
+                77.20,9.60,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+      </Placemark>
+
+      <!-- Ernakulam (High) -->
+      <Placemark>
+        <name>Ernakulam District</name>
+        <description>Very High Rainfall: Combined with downstream flow, caused severe urban flooding.</description>
+        <styleUrl>#rainHigh</styleUrl>
+        <Polygon>
+          <tessellate>1</tessellate>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                 76.50,9.80,0
+                 76.70,10.10,0
+                 76.60,10.25,0
+                 76.20,10.15,0
+                 76.15,9.85,0
+                 76.50,9.80,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+      </Placemark>
+
+      <!-- Palakkad (High) -->
+      <Placemark>
+        <name>Palakkad District</name>
+        <description>Very High Rainfall: Malampuzha dam overflow impacted the Bharathapuzha basin.</description>
+        <styleUrl>#rainHigh</styleUrl>
+        <Polygon>
+          <tessellate>1</tessellate>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                 76.80,10.50,0
+                 76.90,11.00,0
+                 76.50,11.10,0
+                 76.30,10.80,0
+                 76.50,10.50,0
+                 76.80,10.50,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+      </Placemark>
+      
+       <!-- Wayanad (High) -->
+      <Placemark>
+        <name>Wayanad District</name>
+        <description>Very High Rainfall: Landslides and isolation of hill stations.</description>
+        <styleUrl>#rainHigh</styleUrl>
+        <Polygon>
+          <tessellate>1</tessellate>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                 76.00,11.50,0
+                 76.30,11.60,0
+                 76.40,11.80,0
+                 76.10,11.90,0
+                 75.90,11.70,0
+                 76.00,11.50,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+      </Placemark>
+
+       <!-- General Excess (Yellow) - Representing coastal/southern districts roughly -->
+       <Placemark>
+        <name>Southern Districts (Excess)</name>
+        <description>Excess Rainfall: Kollam, Alappuzha, and others received significant accumulation.</description>
+        <styleUrl>#rainExcess</styleUrl>
+         <Polygon>
+          <tessellate>1</tessellate>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                 76.50,8.80,0
+                 76.80,9.20,0
+                 76.40,9.30,0
+                 76.20,9.00,0
+                 76.50,8.80,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+       </Placemark>
+
+    </Folder>
+  </Document>
+</kml>

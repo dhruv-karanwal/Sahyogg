@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Kerala - River Basin Impact</name>
+    <description>Visualisation of swollen river basins and reservoir pressure.</description>
+
+    <Style id="basin_style">
+      <LineStyle><color>ffaa0000</color><width>1</width></LineStyle>
+      <PolyStyle><color>66ffff00</color></PolyStyle> <!-- Cyan/Blue, semi-transparent -->
+    </Style>
+
+    <Style id="balloon_style">
+       <BalloonStyle>
+         <text><![CDATA[
+           <b>$[name]</b><br/><br/>
+           $[description]
+         ]]></text>
+       </BalloonStyle>
+    </Style>
+
+    <Folder>
+      <name>River Basins</name>
+      
+      <!-- Periyar Basin -->
+      <Placemark>
+        <name>Periyar Basin - High Alert</name>
+        <description>The Periyar basin received over 3x normal rainfall. Major dams like Idukki and Mullaperiyar reached capacity, forcing shutter openings that inundated downstream areas like Aluva.</description>
+        <styleUrl>#basin_style</styleUrl>
+        <Polygon>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                77.2,9.5,0
+                77.0,9.9,0
+                76.8,10.2,0
+                76.3,10.2,0
+                76.1,10.1,0
+                76.2,9.9,0
+                76.5,9.8,0
+                77.2,9.5,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+      </Placemark>
+
+      <!-- Pamba Basin -->
+      <Placemark>
+        <name>Pamba Basin - Overflow</name>
+        <description>The Pamba river breached its banks at Ranni, Aranmula, and Chengannur. The Kakki and Pamba dams released significant water volumes.</description>
+        <styleUrl>#basin_style</styleUrl>
+        <Polygon>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                77.1,9.4,0
+                76.8,9.4,0
+                76.6,9.3,0
+                76.4,9.3,0
+                76.4,9.4,0
+                76.7,9.5,0
+                77.1,9.4,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+      </Placemark>
+
+       <!-- Bharathapuzha Basin -->
+      <Placemark>
+        <name>Bharathapuzha Basin</name>
+        <description>Heavy inflows from Malampuzha and other dams caused flooding in Palakkad and downstream areas.</description>
+        <styleUrl>#basin_style</styleUrl>
+        <Polygon>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                76.8,10.8,0
+                76.5,10.8,0
+                76.2,10.8,0
+                75.9,10.7,0
+                76.3,10.7,0
+                76.8,10.8,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+      </Placemark>
+
+    </Folder>
+  </Document>
+</kml>

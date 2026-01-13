@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Kerala - Urban Flood Hotspots</name>
+    <description>Specific urban locations that faced severe inundation.</description>
+
+    <Style id="warningIcon">
+      <IconStyle>
+        <scale>1.2</scale>
+        <Icon>
+          <href>http://maps.google.com/mapfiles/kml/shapes/caution.png</href>
+        </Icon>
+        <color>ff0000ff</color>
+      </IconStyle>
+    </Style>
+
+    <Folder>
+      <name>Urban Hotspots</name>
+      
+      <Placemark>
+        <name>Cochin International Airport (CIAL)</name>
+        <description>Runway and terminal completely submerged, suspending operations for two weeks.</description>
+        <styleUrl>#warningIcon</styleUrl>
+        <Point>
+          <coordinates>76.4019,10.1518,0</coordinates>
+        </Point>
+      </Placemark>
+
+      <Placemark>
+        <name>Aluva Shiva Temple</name>
+        <description>Completely submerged under the Periyar river waters.</description>
+        <styleUrl>#warningIcon</styleUrl>
+        <Point>
+           <coordinates>76.3533,10.1166,0</coordinates>
+        </Point>
+      </Placemark>
+
+      <Placemark>
+        <name>Paravur Town</name>
+        <description>Severe urban flooding affecting thousands of homes.</description>
+        <styleUrl>#warningIcon</styleUrl>
+        <Point>
+           <coordinates>76.2238,10.1506,0</coordinates>
+        </Point>
+      </Placemark>
+      
+      <Placemark>
+        <name>Ranni Town</name>
+        <description>First floor of buildings submerged due to Pamba overflow.</description>
+        <styleUrl>#warningIcon</styleUrl>
+        <Point>
+           <coordinates>76.7865,9.3820,0</coordinates>
+        </Point>
+      </Placemark>
+
+    </Folder>
+  </Document>
+</kml>

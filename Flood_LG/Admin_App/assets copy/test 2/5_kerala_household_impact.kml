@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Kerala - Household Impact Estimation</name>
+    <description>Aggregated district-level estimates of affected households.</description>
+    
+    <Style id="houseIcon">
+      <IconStyle>
+        <scale>1.3</scale>
+        <Icon>
+          <href>http://maps.google.com/mapfiles/kml/shapes/homegardenbusiness.png</href>
+        </Icon>
+        <color>ff0000ff</color> <!-- Red Icon -->
+      </IconStyle>
+      <LabelStyle>
+        <scale>1.0</scale>
+      </LabelStyle>
+    </Style>
+
+    <Folder>
+      <name>Households Affected</name>
+      
+      <Placemark>
+        <name>Ernakulam: ~50,000+ Affected</name>
+        <description>Severe impact in Aluva, North Paravur, and Kalady.</description>
+        <styleUrl>#houseIcon</styleUrl>
+        <Point>
+           <coordinates>76.40,10.10,0</coordinates>
+        </Point>
+      </Placemark>
+
+      <Placemark>
+        <name>Alappuzha: ~40,000+ Affected</name>
+        <description>Kuttanad  and Chengannur fully submerged; mass evacuations.</description>
+        <styleUrl>#houseIcon</styleUrl>
+        <Point>
+           <coordinates>76.35,9.40,0</coordinates>
+        </Point>
+      </Placemark>
+
+      <Placemark>
+        <name>Pathanamthitta: ~20,000+ Affected</name>
+        <description>Ranni and Aranmula faced first floor submersion.</description>
+        <styleUrl>#houseIcon</styleUrl>
+        <Point>
+           <coordinates>76.80,9.27,0</coordinates>
+        </Point>
+      </Placemark>
+
+      <Placemark>
+        <name>Thrissur: ~30,000+ Affected</name>
+        <description>Kole wetlands and Chalakudy river banks impacted.</description>
+        <styleUrl>#houseIcon</styleUrl>
+        <Point>
+           <coordinates>76.21,10.52,0</coordinates>
+        </Point>
+      </Placemark>
+
+      <Placemark>
+        <name>Wayanad: ~10,000+ Affected</name>
+        <description>Landslides and isolation caused housing damage.</description>
+        <styleUrl>#houseIcon</styleUrl>
+        <Point>
+           <coordinates>76.08,11.70,0</coordinates>
+        </Point>
+      </Placemark>
+
+    </Folder>
+  </Document>
+</kml>

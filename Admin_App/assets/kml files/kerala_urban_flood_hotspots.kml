@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Kerala - Urban Flood Hotspots</name>
+    <description>Critical urban areas requiring immediate attention.</description>
+
+    <Style id="warning_icon">
+      <IconStyle>
+        <scale>1.2</scale>
+        <Icon>
+          <href>http://maps.google.com/mapfiles/kml/shapes/caution.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle><scale>0.8</scale><color>ff0000ff</color></LabelStyle>
+    </Style>
+
+     <Style id="airport_warning">
+      <IconStyle>
+        <scale>1.4</scale>
+        <Icon>
+          <href>http://maps.google.com/mapfiles/kml/shapes/airports.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle><scale>0.9</scale><color>ff0000ff</color></LabelStyle>
+    </Style>
+
+    <Folder>
+      <name>Critical Alerts</name>
+      
+      <Placemark>
+        <name>Kochi Airport (CIAL) - CLOSED</name>
+        <description>Runway submerged. All operations suspended.</description>
+        <styleUrl>#airport_warning</styleUrl>
+        <Point><coordinates>76.4013,10.1520,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>Aluva - High Alert</name>
+        <description>Periyar river overflow. Shiva Temple submerged.</description>
+        <styleUrl>#warning_icon</styleUrl>
+        <Point><coordinates>76.3550,10.1080,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>Chengannur - Isolated</name>
+        <description>Town cut off. Air rescue in progress.</description>
+        <styleUrl>#warning_icon</styleUrl>
+        <Point><coordinates>76.6110,9.3170,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>Ranni - Flood Surge</name>
+        <description>First impact zone for Pamba dam release.</description>
+        <styleUrl>#warning_icon</styleUrl>
+        <Point><coordinates>76.7850,9.3800,0</coordinates></Point>
+      </Placemark>
+
+    </Folder>
+  </Document>
+</kml>

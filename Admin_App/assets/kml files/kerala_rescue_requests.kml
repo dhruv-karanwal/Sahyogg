@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Kerala - Active Rescue Requests</name>
+    <description>Dynamic layer simulating incoming distress calls (Mock Data).</description>
+    
+    <Style id="rescue_request">
+      <IconStyle>
+        <scale>0.7</scale>
+        <Icon>
+          <href>http://maps.google.com/mapfiles/kml/shapes/phone.png</href>
+        </Icon>
+        <color>ff00ffff</color> <!-- Yellow -->
+      </IconStyle>
+      <LabelStyle><scale>0.0</scale></LabelStyle>
+    </Style>
+
+    <Folder>
+      <name>Incoming Alerts</name>
+      <Placemark>
+        <name>Rescue needed: Chengannur</name>
+        <description>Family stranded on roof, elderly person needs medical aid.</description>
+        <styleUrl>#rescue_request</styleUrl>
+        <Point><coordinates>76.6150,9.3190,0</coordinates></Point>
+      </Placemark>
+      
+      <Placemark>
+        <name>Rescue needed: Aluva</name>
+        <description>Apartment complex basement flooded, power outage.</description>
+        <styleUrl>#rescue_request</styleUrl>
+        <Point><coordinates>76.3580,10.1100,0</coordinates></Point>
+      </Placemark>
+      
+      <Placemark>
+        <name>Rescue needed: Kuttanad</name>
+        <description>Boat required for evacuation.</description>
+        <styleUrl>#rescue_request</styleUrl>
+        <Point><coordinates>76.4050,9.4550,0</coordinates></Point>
+      </Placemark>
+    </Folder>
+  </Document>
+</kml>

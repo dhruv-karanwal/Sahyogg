@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Kerala - River Basin Impact Info</name>
+    <description>Detailed information on the impact of flooding on major river basins.</description>
+    
+    <Style id="basinBalloon">
+      <BalloonStyle>
+        <text><![CDATA[
+          <h3>$[name]</h3>
+          <p><b>Status:</b> $[status]</p>
+          <p><b>Impact:</b> $[description]</p>
+          <p><b>Key Reservoir:</b> $[reservoir]</p>
+        ]]></text>
+        <bgColor>ffffffff</bgColor>
+      </BalloonStyle>
+      <PolyStyle>
+         <color>5500ffff</color> <!-- Light Yellow/Gold transparency -->
+         <outcome>0</outcome>
+      </PolyStyle>
+    </Style>
+
+    <Folder>
+      <name>River Basins</name>
+      
+      <Placemark>
+        <name>Periyar River Basin</name>
+        <styleUrl>#basinBalloon</styleUrl>
+        <ExtendedData>
+          <Data name="status"><value>Critical Overflow</value></Data>
+          <Data name="reservoir"><value>Idukki Arch Dam, Idamalayar</value></Data>
+        </ExtendedData>
+        <description>The opening of all 5 shutters of the Idukki dam for the first time in 26 years released 700,000 liters/sec, devastating downstream areas including Aluva and Kochi airport.</description>
+        <Polygon>
+          <tessellate>1</tessellate>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                77.00,9.80,0
+                76.80,10.10,0
+                76.25,10.05,0
+                76.25,9.90,0
+                76.50,9.70,0
+                77.00,9.80,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+      </Placemark>
+
+      <Placemark>
+        <name>Pamba River Basin</name>
+        <styleUrl>#basinBalloon</styleUrl>
+        <ExtendedData>
+          <Data name="status"><value>Severe Inundation</value></Data>
+          <Data name="reservoir"><value>Kakki, Anathode</value></Data>
+        </ExtendedData>
+        <description>Intense rainfall in the catchment areas led to the opening of Kakki and Anathode dams, flooding Ranni, Aranmula, and Chengannur.</description>
+        <Polygon>
+          <tessellate>1</tessellate>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                77.15,9.35,0
+                76.80,9.40,0
+                76.50,9.30,0
+                76.60,9.20,0
+                77.15,9.35,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+      </Placemark>
+
+      <Placemark>
+        <name>Chalakudy River Basin</name>
+        <styleUrl>#basinBalloon</styleUrl>
+        <ExtendedData>
+          <Data name="status"><value>Flash Floods</value></Data>
+          <Data name="reservoir"><value>Parambikulam (upstream)</value></Data>
+        </ExtendedData>
+        <description>Faced unprecedented rising water levels due to heavy inflows from Parambikulam and Sholayar, submerging Chalakudy town.</description>
+        <Polygon>
+          <tessellate>1</tessellate>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                76.80,10.35,0
+                76.50,10.35,0
+                76.30,10.20,0
+                76.60,10.15,0
+                76.80,10.35,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+      </Placemark>
+
+    </Folder>
+  </Document>
+</kml>

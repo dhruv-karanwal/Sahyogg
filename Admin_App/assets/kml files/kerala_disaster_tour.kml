@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2">
+  <Document>
+    <name>Kerala 2018 Flood - Refined Tour</name>
+    <description>
+      <![CDATA[
+      <b>Standard Operating Procedure: Disaster Narrative</b><br>
+      1. Baseline View (Overview)<br>
+      2. Rainfall Severity (Causes)<br>
+      3. River Basin Impact (Flow)<br>
+      4. Flood Inundation (Impact)<br>
+      5. Urban Hotspots (Focus)<br>
+      6. Vegetation Loss (Environment)<br>
+      7. Household Impact (People)<br>
+      8. Safe Zones (Response)
+      ]]>
+    </description>
+    <open>1</open>
+
+    <gx:Tour>
+      <name>Play Flood Story</name>
+      <gx:Playlist>
+
+        <!-- 1. BASELINE -->
+        <gx:FlyTo>
+          <gx:duration>4.0</gx:duration>
+          <gx:flyToMode>smooth</gx:flyToMode>
+          <LookAt>
+            <longitude>76.5</longitude>
+            <latitude>10.5</latitude>
+            <altitude>0</altitude>
+            <heading>0</heading>
+            <tilt>0</tilt>
+            <range>450000</range>
+          </LookAt>
+        </gx:FlyTo>
+        <gx:Wait><gx:duration>1.0</gx:duration></gx:Wait>
+
+        <!-- 2. RAINFALL -->
+        <gx:FlyTo>
+          <gx:duration>5.0</gx:duration>
+          <gx:flyToMode>smooth</gx:flyToMode>
+          <LookAt>
+            <longitude>76.97</longitude> <!-- Idukki -->
+            <latitude>9.85</latitude>
+            <altitude>0</altitude>
+            <heading>0</heading>
+            <tilt>30</tilt>
+            <range>100000</range>
+          </LookAt>
+        </gx:FlyTo>
+        <gx:Wait><gx:duration>3.0</gx:duration></gx:Wait>
+
+        <!-- 3. BASINS -->
+        <gx:FlyTo>
+          <gx:duration>5.0</gx:duration>
+          <gx:flyToMode>smooth</gx:flyToMode>
+          <LookAt>
+            <longitude>76.45</longitude> <!-- Lower Periyar -->
+            <latitude>10.10</latitude>
+            <altitude>0</altitude>
+            <heading>20</heading>
+            <tilt>45</tilt>
+            <range>60000</range>
+          </LookAt>
+        </gx:FlyTo>
+        <gx:Wait><gx:duration>2.0</gx:duration></gx:Wait>
+
+        <!-- 4. INUNDATION -->
+        <gx:FlyTo>
+          <gx:duration>4.0</gx:duration>
+          <gx:flyToMode>smooth</gx:flyToMode>
+          <LookAt>
+            <longitude>76.40</longitude> <!-- Kuttanad Area -->
+            <latitude>9.45</latitude>
+            <altitude>0</altitude>
+            <heading>0</heading>
+            <tilt>30</tilt>
+            <range>40000</range>
+          </LookAt>
+        </gx:FlyTo>
+         <gx:Wait><gx:duration>2.0</gx:duration></gx:Wait>
+
+        <!-- 5. URBAN HOTSPOTS -->
+        <gx:FlyTo>
+          <gx:duration>4.0</gx:duration>
+          <gx:flyToMode>smooth</gx:flyToMode>
+          <LookAt>
+            <longitude>76.355</longitude> <!-- Aluva Zoom -->
+            <latitude>10.108</latitude>
+            <altitude>0</altitude>
+            <heading>0</heading>
+            <tilt>60</tilt>
+            <range>5000</range>
+          </LookAt>
+        </gx:FlyTo>
+        <gx:FlyTo>
+           <gx:duration>4.0</gx:duration>
+          <gx:flyToMode>smooth</gx:flyToMode>
+          <LookAt>
+            <longitude>76.401</longitude> <!-- Airport Zoom -->
+            <latitude>10.152</latitude>
+            <altitude>0</altitude>
+            <heading>90</heading>
+            <tilt>45</tilt>
+            <range>4000</range>
+          </LookAt>
+        </gx:FlyTo>
+        <gx:Wait><gx:duration>2.0</gx:duration></gx:Wait>
+
+        <!-- 6. VEGETATION -->
+        <gx:FlyTo>
+          <gx:duration>5.0</gx:duration>
+          <gx:flyToMode>smooth</gx:flyToMode>
+          <LookAt>
+            <longitude>76.5</longitude> <!-- Pan out to rural -->
+            <latitude>9.6</latitude>
+            <altitude>0</altitude>
+            <heading>0</heading>
+            <tilt>30</tilt>
+            <range>80000</range>
+          </LookAt>
+        </gx:FlyTo>
+        <gx:Wait><gx:duration>2.0</gx:duration></gx:Wait>
+
+         <!-- 7. HOUSEHOLDS -->
+         <!-- Already visible in wide view mostly, assume layer toggled -->
+         <gx:Wait><gx:duration>2.0</gx:duration></gx:Wait>
+
+         <!-- 8. SAFE ZONES -->
+         <gx:FlyTo>
+          <gx:duration>6.0</gx:duration>
+          <gx:flyToMode>smooth</gx:flyToMode>
+           <LookAt>
+            <longitude>76.335</longitude> <!-- UC College -->
+            <latitude>10.125</latitude>
+            <altitude>0</altitude>
+            <heading>0</heading>
+            <tilt>45</tilt>
+            <range>3000</range>
+          </LookAt>
+        </gx:FlyTo>
+         <gx:Wait><gx:duration>2.0</gx:duration></gx:Wait>
+         
+         <!-- END -->
+         <gx:FlyTo>
+          <gx:duration>5.0</gx:duration>
+          <gx:flyToMode>smooth</gx:flyToMode>
+           <LookAt>
+            <longitude>76.5</longitude>
+            <latitude>10.0</latitude>
+            <altitude>0</altitude>
+            <heading>0</heading>
+            <tilt>0</tilt>
+            <range>300000</range>
+          </LookAt>
+        </gx:FlyTo>
+
+      </gx:Playlist>
+    </gx:Tour>
+  </Document>
+</kml>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Kerala - Before Flood (Normal View)</name>
+    <description>Baseline view of Kerala, India, highlighting major districts and river geography before the 2018 floods.</description>
+    <Style id="cityLabel">
+      <IconStyle>
+        <scale>1.1</scale>
+        <Icon>
+          <href>http://maps.google.com/mapfiles/kml/shapes/placemark_circle.png</href>
+        </Icon>
+        <color>ffffffff</color>
+      </IconStyle>
+      <LabelStyle>
+        <color>ff00ffff</color> <!-- Yellow labels -->
+        <scale>1.2</scale>
+      </LabelStyle>
+    </Style>
+    <Folder>
+      <name>Major Districts &amp; Cities</name>
+      <Placemark>
+        <name>Thiruvananthapuram</name>
+        <styleUrl>#cityLabel</styleUrl>
+        <Point>
+          <coordinates>76.9366,8.5241,0</coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Kochi (Ernakulam)</name>
+        <styleUrl>#cityLabel</styleUrl>
+        <Point>
+          <coordinates>76.2673,9.9312,0</coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Kozhikode</name>
+        <styleUrl>#cityLabel</styleUrl>
+        <Point>
+          <coordinates>75.7804,11.2588,0</coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Idukki (High Range)</name>
+        <styleUrl>#cityLabel</styleUrl>
+        <Point>
+          <coordinates>76.97,9.85,0</coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Alappuzha (Kuttanad Region)</name>
+        <styleUrl>#cityLabel</styleUrl>
+        <Point>
+          <coordinates>76.3388,9.4981,0</coordinates>
+        </Point>
+      </Placemark>
+       <Placemark>
+        <name>Wayanad</name>
+        <styleUrl>#cityLabel</styleUrl>
+        <Point>
+          <coordinates>76.1320,11.6854,0</coordinates>
+        </Point>
+      </Placemark>
+    </Folder>
+  </Document>
+</kml>

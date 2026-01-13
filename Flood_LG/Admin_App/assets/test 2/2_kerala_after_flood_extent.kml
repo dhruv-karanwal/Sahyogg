@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Kerala - Flood Extent (Aug 2018)</name>
+    <description>Visualization of flooded areas during the August 2018 Kerala Floods. Polygons represent approximate flood extent in major basins.</description>
+    <Style id="floodPoly">
+      <LineStyle>
+        <color>ff0000ff</color> <!-- Red outline -->
+        <width>1</width>
+      </LineStyle>
+      <PolyStyle>
+        <color>7fff0000</color> <!-- Blue, 50% opacity (AABBGGRR) -->
+        <fill>1</fill>
+        <outline>1</outline>
+      </PolyStyle>
+    </Style>
+    <Folder>
+      <name>Flooded Regions</name>
+      
+      <!-- Periyar River Basin Flood -->
+      <Placemark>
+        <name>Periyar Basin Flood</name>
+        <description>Severe flooding occurred along the Periyar river due to heavy discharge from Idukki and Idamalayar dams.</description>
+        <styleUrl>#floodPoly</styleUrl>
+        <Polygon>
+          <tessellate>1</tessellate>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                76.97,9.85,0
+                76.80,10.05,0
+                76.60,10.15,0
+                76.40,10.10,0
+                76.25,10.00,0
+                76.20,9.90,0
+                76.35,9.85,0
+                76.50,9.80,0
+                76.80,9.75,0
+                76.97,9.85,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+      </Placemark>
+      
+      <!-- Pamba River Basin Flood -->
+      <Placemark>
+        <name>Pamba Basin Flood</name>
+        <description>Overflowing Pamba river inundated Pathanamthitta and Chengannur regions.</description>
+        <styleUrl>#floodPoly</styleUrl>
+        <Polygon>
+          <tessellate>1</tessellate>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                77.10,9.40,0
+                76.90,9.35,0
+                76.70,9.30,0
+                76.55,9.25,0
+                76.50,9.35,0
+                76.60,9.45,0
+                76.80,9.50,0
+                77.00,9.45,0
+                77.10,9.40,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+      </Placemark>
+
+      <!-- Kuttanad Region (Low Lying) -->
+      <Placemark>
+        <name>Kuttanad Region (Submerged)</name>
+        <description>Kuttanad, being below sea level, faced prolonged inundation.</description>
+        <styleUrl>#floodPoly</styleUrl>
+        <Polygon>
+          <tessellate>1</tessellate>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                76.35,9.35,0
+                76.45,9.35,0
+                76.50,9.45,0
+                76.50,9.55,0
+                76.40,9.60,0
+                76.30,9.50,0
+                76.35,9.35,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+      </Placemark>
+      
+      <!-- Chalakudy River Flood -->
+       <Placemark>
+        <name>Chalakudy River Flood</name>
+        <description>Flash floods across Chalakudy town and nearby areas.</description>
+        <styleUrl>#floodPoly</styleUrl>
+        <Polygon>
+          <tessellate>1</tessellate>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                76.70,10.25,0
+                76.50,10.30,0
+                76.30,10.25,0
+                76.35,10.15,0
+                76.55,10.15,0
+                76.70,10.25,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+      </Placemark>
+
+    </Folder>
+  </Document>
+</kml>
