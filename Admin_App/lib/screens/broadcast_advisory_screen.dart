@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class BroadcastAdvisoryScreen extends StatefulWidget {
   const BroadcastAdvisoryScreen({super.key});
@@ -66,50 +67,95 @@ class _BroadcastAdvisoryScreenState extends State<BroadcastAdvisoryScreen> {
 
     setState(() => _isSending = true);
     
-    // Simulate Firestore write
-    await Future.delayed(const Duration(seconds: 1));
-    
-    setState(() {
-      _lastPostedMessage = _messageController.text;
-      _isActive = true;
-      _isSending = false;
-    });
+    try {
+      final timestamp = DateTime.now();
+      final data = {
+        'message': _messageController.text.trim(),
+        'type': _selectedAdvisoryType,
+        'timestamp': timestamp,
+        'isActive': true, 
+      };
 
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Advisory Broadcasted: "${_limitText(_lastPostedMessage!, 30)}..."'),
-          backgroundColor: Colors.amber.shade700,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-      Navigator.pop(context); // Optional: stay on screen or pop? User req says "Entry Point" tile, so pop is fine or stay. 
-      // Prompt says "On Send... Immediately sync to User app", doesn't explicitly say close.
-      // But usually "Send buttons" might keep you there or close. I'll just clear input or update status.
-      // Actually, staying and showing "Active Advisory" status is better.
-      _messageController.clear();
+      // 1. Specific Type Doc (for overwriting previous of same type)
+      await FirebaseFirestore.instance
+          .collection('advisories')
+          .doc(_selectedAdvisoryType)
+          .set(data);
+
+      // 2. Current Active Doc (Live Banner Source)
+      await FirebaseFirestore.instance
+          .collection('advisories')
+          .doc('current')
+          .set(data);
+
+      // 3. History Log (New Request)
+      // We assume the user wants a log of all sent advisories
+      await FirebaseFirestore.instance.collection('advisories_history').add({
+        ...data,
+        'sentAt': FieldValue.serverTimestamp(), // Exact server time for sorting
+      });
+      
+      setState(() {
+        _lastPostedMessage = _messageController.text;
+        _isActive = true;
+        _isSending = false;
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Advisory Broadcasted: "${_limitText(_lastPostedMessage!, 30)}..."'),
+            backgroundColor: Colors.amber.shade700,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        _messageController.clear();
+      }
+    } catch (e) {
+       setState(() => _isSending = false);
+       if(mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error broadcasting: $e'), backgroundColor: Colors.red),
+          );
+       }
     }
   }
 
   Future<void> _clearAdvisory() async {
     setState(() => _isSending = true);
     
-    await Future.delayed(const Duration(milliseconds: 500));
-    
-    setState(() {
-      _isActive = false;
-      _lastPostedMessage = null;
-      _isSending = false;
-    });
+    try {
+       // Clear the 'current' advisory
+       await FirebaseFirestore.instance
+          .collection('advisories')
+          .doc('current')
+          .update({'isActive': false});
+          
+       // Optionally clear the specific type doc too, or leave it as history.
+       // Let's mark it inactive.
+       await FirebaseFirestore.instance
+          .collection('advisories')
+          .doc(_selectedAdvisoryType)
+          .update({'isActive': false});
+       
+      setState(() {
+        _isActive = false;
+        _lastPostedMessage = null;
+        _isSending = false;
+      });
 
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Advisory Cleared'),
-          backgroundColor: Colors.grey,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Advisory Cleared'),
+            backgroundColor: Colors.grey,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } catch (e) {
+        setState(() => _isSending = false);
+        debugPrint('Error clearing: $e');
     }
   }
 

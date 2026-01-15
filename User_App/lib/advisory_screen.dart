@@ -1,147 +1,149 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_database/firebase_database.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AdvisoryScreen extends StatelessWidget {
   const AdvisoryScreen({super.key});
 
   @override
+  @override
   Widget build(BuildContext context) {
-    final advisoryRef = FirebaseDatabase.instance.ref('advisories/current');
-
     return Scaffold(
-      appBar: AppBar(title: const Text('Live Advisory')),
-      body: StreamBuilder<DatabaseEvent>(
-        stream: advisoryRef.onValue,
-        builder: (context, snapshot) {
-          // Error state
-          if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          }
+      appBar: AppBar(title: const Text('Advisories')),
+      body: Column(
+        children: [
+          // 1. Current Active Advisory
+          StreamBuilder<DocumentSnapshot>(
+            stream: FirebaseFirestore.instance.collection('advisories').doc('current').snapshots(),
+            builder: (context, snapshot) {
+              if (snapshot.hasError) return SizedBox.shrink();
+              if (!snapshot.hasData || !snapshot.data!.exists) return SizedBox.shrink();
 
-          // Loading state
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
+              final data = snapshot.data!.data() as Map<String, dynamic>;
+              final isActive = data['isActive'] == true || data['isActive'].toString().toLowerCase() == 'true';
+              
+              if (!isActive) return SizedBox.shrink();
 
-          final event = snapshot.data;
-          if (event == null || event.snapshot.value == null) {
-            return const Center(
-              child: Text(
-                'No active advisory',
-                style: TextStyle(fontSize: 16),
-              ),
-            );
-          }
-
-          final raw = event.snapshot.value;
-
-          if (raw is! Map) {
-            // If the structure isn't a map we can't read the fields reliably
-            return const Center(
-              child: Text(
-                'No active advisory',
-                style: TextStyle(fontSize: 16),
-              ),
-            );
-          }
-
-          final Map<dynamic, dynamic> data = raw as Map<dynamic, dynamic>;
-
-          // Robustly parse isActive (accepts bool, number, or string)
-          final dynamic isActiveRaw = data['isActive'];
-          bool isActive = false;
-          if (isActiveRaw is bool) {
-            isActive = isActiveRaw;
-          } else if (isActiveRaw is num) {
-            isActive = isActiveRaw != 0;
-          } else if (isActiveRaw is String) {
-            isActive = isActiveRaw.toLowerCase() == 'true';
-          }
-
-          if (!isActive) {
-            return const Center(
-              child: Text(
-                'No active advisory',
-                style: TextStyle(fontSize: 16),
-              ),
-            );
-          }
-
-          final String message = (data['message'] ?? '').toString();
-          final String type = (data['type'] ?? 'Information').toString();
-
-          // Parse timestamp robustly (accepts int, string, or num). If seconds are provided convert to ms.
-          final dynamic tsRaw = data['timestamp'];
-          int timestamp = 0;
-          if (tsRaw is int) {
-            timestamp = tsRaw;
-          } else if (tsRaw is num) {
-            timestamp = tsRaw.toInt();
-          } else if (tsRaw is String) {
-            timestamp = int.tryParse(tsRaw) ?? 0;
-          }
-
-          DateTime updatedAt = DateTime.fromMillisecondsSinceEpoch(0);
-          if (timestamp > 0) {
-            // if timestamp looks like seconds, convert to ms
-            if (timestamp < 1000000000000) {
-              timestamp = timestamp * 1000;
-            }
-            updatedAt = DateTime.fromMillisecondsSinceEpoch(timestamp).toLocal();
-          }
-
-          return Padding(
-            padding: const EdgeInsets.all(20),
-            child: Card(
-              elevation: 6,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(20),
+              return Padding(
+                padding: const EdgeInsets.all(16.0),
                 child: Column(
-                  mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.warning_amber_rounded,
-                          color: _typeColor(type),
-                          size: 28,
-                        ),
-                        const SizedBox(width: 12),
-                        Text(
-                          type.toUpperCase(),
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: _typeColor(type),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      message,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        height: 1.4,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      'Updated at: ${DateTime.fromMillisecondsSinceEpoch(timestamp).toLocal()}',
-                      style: const TextStyle(
-                        fontSize: 11,
-                        color: Colors.grey,
-                      ),
-                    ),
+                    const Text('Current Advisory', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
+                    const SizedBox(height: 8),
+                    _buildAdvisoryCard(data, isLarge: true),
                   ],
                 ),
-              ),
+              );
+            },
+          ),
+
+          // 2. Past Advisories Header
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text('Past Advisories', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
             ),
-          );
-        },
+          ),
+
+          // 3. Past Advisories List
+          Expanded(
+            child: StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('advisories_history')
+                  .orderBy('sentAt', descending: true)
+                  .limit(20)
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.hasError) return Center(child: Text('Error: ${snapshot.error}'));
+                if (snapshot.connectionState == ConnectionState.waiting) return const Center(child: CircularProgressIndicator());
+                
+                final docs = snapshot.data?.docs ?? [];
+                
+                if (docs.isEmpty) {
+                  return const Center(child: Text('No past advisories found.', style: TextStyle(color: Colors.grey)));
+                }
+
+                return ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  itemCount: docs.length,
+                  itemBuilder: (context, index) {
+                    final data = docs[index].data() as Map<String, dynamic>;
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12.0),
+                      child: _buildAdvisoryCard(data, isLarge: false),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAdvisoryCard(Map<String, dynamic> data, {required bool isLarge}) {
+    final String type = (data['type'] ?? 'Information').toString();
+    final String message = (data['message'] ?? '').toString();
+    final color = _typeColor(type);
+    
+    // Timestamp handling
+    final dynamic tsRaw = data['timestamp'];
+    DateTime? date;
+    if (tsRaw is Timestamp) {
+      date = tsRaw.toDate();
+    } else if (tsRaw is int) {
+      date = DateTime.fromMillisecondsSinceEpoch(tsRaw);
+    } else if (tsRaw is String) {
+      date = DateTime.tryParse(tsRaw);
+    }
+
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(isLarge ? 20 : 16),
+      decoration: BoxDecoration(
+        color: isLarge ? color.withOpacity(0.1) : Colors.white,
+        border: Border.all(color: isLarge ? color : Colors.grey.shade200),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: isLarge 
+          ? [BoxShadow(color: color.withOpacity(0.2), blurRadius: 10, offset: Offset(0, 4))]
+          : [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4, offset: Offset(0, 2))],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.warning_amber_rounded, color: color, size: isLarge ? 24 : 20),
+              const SizedBox(width: 8),
+              Text(
+                type.toUpperCase(),
+                style: TextStyle(
+                  color: color,
+                  fontWeight: FontWeight.bold,
+                  fontSize: isLarge ? 14 : 12,
+                  letterSpacing: 1.0,
+                ),
+              ),
+              const Spacer(),
+              if (date != null)
+                Text(
+                  "${date.day}/${date.month} ${date.hour}:${date.minute.toString().padLeft(2, '0')}",
+                  style: TextStyle(color: Colors.grey, fontSize: 11),
+                ),
+            ],
+          ),
+          SizedBox(height: isLarge ? 12 : 8),
+          Text(
+            message,
+            style: TextStyle(
+              fontSize: isLarge ? 16 : 14,
+              color: Colors.black87,
+              height: 1.3,
+            ),
+          ),
+        ],
       ),
     );
   }

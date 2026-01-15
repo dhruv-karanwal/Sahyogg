@@ -5,9 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:user_gdg/advisory_screen.dart';
 import 'package:user_gdg/safe_zone_screen.dart';
+import 'package:user_gdg/widgets/live_advisory_banner.dart';
+import 'package:user_gdg/widgets/sos_dialog.dart';
 
 // TODO: Put your MapTiler API key here (or load from a secure place)
 const String MAPTILER_API_KEY = 'xv0FjIRz99TJBdP08drv';
@@ -109,97 +112,150 @@ class _FloodMapScreenState extends State<FloodMapScreen> with SingleTickerProvid
     });
   }
 
-  Future<void> _sendSOS() async {
+  Future<void> _sendSOSDialog() async {
     try {
+       // 1. Get Location first
       setState(() => _sendingSOS = true);
-
-      // 1️⃣ Check location service
+      
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) {
-        throw 'Location services are disabled';
-      }
+      if (!serviceEnabled) throw 'Location services are disabled';
 
-      // 2️⃣ Permission handling
       LocationPermission permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
       }
-
-      if (permission == LocationPermission.denied ||
-          permission == LocationPermission.deniedForever) {
+      if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
         throw 'Location permission denied';
       }
 
-      // 3️⃣ Get current position
-      final position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
+      final position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+      
+      // 2. Reverse Geocode
+      String district = 'Unknown District';
+      String city = 'Unknown City';
+      String area = 'Unknown Area';
+      
+      try {
+        List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
+        if (placemarks.isNotEmpty) {
+          final place = placemarks.first;
+          district = place.subAdministrativeArea ?? place.administrativeArea ?? 'Unknown District';
+          city = place.locality ?? place.subLocality ?? district;
+          area = place.name ?? place.street ?? city;
+        }
+      } catch (e) {
+        print('Geocoding error: $e');
+      }
+
+      setState(() => _sendingSOS = false); // Stop loading before showing dialog
+
+      if (!mounted) return;
+
+      // 3. Show Dialog
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => SOSDialog(
+          isSending: _sendingSOS, // This will be false initially
+          onSubmit: (data) async {
+             Navigator.pop(context); // Close dialog
+             await _submitSOSData(
+                position: position,
+                district: district,
+                city: city,
+                area: area,
+                userProvidedData: data,
+             );
+          },
+        ),
       );
 
-      // 4️⃣ Push EXACT rescue request structure
-      final docRef = await FirebaseFirestore.instance.collection('rescue_requests').add({
-        'location': 'User SOS Location',
+    } catch (e) {
+       setState(() => _sendingSOS = false);
+       _showSnackBar('Error getting location: $e', isError: true);
+    }
+  }
+
+  Future<void> _submitSOSData({
+    required Position position,
+    required String district,
+    required String city,
+    required String area,
+    required Map<String, dynamic> userProvidedData,
+  }) async {
+    try {
+      setState(() => _sendingSOS = true);
+      
+      final db = FirebaseFirestore.instance;
+      final batch = db.batch(); // Use batch/transaction for consistency
+
+      // A. Main SOS Request
+      final newDocRef = db.collection('rescue_requests').doc();
+      
+      batch.set(newDocRef, {
+        'district': district,
+        'city': city,
+        'area': area,
         'lat': position.latitude,
         'lng': position.longitude,
+        'description': userProvidedData['description'],
+        'peopleCount': userProvidedData['peopleCount'],
+        'emergencyType': userProvidedData['emergencyType'],
+        'priority': 'HIGH',
         'status': 'PENDING',
-        'priority': 'High',
-        'description':
-            'Emergency SOS triggered by user. Immediate rescue required.',
+        'source': 'MOBILE_USER',
         'createdAt': FieldValue.serverTimestamp(),
-        'source': 'MOBILE_SOS',
       });
+
+      // B. Aggregation: rescue_summary/{district}/cities/{city}/areas/{area}
+      // Note: We use SetOptions(merge: true) to create if not exists
+      final summaryRef = db.doc('rescue_summary/$district/cities/$city/areas/$area');
+      
+      batch.set(summaryRef, {
+        'district': district,
+        'city': city,
+        'area': area,
+        'lat': position.latitude, // Store approx location of area for easier LG Viz
+        'lng': position.longitude,
+        'totalSOS': FieldValue.increment(1),
+        'pending': FieldValue.increment(1),
+        'lastUpdated': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+
+      await batch.commit();
 
       setState(() {
-        _activeSOSId = docRef.id;
+        _activeSOSId = newDocRef.id;
       });
+      
+      _showSnackBar('SOS Sent! Rescue teams alerted.', isError: false);
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Row(
-              children: [
-                Icon(Icons.check_circle, color: Colors.white),
-                SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    'SOS sent successfully! Help is on the way.',
-                    style: TextStyle(fontSize: 16),
-                  ),
-                ),
-              ],
-            ),
-            backgroundColor: Colors.green,
-            behavior: SnackBarBehavior.floating,
-            duration: Duration(seconds: 4),
-          ),
-        );
-      }
     } catch (e) {
-      debugPrint('SOS ERROR → $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                const Icon(Icons.error, color: Colors.white),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    'Failed to send SOS: $e',
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                ),
-              ],
-            ),
-            backgroundColor: Colors.red.shade800,
-            behavior: SnackBarBehavior.floating,
-            duration: const Duration(seconds: 4),
-          ),
-        );
-      }
+      _showSnackBar('Failed to send SOS: $e', isError: true);
     } finally {
       if (mounted) setState(() => _sendingSOS = false);
     }
   }
+
+  void _showSnackBar(String message, {bool isError = false}) {
+     if (!mounted) return;
+     ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+               Icon(isError ? Icons.error : Icons.check_circle, color: Colors.white),
+               const SizedBox(width: 12),
+               Expanded(child: Text(message)),
+            ],
+          ),
+          backgroundColor: isError ? Colors.red.shade800 : Colors.green,
+          behavior: SnackBarBehavior.floating,
+        ),
+     );
+  }
+
+  // Old _sendSOS method removed/replaced by above
+
 
   /// Process coordinates and create map elements
   Future<void> _processCoordinates(List<dynamic> coords, String layer) async {
@@ -803,6 +859,7 @@ class _FloodMapScreenState extends State<FloodMapScreen> with SingleTickerProvid
         children: [
           Column(
             children: [
+              const LiveAdvisoryBanner(),
               if (_polygons.isNotEmpty || _markers.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
@@ -871,50 +928,8 @@ class _FloodMapScreenState extends State<FloodMapScreen> with SingleTickerProvid
             ],
           ),
           
-          // Spec Alignment: Trust & Online Status Indicator (Top Center)
-          Positioned(
-            top: 16,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.7),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.verified_user, color: Colors.blue, size: 14),
-                    const SizedBox(width: 6),
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'OFFICIAL DISASTER DATA',
-                          style: TextStyle(
-                            color: Colors.white, 
-                            fontSize: 10, 
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                        Text(
-                          'Updates: Live • Online', 
-                          style: TextStyle(
-                            color: Colors.greenAccent[400], 
-                            fontSize: 10,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
+          // Removed Official Disaster Data badge as per user request
+
           
           // Spec Alignment: Persistent SOS Status (Bottom Left)
           if (_sendingSOS)
@@ -1029,7 +1044,7 @@ class _FloodMapScreenState extends State<FloodMapScreen> with SingleTickerProvid
                         icon: _sendingSOS ? Icons.hourglass_top : Icons.sos,
                         label: 'Send SOS',
                         color: Colors.red,
-                        onTap: _sendingSOS ? () {} : _sendSOS,
+                        onTap: _sendingSOS ? () {} : _sendSOSDialog,
                       ),
                     ],
                   ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../controllers/lg_controller.dart';
 import '../widgets/neu_button.dart';
 import 'rescue_demand_overview_screen.dart';
@@ -13,116 +14,37 @@ class RescueRequestsScreen extends StatefulWidget {
 }
 
 class _RescueRequestsScreenState extends State<RescueRequestsScreen> {
-  // Mock Data
-  final List<Map<String, dynamic>> _requests = [
-    {
-      'id': '1',
-      'location': 'Aluva Bridge, Kochi',
-      'lat': 10.1071,
-      'lng': 76.3550,
-      'time': '5 mins ago',
-      'status': 'PENDING',
-      'priority': 'High',
-      'description': 'Family of 4 stranded on rooftop due to Periyar river overflow.'
-    },
-    {
-      'id': '2',
-      'location': 'Chengannur Town, Alappuzha',
-      'lat': 9.3183,
-      'lng': 76.6100,
-      'time': '12 mins ago',
-      'status': 'PENDING',
-      'priority': 'High',
-      'description': 'Elderly couple trapped, water above waist level. Urgent evacuation.'
-    },
-    {
-      'id': '3',
-      'location': 'Kaloor Stadium, Kochi',
-      'lat': 9.9981,
-      'lng': 76.3000,
-      'time': '20 mins ago',
-      'status': 'PENDING',
-      'priority': 'High',
-      'description': 'Medical emergency, insulin required immediately for diabetic patient.'
-    },
-    {
-      'id': '4',
-      'location': 'Aluva Bridge, Kochi',
-      'lat': 10.1085,
-      'lng': 76.3565,
-      'time': '25 mins ago',
-      'status': 'ACKNOWLEDGED',
-      'priority': 'Medium',
-      'description': 'Water entering first floor, need higher ground transport.'
-    },
-    {
-      'id': '5',
-      'location': 'Kuttanad, Alappuzha',
-      'lat': 9.4195,
-      'lng': 76.4851,
-      'time': '30 mins ago',
-      'status': 'PENDING',
-      'priority': 'High',
-      'description': 'Multiple households submerged, 3 children present. Boat required.'
-    },
-    {
-      'id': '6',
-      'location': 'Edappally Toll, Kochi',
-      'lat': 10.0236,
-      'lng': 76.3116,
-      'time': '45 mins ago',
-      'status': 'PENDING',
-      'priority': 'Low',
-      'description': 'Vehicles stranded, traffic blocked. Water rising slowly.'
-    },
-    {
-      'id': '7',
-      'location': 'Ranni Town, Pathanamthitta',
-      'lat': 9.3845,
-      'lng': 76.7869,
-      'time': '50 mins ago',
-      'status': 'ACKNOWLEDGED',
-      'priority': 'Medium',
-      'description': 'Power outage in relief camp area, need generator support.'
-    },
-    {
-      'id': '8',
-      'location': 'Nilambur, Malappuram',
-      'lat': 11.2758,
-      'lng': 76.2241,
-      'time': '1 hour ago',
-      'status': 'ACKNOWLEDGED',
-      'priority': 'Low',
-      'description': 'Road blocked by fallen tree, no immediate danger.'
-    },
-    {
-      'id': '9',
-      'location': 'Kaloor Stadium, Kochi',
-      'lat': 9.9990,
-      'lng': 76.3015,
-      'time': '1 hour ago',
-      'status': 'ACKNOWLEDGED',
-      'priority': 'Medium',
-      'description': 'Food and water supply needed for 10 people stuck in apartment.'
-    },
-    {
-      'id': '10',
-      'location': 'Chengannur Town, Alappuzha',
-      'lat': 9.3195,
-      'lng': 76.6120,
-      'time': '1.5 hours ago',
-      'status': 'PENDING',
-      'priority': 'Medium',
-      'description': 'Requesting status update on nearby shelter availability.'
-    },
-  ];
+  
+  Future<void> _acknowledgeRequest(DocumentSnapshot doc) async {
+    final data = doc.data() as Map<String, dynamic>;
+    final String district = data['district'] ?? 'Unknown District';
+    final String city = data['city'] ?? 'Unknown City';
+    final String area = data['area'] ?? 'Unknown Area';
 
-  void _acknowledgeRequest(int index) {
-    setState(() {
-      _requests[index]['status'] = 'ACKNOWLEDGED';
-    });
-    // Simulate sync
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Request Acknowledged'), backgroundColor: Colors.green, behavior: SnackBarBehavior.floating));
+    try {
+      final db = FirebaseFirestore.instance;
+      final batch = db.batch();
+
+      // 1. Update Request Status
+      batch.update(doc.reference, {'status': 'ACKNOWLEDGED'});
+
+      // 2. Decrement Pending Count in Summary
+      final summaryRef = db.doc('rescue_summary/$district/cities/$city/areas/$area');
+      batch.set(summaryRef, {
+        'pending': FieldValue.increment(-1),
+        'lastUpdated': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+
+      await batch.commit();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Request Acknowledged & Teams Alerted'), backgroundColor: Colors.green, behavior: SnackBarBehavior.floating));
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red));
+      }
+    }
   }
 
   Future<void> _showOnLG(double lat, double lng) async {
@@ -150,7 +72,7 @@ class _RescueRequestsScreenState extends State<RescueRequestsScreen> {
     }
   }
 
-  void _viewOnMap(Map<String, dynamic> request) {
+  void _viewOnMap(Map<String, dynamic> request, double lat, double lng) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -160,9 +82,9 @@ class _RescueRequestsScreenState extends State<RescueRequestsScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Place: ${request['location']}', style: const TextStyle(color: Colors.white70)),
+            Text('Loc: ${request['area']}, ${request['city']}', style: const TextStyle(color: Colors.white70)),
             const SizedBox(height: 8),
-            Text('Coords: ${request['lat']}, ${request['lng']}', style: const TextStyle(color: Colors.white70)),
+            Text('Coords: ${lat.toStringAsFixed(4)}, ${lng.toStringAsFixed(4)}', style: const TextStyle(color: Colors.white70)),
             const SizedBox(height: 8),
             Text('Detail: ${request['description']}', style: const TextStyle(color: Colors.white70)),
             const SizedBox(height: 16),
@@ -194,7 +116,7 @@ class _RescueRequestsScreenState extends State<RescueRequestsScreen> {
           TextButton(
             onPressed: () {
                Navigator.pop(context);
-               _showOnLG(request['lat'], request['lng']);
+               _showOnLG(lat, lng);
             },
             style: TextButton.styleFrom(foregroundColor: Colors.blue),
             child: const Text('Show on Liquid Galaxy'),
@@ -206,6 +128,14 @@ class _RescueRequestsScreenState extends State<RescueRequestsScreen> {
         ],
       ),
     );
+  }
+
+  String _formatTimeAgo(Timestamp? timestamp) {
+    if (timestamp == null) return 'Just now';
+    final diff = DateTime.now().difference(timestamp.toDate());
+    if (diff.inMinutes < 60) return '${diff.inMinutes} mins ago';
+    if (diff.inHours < 24) return '${diff.inHours} hours ago';
+    return '${diff.inDays} days ago';
   }
 
   @override
@@ -222,7 +152,9 @@ class _RescueRequestsScreenState extends State<RescueRequestsScreen> {
               context,
               MaterialPageRoute(builder: (context) => RescueDemandOverviewScreen(
                 lgController: widget.lgController,
-                requests: _requests,
+                // Passing empty list or handling it differently since we now stream directly
+                // For now, let's keep it simple or update that screen later if it needs live data too
+                requests: [], 
               )),
             ),
             icon: const Icon(Icons.analytics_outlined),
@@ -256,12 +188,31 @@ class _RescueRequestsScreenState extends State<RescueRequestsScreen> {
           ),
         ),
         child: SafeArea(
-          child: ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: _requests.length,
-            itemBuilder: (context, index) {
-              final req = _requests[index];
-              return _buildRequestCard(req, index);
+          child: StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance
+                .collection('rescue_requests')
+                .orderBy('createdAt', descending: true)
+                .snapshots(),
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                return Center(child: Text('Error: ${snapshot.error}', style: const TextStyle(color: Colors.white)));
+              }
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              final docs = snapshot.data?.docs ?? [];
+              if (docs.isEmpty) {
+                return const Center(child: Text('No rescue requests active.', style: TextStyle(color: Colors.white54)));
+              }
+
+              return ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: docs.length,
+                itemBuilder: (context, index) {
+                  return _buildRequestCard(docs[index]);
+                },
+              );
             },
           ),
         ),
@@ -269,10 +220,14 @@ class _RescueRequestsScreenState extends State<RescueRequestsScreen> {
     );
   }
 
-  Widget _buildRequestCard(Map<String, dynamic> req, int index) {
-    final isPending = req['status'] == 'PENDING';
+  Widget _buildRequestCard(DocumentSnapshot doc) {
+    final req = doc.data() as Map<String, dynamic>;
+    final isPending = (req['status'] ?? 'PENDING') == 'PENDING';
     final statusColor = isPending ? Colors.red : Colors.green;
     final priority = req['priority'] ?? 'Medium';
+    
+    // Dynamic Location String
+    final location = '${req['area']}, ${req['city']}';
     
     Color priorityColor;
     switch(priority) {
@@ -325,11 +280,11 @@ class _RescueRequestsScreenState extends State<RescueRequestsScreen> {
               ],
             ),
             title: Text(
-              req['location'],
+              location,
               style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
             ),
             subtitle: Text(
-              '${req['time']} • Priority: $priority\n${req['description']}',
+              '${_formatTimeAgo(req['createdAt'])} • Priority: $priority\n${req['description'] ?? "No description"}',
               style: TextStyle(color: Colors.white.withOpacity(0.7)),
             ),
             trailing: Column( // Use Column for stacking status and acknowledge button
@@ -343,7 +298,7 @@ class _RescueRequestsScreenState extends State<RescueRequestsScreen> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    req['status'],
+                    req['status'] ?? 'UNKNOWN',
                     style: TextStyle(color: statusColor, fontSize: 10, fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -358,7 +313,7 @@ class _RescueRequestsScreenState extends State<RescueRequestsScreen> {
                   children: [
                     Expanded(
                       child: OutlinedButton.icon(
-                        onPressed: () => _viewOnMap(req),
+                        onPressed: () => _viewOnMap(req, req['lat'], req['lng']),
                         icon: const Icon(Icons.remove_red_eye_outlined, size: 18),
                         label: const Text('View'),
                         style: OutlinedButton.styleFrom(
@@ -386,7 +341,7 @@ class _RescueRequestsScreenState extends State<RescueRequestsScreen> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () => _acknowledgeRequest(index),
+                      onPressed: () => _acknowledgeRequest(doc),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green.shade700,
                         foregroundColor: Colors.white,
