@@ -59,6 +59,11 @@ class LGController {
     return _sshController.executeCommand(command);
   }
 
+  Future<bool> uploadString(String content, String remotePath) async {
+    if (!isConnected) throw Exception('Not connected to LG');
+    return _sshController.uploadString(content, remotePath);
+  }
+
   Future<Map<String, dynamic>> loadSettings() async {
     return _settingsController.loadSettings();
   }

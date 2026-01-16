@@ -15,6 +15,8 @@ import 'update_safe_zone_screen.dart';
 import 'broadcast_advisory_screen.dart';
 import 'rescue_requests_screen.dart';
 
+import 'package:apps/services/safe_zone_lg_service.dart';
+
 class HomeScreen extends ConsumerStatefulWidget {
   final SSHController sshController;
   final SettingsController settingsController;
@@ -34,14 +36,22 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   bool _isConnected = false;
   bool _isLoading = false;
+  late SafeZoneLGService _safeZoneLGService;
 
   @override
   void initState() {
     super.initState();
+    _safeZoneLGService = SafeZoneLGService(widget.lgController);
     if (widget.settingsController.lgHost.isNotEmpty && 
         widget.settingsController.lgPassword.isNotEmpty) {
       _checkConnection();
     }
+  }
+
+  @override
+  void dispose() {
+    _safeZoneLGService.stopSync();
+    super.dispose();
   }
 
   Future<void> _checkConnection() async {
@@ -62,6 +72,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       );
       
       setState(() => _isConnected = success);
+      
+      if (success) {
+        _safeZoneLGService.startSync();
+        _showSuccess('Safe Zone Sync Active');
+      } else {
+        _safeZoneLGService.stopSync();
+      }
     } catch (e) {
       setState(() => _isConnected = false);
     } finally {
