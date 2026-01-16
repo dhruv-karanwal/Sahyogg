@@ -650,7 +650,7 @@ class _FloodMapScreenState extends State<FloodMapScreen>
 
       _safeZoneSubscription = FirebaseFirestore.instance
           .collection('safe_zones')
-          .where('visibleToPublic', isEqualTo: true)
+          .where('status', isEqualTo: 'ACTIVE')
           .snapshots()
           .listen((snapshot) {
         if (!mounted) return;

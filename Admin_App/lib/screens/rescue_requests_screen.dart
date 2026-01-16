@@ -227,7 +227,7 @@ class _RescueRequestsScreenState extends State<RescueRequestsScreen> {
     final priority = req['priority'] ?? 'Medium';
     
     // Dynamic Location String
-    final location = '${req['area']}, ${req['city']}';
+    final location = '${req['area'] ?? 'Unknown Area'}, ${req['city'] ?? 'Unknown City'}';
     
     Color priorityColor;
     switch(priority) {

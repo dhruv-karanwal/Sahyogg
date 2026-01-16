@@ -4,6 +4,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:apps/screens/dashboard/widgets/kpi_card.dart';
 import 'package:apps/screens/dashboard/analytics_detail_screen.dart';
 import 'package:apps/services/safe_zone_ingestion_service.dart';
+import 'package:apps/services/sos_management_service.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -75,25 +76,31 @@ class _DashboardScreenState extends State<DashboardScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         const SizedBox(width: 8),
-        const Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Analytics & Insights',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Analytics & Insights',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
-            ),
-            Text(
-              'Real-time disaster overview',
-              style: TextStyle(color: Colors.grey),
-            ),
-          ],
+              Text(
+                'Real-time disaster overview',
+                style: TextStyle(color: Colors.grey),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
         ),
-        const Spacer(),
-        _buildRiskBadge(),
+
+
       ],
     );
   }
@@ -161,35 +168,53 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _buildTimeFilters() {
     final filters = ['Live', '1H', '24H', '7D'];
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: filters.map((filter) {
-          final isSelected = _timeFilter == filter;
-          return Padding(
-            padding: const EdgeInsets.only(right: 8.0),
-            child: ChoiceChip(
-              label: Text(filter),
-              selected: isSelected,
-              onSelected: (selected) {
-                 if(selected) setState(() => _timeFilter = filter);
-              },
-              backgroundColor: const Color(0xFF141A26),
-              selectedColor: Colors.tealAccent.withOpacity(0.2),
-              labelStyle: TextStyle(
-                color: isSelected ? Colors.tealAccent : Colors.grey,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-                side: BorderSide(
-                  color: isSelected ? Colors.tealAccent : Colors.grey.withOpacity(0.2),
+    return Row(
+      children: [
+        _buildRiskBadge(),
+        const Spacer(),
+        PopupMenuButton<String>(
+          initialValue: _timeFilter,
+          onSelected: (String value) {
+            setState(() {
+              _timeFilter = value;
+            });
+          },
+          color: const Color(0xFF141A26),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          itemBuilder: (BuildContext context) {
+            return filters.map((String choice) {
+              final isSelected = _timeFilter == choice;
+              return PopupMenuItem<String>(
+                value: choice,
+                child: Row(
+                  children: [
+                    Text(
+                      choice,
+                      style: TextStyle(
+                        color: isSelected ? Colors.tealAccent : Colors.white,
+                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                      ),
+                    ),
+                    if (isSelected) ...[
+                      const Spacer(),
+                      const Icon(Icons.check, size: 16, color: Colors.tealAccent),
+                    ]
+                  ],
                 ),
-              ),
+              );
+            }).toList();
+          },
+          child: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: const Color(0xFF141A26),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.white12),
             ),
-          );
-        }).toList(),
-      ),
+            child: const Icon(Icons.filter_list, color: Colors.white, size: 20),
+          ),
+        ),
+      ],
     );
   }
 
@@ -542,37 +567,63 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildQuickActions() {
-      return Row(
-          children: [
-              Expanded(child: _buildActionButton('Broadcast Alert', Icons.campaign, Colors.orange, () {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Broadcast Alert sent!')));
-              })),
-              const SizedBox(width: 12),
-              Expanded(child: _buildActionButton('Cast to LG', Icons.cast_connected, Colors.blue, () {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Casting hotspots to Liquid Galaxy...')));
-              })),
-              const SizedBox(width: 12),
-                Expanded(child: _buildActionButton('Export Report', Icons.download, Colors.green, () {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Exporting summary report...')));
-              })),
-              const SizedBox(width: 12),
-              Expanded(child: _buildActionButton('Ingest Data', Icons.cloud_upload, Colors.teal, () async {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Ingesting authoritative safe zones...')));
-                  try {
-                    final service = SafeZoneIngestionService();
-                    final count = await service.ingestSafeZones();
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Successfully ingsted $count safe zones!'), backgroundColor: Colors.green));
+
+      return Column(
+        children: [
+          Row(
+              children: [
+                  Expanded(child: _buildActionButton('Broadcast Alert', Icons.campaign, Colors.orange, () {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Broadcast Alert sent!')));
+                  })),
+                  const SizedBox(width: 12),
+                  Expanded(child: _buildActionButton('Cast to LG', Icons.cast_connected, Colors.blue, () {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Casting hotspots to Liquid Galaxy...')));
+                  })),
+                  const SizedBox(width: 12),
+                    Expanded(child: _buildActionButton('Export Report', Icons.download, Colors.green, () {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Exporting summary report...')));
+                  })),
+                  const SizedBox(width: 12),
+                  Expanded(child: _buildActionButton('Ingest Data', Icons.cloud_upload, Colors.teal, () async {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Ingesting authoritative safe zones...')));
+                      try {
+                        final service = SafeZoneIngestionService();
+                        final count = await service.ingestSafeZones();
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Successfully ingsted $count safe zones!'), backgroundColor: Colors.green));
+                            }
+                          } catch (e) {
+                             if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Ingestion failed: $e'), backgroundColor: Colors.red));
+                            }
+                          }
+                      })),
+                  ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(child: _buildActionButton('Reset SOS DB', Icons.restore, Colors.orange, () async {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Resetting SOS Database...')));
+                    try {
+                      final service = SOSManagementService();
+                      await service.cleanupSOSRequests();
+                      await service.seedRealisticSOSData();
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('SOS Database Cleaned & Rebuilt!'), backgroundColor: Colors.green));
+                      }
+                    } catch (e) {
+                       if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Reset failed: $e'), backgroundColor: Colors.red));
+                      }
                     }
-                  } catch (e) {
-                     if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Ingestion failed: $e'), backgroundColor: Colors.red));
-                    }
-                  }
-              })),
-          ],
-      );
-  }
+                  })),
+                   const Spacer(flex: 3),
+                ],
+              ),
+            ],
+          );
+      }
   
   Widget _buildActionButton(String label, IconData icon, Color color, VoidCallback onTap) {
       return InkWell(
