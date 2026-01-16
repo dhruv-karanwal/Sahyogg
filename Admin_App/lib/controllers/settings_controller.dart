@@ -9,10 +9,10 @@ class SettingsController {
   static const String _rigsNumKey = 'rigs_num';
 
   // Default values
-  static const String defaultHost = '192.168.53.3';
+  static const String defaultHost = '192.168.201.3';
   static const int defaultPort = 22;
   static const String defaultUsername = 'lg';
-  static const String defaultPassword = 'lg';
+  static const String defaultPassword = '123456';
   static const int defaultRigsNum = 3;
 
   // Private properties with default values

@@ -1,4 +1,5 @@
 import 'package:apps/screens/analytics_dashboard_screen.dart';
+import 'package:apps/screens/map_controller_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../controllers/ssh_controller.dart';
@@ -263,6 +264,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             label: 'Send Logo\n(Left Screen)',
             color: const Color(0xFF3B82F6), // Blue
             onPressed: _isConnected ? _sendLogoToLeftScreen : null,
+          ),
+          NeuButton(
+            icon: Icons.map_outlined,
+            label: 'Map\nController',
+            color: const Color(0xFF06B6D4), // Cyan
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => MapControllerScreen(lgController: widget.lgController),
+              ),
+            ),
           ),
           NeuButton(
             icon: Icons.layers,
