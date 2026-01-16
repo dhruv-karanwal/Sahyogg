@@ -1,4 +1,4 @@
-import 'package:apps/screens/analytics_dashboard_screen.dart';
+import 'package:apps/screens/dashboard/dashboard_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../controllers/ssh_controller.dart';
@@ -306,7 +306,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             color: const Color(0xFF10B981), // Green
             onPressed: () => Navigator.push(
               context,
-              MaterialPageRoute(builder: (_) => const AnalyticsDashboardScreen()),
+              MaterialPageRoute(builder: (_) => const DashboardScreen()),
             ),
           ),
           NeuButton(
