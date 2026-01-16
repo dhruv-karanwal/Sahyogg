@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:async';
+import 'dart:math' as math;
 import '../controllers/lg_controller.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -30,6 +31,7 @@ class _MapControllerScreenState extends State<MapControllerScreen> {
   double _currentZoom = 10.0;
   double _currentTilt = 0.0;
   double _currentBearing = 0.0;
+  LatLngBounds? _currentBounds;
 
   // Safe zone creation
   LatLng? _pendingSafeZoneLocation;
@@ -39,6 +41,8 @@ class _MapControllerScreenState extends State<MapControllerScreen> {
   
   Timer? _syncTimer;
   bool _isSyncing = false;
+  bool _isProgrammaticMove = false; // Prevent sync during programmatic camera moves
+  bool _isInitialLoad = true;
 
   @override
   void initState() {
@@ -49,6 +53,10 @@ class _MapControllerScreenState extends State<MapControllerScreen> {
       if (mounted) {
         _loadRescueRequests();
         _loadSafeZones();
+        // After initial load, allow syncing
+        Future.delayed(const Duration(milliseconds: 1000), () {
+          _isInitialLoad = false;
+        });
       }
     });
   }
@@ -184,9 +192,33 @@ class _MapControllerScreenState extends State<MapControllerScreen> {
     setState(() => _isLoading = true);
     
     try {
+      // Mark as programmatic move to prevent sync loop
+      _isProgrammaticMove = true;
+      
+      // Animate map to location
+      _mapController?.animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(
+            target: LatLng(lat, lng),
+            zoom: 15.0,
+            tilt: 45.0,
+            bearing: 0.0,
+          ),
+        ),
+      );
+      
+      // Wait for animation
+      await Future.delayed(const Duration(milliseconds: 500));
+      
+      // Send to LG
       await widget.lgController.sendRescueMarker(lat, lng);
       _showSuccess('Rescue location sent to LG: $name');
+      
+      // Re-enable sync after delay
+      await Future.delayed(const Duration(milliseconds: 1000));
+      _isProgrammaticMove = false;
     } catch (e) {
+      _isProgrammaticMove = false;
       _showError('Failed to send to LG: $e');
     } finally {
       if (mounted) {
@@ -204,9 +236,27 @@ class _MapControllerScreenState extends State<MapControllerScreen> {
     setState(() => _isLoading = true);
     
     try {
+      _isProgrammaticMove = true;
+      
+      _mapController?.animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(
+            target: LatLng(lat, lng),
+            zoom: 14.0,
+            tilt: 30.0,
+            bearing: 0.0,
+          ),
+        ),
+      );
+      
+      await Future.delayed(const Duration(milliseconds: 500));
       await widget.lgController.sendAreaSummary(lat: lat, lng: lng, areaName: name);
       _showSuccess('Safe zone sent to LG: $name');
+      
+      await Future.delayed(const Duration(milliseconds: 1000));
+      _isProgrammaticMove = false;
     } catch (e) {
+      _isProgrammaticMove = false;
       _showError('Failed to send to LG: $e');
     } finally {
       if (mounted) {
@@ -215,26 +265,82 @@ class _MapControllerScreenState extends State<MapControllerScreen> {
     }
   }
 
+  /// Calculate range from zoom level using accurate formula
+  double _calculateRangeFromZoom(double zoom, double latitude) {
+    // Earth's radius in meters
+    const double earthRadius = 6371000.0;
+    
+    // Convert latitude to radians
+    final latRad = latitude * math.pi / 180.0;
+    
+    // Calculate meters per pixel at this latitude
+    final metersPerPixel = (2 * math.pi * earthRadius * math.cos(latRad)) / 
+                           (256 * math.pow(2, zoom));
+    
+    // Approximate screen height in pixels (typical mobile screen)
+    const screenHeightPixels = 800;
+    
+    // Calculate range (altitude for Google Earth)
+    // Range represents the distance from the camera to the LookAt point
+    final range = metersPerPixel * screenHeightPixels;
+    
+    return range;
+  }
+
+  /// Calculate center from bounds (similar to DATA-Spaces project)
+  LatLng _calculateBoundsCenter(LatLngBounds bounds) {
+    final centerLat = (bounds.northeast.latitude + bounds.southwest.latitude) / 2.0;
+    final centerLng = (bounds.northeast.longitude + bounds.southwest.longitude) / 2.0;
+    return LatLng(centerLat, centerLng);
+  }
+
   Future<void> _syncMapPositionToLG() async {
-    if (!widget.lgController.isConnected || !_syncWithLG || _isSyncing) return;
+    // Protection: Don't sync if any of these conditions are true
+    if (!widget.lgController.isConnected || 
+        !_syncWithLG || 
+        _isSyncing || 
+        _isProgrammaticMove ||
+        _isInitialLoad ||
+        _mapController == null) {
+      return;
+    }
 
     _isSyncing = true;
     
     try {
-      // Improved range calculation based on zoom level
-      // Formula based on Web Mercator projection
-      final metersPerPixel = 156543.03392 * (1 / (1 << _currentZoom.round()));
-      final range = (metersPerPixel * 500).round(); // Approximate screen height
+      // Get visible region bounds
+      final bounds = await _mapController!.getVisibleRegion();
+      _currentBounds = bounds;
       
-      final lookAt = '''<LookAt>
-        <longitude>${_currentCenter.longitude.toStringAsFixed(6)}</longitude>
-        <latitude>${_currentCenter.latitude.toStringAsFixed(6)}</latitude>
-        <range>$range</range>
+      // Calculate accurate center from bounds
+      final center = _calculateBoundsCenter(bounds);
+      
+      // Use the calculated center instead of camera target
+      final lat = center.latitude;
+      final lng = center.longitude;
+      
+      // Calculate range using accurate formula
+      final range = _calculateRangeFromZoom(_currentZoom, lat);
+      
+      // Build KML LookAt tag (similar to DATA-Spaces project)
+      final lookAtKml = '''<LookAt>
+        <longitude>${lng.toStringAsFixed(6)}</longitude>
+        <latitude>${lat.toStringAsFixed(6)}</latitude>
+        <altitude>0</altitude>
+        <range>${range.toStringAsFixed(2)}</range>
         <tilt>${_currentTilt.round()}</tilt>
         <heading>${_currentBearing.round()}</heading>
+        <altitudeMode>relativeToGround</altitudeMode>
       </LookAt>''';
       
-      await widget.lgController.query('flytoview=$lookAt');
+      // Send to Liquid Galaxy
+      await widget.lgController.query('flytoview=$lookAtKml');
+      
+      debugPrint('Synced to LG - Lat: ${lat.toStringAsFixed(6)}, '
+                'Lng: ${lng.toStringAsFixed(6)}, '
+                'Range: ${range.toStringAsFixed(0)}m, '
+                'Zoom: ${_currentZoom.toStringAsFixed(2)}');
+      
     } catch (e) {
       debugPrint('Error syncing to LG: $e');
     } finally {
@@ -244,26 +350,29 @@ class _MapControllerScreenState extends State<MapControllerScreen> {
 
   void _onMapCreated(GoogleMapController controller) {
     _mapController = controller;
-    // Initial sync after a delay
-    Future.delayed(const Duration(milliseconds: 1500), () {
-      if (mounted) {
-        _syncMapPositionToLG();
-      }
-    });
+    debugPrint('Map created, controller initialized');
   }
 
   void _onCameraMove(CameraPosition position) {
+    // Update current position continuously during movement
     _currentCenter = position.target;
     _currentZoom = position.zoom;
     _currentTilt = position.tilt;
     _currentBearing = position.bearing;
   }
 
-  void _onCameraIdle() {
-    // Debounce sync to avoid too many requests
+  void _onCameraIdle() async {
+    // Skip if initial load or programmatic move
+    if (_isInitialLoad || _isProgrammaticMove) {
+      debugPrint('Skipping sync - Initial load: $_isInitialLoad, Programmatic: $_isProgrammaticMove');
+      return;
+    }
+    
+    // Debounce: Cancel previous timer and start new one
     _syncTimer?.cancel();
-    _syncTimer = Timer(const Duration(milliseconds: 800), () {
-      if (_syncWithLG && mounted) {
+    _syncTimer = Timer(const Duration(milliseconds: 1000), () {
+      if (_syncWithLG && mounted && !_isProgrammaticMove) {
+        debugPrint('Camera idle - Syncing to LG');
         _syncMapPositionToLG();
       }
     });
@@ -540,12 +649,14 @@ class _MapControllerScreenState extends State<MapControllerScreen> {
           // LG Sync Toggle
           IconButton(
             icon: Icon(_syncWithLG ? Icons.sync : Icons.sync_disabled),
-            tooltip: _syncWithLG ? 'LG Sync ON' : 'LG Sync OFF',
+            tooltip: _syncWithLG ? 'LG Sync ON - Map syncs with LG' : 'LG Sync OFF',
             color: _syncWithLG ? Colors.tealAccent : Colors.grey,
             onPressed: () {
               setState(() => _syncWithLG = !_syncWithLG);
               Future.delayed(const Duration(milliseconds: 200), () {
-                _showSuccess(_syncWithLG ? 'LG Sync enabled' : 'LG Sync disabled');
+                _showSuccess(_syncWithLG 
+                    ? 'LG Sync enabled - Move map to control LG' 
+                    : 'LG Sync disabled');
               });
             },
           ),
@@ -632,6 +743,41 @@ class _MapControllerScreenState extends State<MapControllerScreen> {
               ],
             ),
           ),
+
+          // Sync status indicator
+          if (_syncWithLG && widget.lgController.isConnected)
+            Positioned(
+              top: 100,
+              left: 16,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.tealAccent.withOpacity(0.9),
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.tealAccent.withOpacity(0.3),
+                      blurRadius: 8,
+                    ),
+                  ],
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.sync, color: Colors.black, size: 16),
+                    SizedBox(width: 6),
+                    Text(
+                      'LG Sync Active',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
 
           // Legend
           Positioned(
@@ -722,6 +868,7 @@ class _MapControllerScreenState extends State<MapControllerScreen> {
             backgroundColor: Colors.purple,
             child: const Icon(Icons.home, color: Colors.white),
             onPressed: () async {
+              _isProgrammaticMove = true;
               _mapController?.animateCamera(
                 CameraUpdate.newCameraPosition(
                   const CameraPosition(
@@ -733,10 +880,13 @@ class _MapControllerScreenState extends State<MapControllerScreen> {
                 ),
               );
               if (_syncWithLG && widget.lgController.isConnected) {
+                await Future.delayed(const Duration(milliseconds: 500));
                 await widget.lgController.query(
                   'flytoview=<LookAt><longitude>76.3636</longitude><latitude>10.1071</latitude><range>500000</range><tilt>0</tilt><heading>0</heading></LookAt>',
                 );
               }
+              await Future.delayed(const Duration(milliseconds: 1000));
+              _isProgrammaticMove = false;
             },
           ),
           const SizedBox(height: 12),
