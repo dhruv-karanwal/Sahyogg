@@ -12,6 +12,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:http/http.dart' as http;
 import 'package:user_gdg/widgets/live_advisory_banner.dart';
 import 'package:user_gdg/widgets/sos_dialog.dart';
+import 'package:user_gdg/services/google_vision_service.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
@@ -546,24 +547,73 @@ class _FloodMapScreenState extends State<FloodMapScreen>
       final snapshot = await uploadTask;
       final downloadUrl = await snapshot.ref.getDownloadURL();
 
-      // 5. Store Metadata in Firestore
-      await FirebaseFirestore.instance.collection('crowdsourced_reports').add({
+      // 5. Analyze Image with Google Vision API
+      _showSnackBar('Analyzing image for flood verification...', isError: false);
+      
+      final visionService = GoogleVisionService();
+      final analysis = await visionService.analyzeImageUrl(downloadUrl);
+      
+      final status = analysis['status'];
+      final isFlood = analysis['isFloodLikely'] as bool? ?? false;
+      final floodScore = analysis['floodScore'] as double? ?? 0.0;
+      final reason = analysis['reason'] ?? 'unknown';
+
+      // 6. Store Result in Firestore (flood_reports)
+      await FirebaseFirestore.instance.collection('flood_reports').add({
         'imageUrl': downloadUrl,
         'lat': lat,
         'lng': lng,
-        'reportedBy': 'USER_APP',
-        'district': 'Unknown', // Can be updated with reverse geocoding if needed
-        'city': 'Unknown',
-        'type': 'GROUND_IMAGE',
-        'status': 'UNVERIFIED',
+        'uploadedBy': 'USER_APP', // Replace with Auth UID if available
         'timestamp': FieldValue.serverTimestamp(),
+        'status': status, // verified_flood, rejected_not_flood, rejected_unsafe
+        'floodScore': floodScore,
+        'isFloodLikely': isFlood,
+        'visionLabels': analysis['visionLabels'],
+        'safeSearch': analysis['safeSearch'],
+        'reason': reason,
+        'district': 'Unknown', // Can be enriched with geocoding
+        'city': 'Unknown',
       });
 
-      _showSnackBar('Photo uploaded successfully!', isError: false);
+      // 7. Handle Result UI & Storage Cleanup
+      if (status == 'verified_flood') {
+        final confidence = (floodScore * 100).clamp(0, 100).toStringAsFixed(1);
+        _showSnackBar('Flood report verified ✅ (Confidence: $confidence%)', isError: false);
+
+        // Save to crowdsourced_reports for map display
+        await FirebaseFirestore.instance.collection('crowdsourced_reports').add({
+          'imageUrl': downloadUrl,
+          'lat': lat,
+          'lng': lng,
+          'reportedBy': 'USER_APP',
+          'district': 'Unknown', 
+          'city': 'Unknown',
+          'type': 'GROUND_IMAGE',
+          'status': 'VERIFIED',
+          'timestamp': FieldValue.serverTimestamp(),
+          'floodScore': floodScore,
+        });
+
+      } else {
+        // Reject - Show error
+        String errorMsg = 'Upload rejected';
+        if (status == 'rejected_unsafe') errorMsg = 'Upload rejected: Unsafe content detected ⚠️';
+        if (status == 'rejected_not_flood') errorMsg = 'Upload rejected: Not a flood image ❌';
+        
+        _showSnackBar(errorMsg, isError: true);
+        
+        // Optional: Delete rejected image to save space
+         try {
+           await storageRef.delete(); 
+           print('Rejected image deleted from storage.');
+         } catch (e) {
+           print('Error deleting rejected image: $e');
+         }
+      }
 
     } catch (e) {
-      _showSnackBar('Upload failed. Try again.', isError: true);
-      print('Upload Error: $e');
+      _showSnackBar('Process failed. Try again.', isError: true);
+      print('Upload/Analysis Error: $e');
     } finally {
       if (mounted) setState(() => _isUploading = false);
     }
@@ -600,7 +650,7 @@ class _FloodMapScreenState extends State<FloodMapScreen>
 
       _safeZoneSubscription = FirebaseFirestore.instance
           .collection('safe_zones')
-          .where('visibleToPublic', isEqualTo: true)
+          .where('status', isEqualTo: 'ACTIVE')
           .snapshots()
           .listen((snapshot) {
         if (!mounted) return;
@@ -954,7 +1004,7 @@ class _FloodMapScreenState extends State<FloodMapScreen>
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: true,
-        title: const Text('Flood Zones'),
+        title: const Text('SAHYOG'),
         actions: [
           if (_isUploading)
              const Padding(
@@ -1037,7 +1087,7 @@ class _FloodMapScreenState extends State<FloodMapScreen>
              Positioned.fill(child: GestureDetector(onTap: _toggleFab, child: Container(color: Colors.black.withOpacity(0.5)))),
              
            Positioned(
-             bottom: 24, right: 24,
+             bottom: 90, right: 24,
              child: Column(
                crossAxisAlignment: CrossAxisAlignment.end,
                children: [
