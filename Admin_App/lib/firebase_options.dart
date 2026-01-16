@@ -53,7 +53,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyCbw5lGMIRvKKF2sVDKYJX25IbTc32PfM0',
-    appId: '1:675148664116:android:0f894d4479026e4056a961',
+    appId: '1:675148664116:android:1fff106c6430443556a961',
     messagingSenderId: '675148664116',
     projectId: 'floodlg',
     databaseURL: 'https://floodlg-default-rtdb.firebaseio.com',
@@ -62,32 +62,33 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyCoxH1oF7k_qIDosTOhpkLUcjpU5Xq2p8M',
-    appId: '1:675148664116:ios:64c6a135e745167a56a961',
+    appId: '1:675148664116:ios:f92c1f13f27608de56a961',
     messagingSenderId: '675148664116',
     projectId: 'floodlg',
     databaseURL: 'https://floodlg-default-rtdb.firebaseio.com',
     storageBucket: 'floodlg.firebasestorage.app',
-    iosBundleId: 'com.example.userGdg',
+    iosBundleId: 'com.example.apps',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyCoxH1oF7k_qIDosTOhpkLUcjpU5Xq2p8M',
-    appId: '1:675148664116:ios:64c6a135e745167a56a961',
+    appId: '1:675148664116:ios:f92c1f13f27608de56a961',
     messagingSenderId: '675148664116',
     projectId: 'floodlg',
     databaseURL: 'https://floodlg-default-rtdb.firebaseio.com',
     storageBucket: 'floodlg.firebasestorage.app',
-    iosBundleId: 'com.example.userGdg',
+    iosBundleId: 'com.example.apps',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
     apiKey: 'AIzaSyDcdecG9blRaY3MNQXMfTMzlYTveS6skhw',
-    appId: '1:675148664116:web:c3793eb58959194f56a961',
+    appId: '1:675148664116:web:f705c820e6eac09556a961',
     messagingSenderId: '675148664116',
     projectId: 'floodlg',
     authDomain: 'floodlg.firebaseapp.com',
     databaseURL: 'https://floodlg-default-rtdb.firebaseio.com',
     storageBucket: 'floodlg.firebasestorage.app',
-    measurementId: 'G-7VPW38WN43',
+    measurementId: 'G-C4F90JC5BK',
   );
+
 }
