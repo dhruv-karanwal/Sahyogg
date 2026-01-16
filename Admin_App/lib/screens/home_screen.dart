@@ -12,6 +12,7 @@ import 'send_kml_screen.dart';
 import 'update_safe_zone_screen.dart';
 import 'broadcast_advisory_screen.dart';
 import 'rescue_requests_screen.dart';
+import 'analytics_dashboard_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   final SSHController sshController;
@@ -297,6 +298,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             onPressed: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => RescueRequestsScreen(lgController: widget.lgController)),
+            ),
+          ),
+          NeuButton(
+            icon: Icons.analytics,
+            label: 'Analytics\nDashboard',
+            color: const Color(0xFF10B981), // Green
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const AnalyticsDashboardScreen()),
             ),
           ),
           NeuButton(
