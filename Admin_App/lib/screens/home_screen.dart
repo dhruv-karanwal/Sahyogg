@@ -14,6 +14,7 @@ import 'send_kml_screen.dart';
 import 'update_safe_zone_screen.dart';
 import 'broadcast_advisory_screen.dart';
 import 'rescue_requests_screen.dart';
+import 'analytics_dashboard_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   final SSHController sshController;
@@ -298,6 +299,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               context,
               MaterialPageRoute(builder: (_) => const AnalyticsDashboardScreen()),
             ),
+<<<<<<< HEAD
+=======
+          ),
+          NeuButton(
+            icon: Icons.hide_image,
+            label: 'Clear Logo\n(Left Screen)',
+            color: const Color(0xFF8B5CF6), // Violet
+            onPressed: _isConnected ? _clearLogoFromLeftScreen : null,
+>>>>>>> analytics
           ),
           NeuButton(
             icon: Icons.water_damage,
