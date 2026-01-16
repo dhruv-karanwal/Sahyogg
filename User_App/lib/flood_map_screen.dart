@@ -1004,7 +1004,7 @@ class _FloodMapScreenState extends State<FloodMapScreen>
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: true,
-        title: const Text('Flood Zones'),
+        title: const Text('SAHYOG'),
         actions: [
           if (_isUploading)
              const Padding(
@@ -1087,7 +1087,7 @@ class _FloodMapScreenState extends State<FloodMapScreen>
              Positioned.fill(child: GestureDetector(onTap: _toggleFab, child: Container(color: Colors.black.withOpacity(0.5)))),
              
            Positioned(
-             bottom: 24, right: 24,
+             bottom: 90, right: 24,
              child: Column(
                crossAxisAlignment: CrossAxisAlignment.end,
                children: [
