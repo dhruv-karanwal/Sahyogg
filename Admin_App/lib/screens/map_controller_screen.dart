@@ -40,9 +40,12 @@ class _MapControllerScreenState extends State<MapControllerScreen> {
   String _selectedSafeZoneType = 'Relief Camp';
   
   Timer? _syncTimer;
+  Timer? _throttleTimer;
   bool _isSyncing = false;
   bool _isProgrammaticMove = false; // Prevent sync during programmatic camera moves
   bool _isInitialLoad = true;
+  DateTime _lastSyncTime = DateTime.fromMillisecondsSinceEpoch(0);
+  final Duration _syncThrottle = const Duration(milliseconds: 400);
 
   @override
   void initState() {
@@ -64,6 +67,7 @@ class _MapControllerScreenState extends State<MapControllerScreen> {
   @override
   void dispose() {
     _syncTimer?.cancel();
+    _throttleTimer?.cancel();
     _mapController?.dispose();
     _safeZoneNameController.dispose();
     _safeZoneCapacityController.dispose();
@@ -359,6 +363,9 @@ class _MapControllerScreenState extends State<MapControllerScreen> {
     _currentZoom = position.zoom;
     _currentTilt = position.tilt;
     _currentBearing = position.bearing;
+
+    // Throttled sync while the user pans/zooms the map (keeps LG following live)
+    _scheduleThrottledSync();
   }
 
   void _onCameraIdle() async {
@@ -378,6 +385,34 @@ class _MapControllerScreenState extends State<MapControllerScreen> {
     });
   }
 
+
+  void _scheduleThrottledSync() {
+    if (!mounted ||
+        !widget.lgController.isConnected ||
+        !_syncWithLG ||
+        _isProgrammaticMove ||
+        _isInitialLoad ||
+        _mapController == null) {
+      return;
+    }
+
+    final now = DateTime.now();
+    final elapsed = now.difference(_lastSyncTime);
+
+    if (elapsed >= _syncThrottle && !_isSyncing) {
+      _lastSyncTime = now;
+      _syncMapPositionToLG();
+      return;
+    }
+
+    // Schedule a trailing call so fast pans still get an update
+    _throttleTimer?.cancel();
+    final wait = _syncThrottle - elapsed;
+    _throttleTimer = Timer(wait, () {
+      _lastSyncTime = DateTime.now();
+      _syncMapPositionToLG();
+    });
+  }
   void _onMapTap(LatLng position) {
     if (_mapMode == 'add_safe_zone') {
       setState(() {
