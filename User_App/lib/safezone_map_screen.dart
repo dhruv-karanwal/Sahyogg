@@ -1,8 +1,6 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 
 // Add your OpenRouteService API key here
@@ -27,8 +25,10 @@ class SafeZoneMapScreen extends StatefulWidget {
 class _SafeZoneMapScreenState extends State<SafeZoneMapScreen> {
   late List<Map<String, dynamic>> zones;
   late int selectedIndex;
-  final MapController _mapController = MapController();
-  List<LatLng> _routePoints = [];
+  GoogleMapController? _mapController;
+  
+  Set<Polyline> _polylines = {};
+  Set<Marker> _markers = {};
   bool _isLoadingRoute = false;
 
   @override
@@ -36,6 +36,9 @@ class _SafeZoneMapScreenState extends State<SafeZoneMapScreen> {
     super.initState();
     zones = List<Map<String, dynamic>>.from(widget.zones);
     selectedIndex = widget.selectedIndex.clamp(0, zones.length - 1);
+    
+    // Create initial markers
+    _updateMarkers();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _focusOnSelected();
@@ -44,13 +47,59 @@ class _SafeZoneMapScreenState extends State<SafeZoneMapScreen> {
   }
 
   LatLng _zoneLatLng(int idx) {
+    // Check if coordinate is List (Firestore format often array or geopoint, but here likely array based on prev code)
     final c = zones[idx]['coordinate'];
-    return LatLng((c[0] as num).toDouble(), (c[1] as num).toDouble());
+    if (c is List) {
+      return LatLng((c[0] as num).toDouble(), (c[1] as num).toDouble());
+    }
+    // Fallback if needed
+    return const LatLng(0,0);
+  }
+
+  void _updateMarkers() {
+    Set<Marker> newMarkers = {};
+    
+    // Zone Markers
+    for (int i = 0; i < zones.length; i++) {
+        final pt = _zoneLatLng(i);
+        final isSelected = i == selectedIndex;
+        
+        newMarkers.add(
+           Marker(
+             markerId: MarkerId('zone_$i'),
+             position: pt,
+             icon: BitmapDescriptor.defaultMarkerWithHue(
+                isSelected ? BitmapDescriptor.hueGreen : BitmapDescriptor.hueRed
+             ),
+             infoWindow: InfoWindow(title: zones[i]['name'] ?? 'Safe Zone'),
+             onTap: () {
+               setState(() => selectedIndex = i);
+               _updateMarkers();
+               _focusOnSelected();
+               _fetchRouteToSelected();
+             }
+           )
+        );
+    }
+
+    // User Marker
+    newMarkers.add(
+       Marker(
+         markerId: const MarkerId('user_loc'),
+         position: widget.userLocation,
+         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+         infoWindow: const InfoWindow(title: 'You are here'),
+       )
+    );
+
+    setState(() {
+      _markers = newMarkers;
+    });
   }
 
   void _focusOnSelected() {
     final latlng = _zoneLatLng(selectedIndex);
-    _mapController.move(latlng, 13);
+    _mapController?.animateCamera(CameraUpdate.newLatLngZoom(latlng, 13));
   }
 
   Future<void> _fetchRouteToSelected() async {
@@ -78,36 +127,55 @@ class _SafeZoneMapScreenState extends State<SafeZoneMapScreen> {
         headers: {
           'Authorization': ORS_API_KEY,
           'Content-Type': 'application/json',
-          'Accept': 'application/geo+json', // 🔥 THIS FIXES 406
+          'Accept': 'application/geo+json',
         },
         body: jsonEncode({
           "coordinates": [start, end],
         }),
       );
 
-
       if (response.statusCode != 200) {
-        throw Exception(
-          'ORS ${response.statusCode}: ${response.body}',
-        );
+        throw Exception('ORS ${response.statusCode}: ${response.body}');
       }
 
       final data = jsonDecode(response.body);
+      final List coords = data['features'][0]['geometry']['coordinates'];
 
-      final List coords =
-          data['features'][0]['geometry']['coordinates'];
+      final List<LatLng> points = coords
+          .map<LatLng>((c) => LatLng((c[1] as num).toDouble(), (c[0] as num).toDouble()))
+          .toList();
 
       setState(() {
-        _routePoints = coords
-            .map<LatLng>(
-              (c) => LatLng(
-                (c[1] as num).toDouble(),
-                (c[0] as num).toDouble(),
-              ),
-            )
-            .toList();
+        _polylines = {
+          Polyline(
+            polylineId: const PolylineId('route'),
+            points: points,
+            color: Colors.blue,
+            width: 5,
+          ),
+        };
         _isLoadingRoute = false;
       });
+      
+      // zoom to route
+      if (_mapController != null && points.isNotEmpty) {
+         // simple bound fit
+         double minLat = points.first.latitude;
+         double maxLat = points.first.latitude;
+         double minLng = points.first.longitude;
+         double maxLng = points.first.longitude;
+         for (var p in points) {
+            if (p.latitude < minLat) minLat = p.latitude;
+            if (p.latitude > maxLat) maxLat = p.latitude;
+            if (p.longitude < minLng) minLng = p.longitude;
+            if (p.longitude > maxLng) maxLng = p.longitude;
+         }
+         _mapController!.animateCamera(CameraUpdate.newLatLngBounds(
+           LatLngBounds(southwest: LatLng(minLat, minLng), northeast: LatLng(maxLat, maxLng)), 
+           50
+         ));
+      }
+
     } catch (e) {
       setState(() => _isLoadingRoute = false);
       if (mounted) {
@@ -121,73 +189,21 @@ class _SafeZoneMapScreenState extends State<SafeZoneMapScreen> {
   @override
   Widget build(BuildContext context) {
     final selectedZone = zones[selectedIndex];
-    final selectedPoint = _zoneLatLng(selectedIndex);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Safe Zones Map')),
       body: Stack(
         children: [
-          FlutterMap(
-            mapController: _mapController,
-            options: MapOptions(
-              initialCenter: selectedPoint,
-              initialZoom: 13,
-            ),
-            children: [
-              TileLayer(
-                urlTemplate: 'https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=xv0FjIRz99TJBdP08drv',
-                userAgentPackageName: 'com.example.user_gdg',
-              ),
-
-              // Route polyline
-              if (_routePoints.isNotEmpty)
-                PolylineLayer(
-                  polylines: [
-                    Polyline(points: _routePoints, color: Colors.blue, strokeWidth: 4),
-                  ],
-                ),
-
-              // zone markers
-              MarkerLayer(
-                markers: zones.asMap().entries.map((entry) {
-                  final i = entry.key;
-                  final z = entry.value;
-                  final pt = LatLng((z['coordinate'][0] as num).toDouble(), (z['coordinate'][1] as num).toDouble());
-                  final isSelected = i == selectedIndex;
-                  return Marker(
-                    point: pt,
-                    width: isSelected ? 56 : 44,
-                    height: isSelected ? 56 : 44,
-                    child: GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          selectedIndex = i;
-                        });
-                        _focusOnSelected();
-                        _fetchRouteToSelected();
-                      },
-                      child: Icon(
-                        Icons.location_on,
-                        color: isSelected ? Colors.green : Colors.red,
-                        size: isSelected ? 48 : 36,
-                      ),
-                    ),
-                  );
-                }).toList(),
-              ),
-
-              // user marker
-              MarkerLayer(
-                markers: [
-                  Marker(
-                    point: widget.userLocation,
-                    width: 36,
-                    height: 36,
-                    child: const Icon(Icons.person_pin_circle, color: Colors.blue, size: 36),
-                  ),
-                ],
-              ),
-            ],
+          GoogleMap(
+             initialCameraPosition: CameraPosition(
+                target: _zoneLatLng(selectedIndex),
+                zoom: 13,
+             ),
+             onMapCreated: (c) => _mapController = c,
+             markers: _markers,
+             polylines: _polylines,
+             myLocationEnabled: true,
+             myLocationButtonEnabled: true,
           ),
 
           // top info and controls
@@ -213,9 +229,7 @@ class _SafeZoneMapScreenState extends State<SafeZoneMapScreen> {
                 ),
                 const SizedBox(width: 8),
                 ElevatedButton(
-                  onPressed: () {
-                    _focusOnSelected();
-                  },
+                  onPressed: _focusOnSelected,
                   child: const Icon(Icons.my_location),
                 )
               ],

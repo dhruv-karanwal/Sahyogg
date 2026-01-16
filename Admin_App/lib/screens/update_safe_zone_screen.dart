@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UpdateSafeZoneScreen extends StatefulWidget {
   const UpdateSafeZoneScreen({super.key});
@@ -59,21 +60,59 @@ class _UpdateSafeZoneScreenState extends State<UpdateSafeZoneScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isSaving = true);
-    
-    // Simulate network delay for "Real-time Sync" feel
-    await Future.delayed(const Duration(seconds: 1));
-    
-    if (!mounted) return;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('Safe Zone Updated Successfully (Synced)'),
-        backgroundColor: Colors.green.shade600,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+    try {
+      final double lat = double.tryParse(_latController.text.trim()) ?? 0.0;
+      final double lng = double.tryParse(_lngController.text.trim()) ?? 0.0;
+      final int capacity = int.tryParse(_capacityController.text.trim()) ?? 0;
 
-    Navigator.pop(context);
+      final data = {
+        "name": _nameController.text.trim(),
+        "type": _selectedType,
+        "category": _selectedCategory,
+        "lat": lat,
+        "lng": lng,
+        "capacity": capacity,
+        "district": "Ernakulam", // Default/Mock as per requirements
+        "city": "Aluva", // Default/Mock as per requirements
+        "status": _operationalStatus == 'Open' ? 'ACTIVE' : _operationalStatus.toUpperCase(),
+        "visibleToPublic": _isVisibleToPublic,
+        "updatedAt": FieldValue.serverTimestamp(),
+      };
+
+      // Create a new document reference
+      // Since this screen creates new zones (based on context), we use .doc() to generate a new ID.
+      // If we need to support editing existing zones later, we would need an ID passed to the widget.
+      await FirebaseFirestore.instance
+          .collection('safe_zones')
+          .doc() // Auto-ID
+          .set(data, SetOptions(merge: true));
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Safe Zone Saved & Synced to Firestore!'),
+          backgroundColor: Colors.green.shade600,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+
+      Navigator.pop(context);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error saving Safe Zone: $e'),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isSaving = false);
+      }
+    }
   }
 
   @override
