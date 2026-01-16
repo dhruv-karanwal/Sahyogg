@@ -143,6 +143,16 @@ class LGController {
     await query('flytoview=<LookAt><longitude>2.2945</longitude><latitude>48.8584</latitude><range>2000</range><tilt>60</tilt><heading>0</heading></LookAt>');
   }
 
+  Future<void> sendFloodProneRegionsKml() async {
+    if (!isConnected) throw Exception('Not connected to LG');
+
+    await _sshController.uploadAsset('assets/kml files/kerala_flood_mock.kml', '/var/www/html/kerala_flood_mock.kml');
+    await Future.delayed(const Duration(milliseconds: 300));
+    await executeCommand("echo '\nhttp://${_settingsController.lgHost}:81/kerala_flood_mock.kml' > /var/www/html/kmls.txt");
+    await Future.delayed(const Duration(milliseconds: 300));
+    await query('flytoview=<LookAt><longitude>76.5</longitude><latitude>10.0</latitude><range>500000</range><tilt>0</tilt><heading>0</heading></LookAt>');
+  }
+
   Future<void> clearKmls({bool keepLogos = true}) async {
     if (!isConnected) throw Exception('Not connected to LG');
 

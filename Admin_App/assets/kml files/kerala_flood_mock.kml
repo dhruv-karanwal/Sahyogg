@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Kerala River Basins and Flood Zones</name>
+    <description>
+      <![CDATA[
+      <h2>Index of River Basins</h2>
+      <ol>
+        <li><b style="color:#ff0000">Periyar Basin</b> - Idukki-Ernakulam (2018 Flood Affected)</li>
+        <li><b style="color:#0000ff">Bharathapuzha Basin</b> - Palakkad (Nila River)</li>
+        <li><b style="color:#00ff00">Pamba Basin</b> - Pathanamthitta (Sabarimala, Critical 2018)</li>
+        <li><b style="color:#ffff00">Chaliyar Basin</b> - Malappuram (Nilambur)</li>
+        <li><b style="color:#ff00ff">Achankovil Basin</b> - Kollam-Pathanamthitta</li>
+        <li><b style="color:#ff8000">Kallada Basin</b> - Kollam (Thenmala Dam)</li>
+        <li><b style="color:#00ffff">Kadalundi Basin</b> - Kozhikode-Malappuram</li>
+        <li><b style="color:#80ff00">Valapattanam Basin</b> - Kannur (Northern Kerala)</li>
+        <li><b style="color:#ff8000">Meenachil Basin</b> - Kottayam (Kuttanad Lowlands)</li>
+        <li><b style="color:#ff0080">Chalakudy Basin</b> - Thrissur (Athirappilly Falls)</li>
+      </ol>
+      ]]>
+    </description>
+
+    <!-- River Basin Styles -->
+    <Style id="periyarBasin">
+      <LineStyle><color>ff0000ff</color><width>2.5</width></LineStyle>
+      <PolyStyle><color>770000ff</color></PolyStyle>
+    </Style>
+    
+    <Style id="bharathapuzhaBasin">
+      <LineStyle><color>ffff0000</color><width>2.5</width></LineStyle>
+      <PolyStyle><color>77ff0000</color></PolyStyle>
+    </Style>
+    
+    <Style id="pambaBasin">
+      <LineStyle><color>ff00ff00</color><width>2.5</width></LineStyle>
+      <PolyStyle><color>7700ff00</color></PolyStyle>
+    </Style>
+
+    <Style id="chaliyarBasin">
+      <LineStyle><color>ff00ffff</color><width>2.5</width></LineStyle>
+      <PolyStyle><color>7700ffff</color></PolyStyle>
+    </Style>
+
+    <Style id="achankovilBasin">
+      <LineStyle><color>ffff00ff</color><width>2.5</width></LineStyle>
+      <PolyStyle><color>77ff00ff</color></PolyStyle>
+    </Style>
+
+    <Style id="kalladaBasin">
+      <LineStyle><color>ff0080ff</color><width>2.5</width></LineStyle>
+      <PolyStyle><color>770080ff</color></PolyStyle>
+    </Style>
+
+    <Style id="kadalundiBasin">
+      <LineStyle><color>ffffff00</color><width>2.5</width></LineStyle>
+      <PolyStyle><color>77ffff00</color></PolyStyle>
+    </Style>
+
+    <Style id="valapattanamBasin">
+      <LineStyle><color>ff00ff80</color><width>2.5</width></LineStyle>
+      <PolyStyle><color>7700ff80</color></PolyStyle>
+    </Style>
+
+    <Style id="meenacholBasin">
+      <LineStyle><color>ffff8000</color><width>2.5</width></LineStyle>
+      <PolyStyle><color>77ff8000</color></PolyStyle>
+    </Style>
+
+    <Style id="chalakudyBasin">
+      <LineStyle><color>ffff0080</color><width>2.5</width></LineStyle>
+      <PolyStyle><color>77ff0080</color></PolyStyle>
+    </Style>
+
+    <!-- Periyar Basin (Ernakulam-Idukki) -->
+    <Placemark>
+      <name>1. Periyar Basin</name>
+      <description>Largest river in Kerala, 2018 flood affected area</description>
+      <styleUrl>#periyarBasin</styleUrl>
+      <Polygon>
+        <outerBoundaryIs><LinearRing><coordinates>
+          76.90,10.05,0 77.15,9.98,0 77.22,9.82,0 77.17,9.68,0 77.05,9.60,0 76.92,9.63,0 76.82,9.78,0 76.90,10.05,0
+        </coordinates></LinearRing></outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+
+    <!-- Bharathapuzha Basin (Palakkad-Malappuram-Thrissur) -->
+    <Placemark>
+      <name>2. Bharathapuzha Basin</name>
+      <description>Second longest river in Kerala, Nila River</description>
+      <styleUrl>#bharathapuzhaBasin</styleUrl>
+      <Polygon>
+        <outerBoundaryIs><LinearRing><coordinates>
+          76.28,10.95,0 76.62,10.88,0 76.75,10.68,0 76.70,10.48,0 76.55,10.36,0 76.35,10.40,0 76.22,10.62,0 76.28,10.95,0
+        </coordinates></LinearRing></outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+
+    <!-- Pamba Basin (Pathanamthitta-Alappuzha) -->
+    <Placemark>
+      <name>3. Pamba Basin</name>
+      <description>Pamba river basin, Sabarimala region, 2018 critical flood zone</description>
+      <styleUrl>#pambaBasin</styleUrl>
+      <Polygon>
+        <outerBoundaryIs><LinearRing><coordinates>
+          76.65,9.45,0 77.05,9.38,0 77.18,9.18,0 77.12,8.98,0 76.92,8.85,0 76.70,8.88,0 76.55,9.08,0 76.65,9.45,0
+        </coordinates></LinearRing></outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+
+    <!-- Chaliyar Basin (Malappuram-Kozhikode) -->
+    <Placemark>
+      <name>4. Chaliyar Basin</name>
+      <description>Chaliyar river basin, Nilambur region</description>
+      <styleUrl>#chaliyarBasin</styleUrl>
+      <Polygon>
+        <outerBoundaryIs><LinearRing><coordinates>
+          76.08,11.35,0 76.45,11.28,0 76.58,11.08,0 76.54,10.88,0 76.35,10.75,0 76.15,10.78,0 76.02,11.00,0 76.08,11.35,0
+        </coordinates></LinearRing></outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+
+    <!-- Achankovil Basin (Kollam-Pathanamthitta) -->
+    <Placemark>
+      <name>5. Achankovil Basin</name>
+      <description>Achankovil river basin region</description>
+      <styleUrl>#achankovilBasin</styleUrl>
+      <Polygon>
+        <outerBoundaryIs><LinearRing><coordinates>
+          76.72,9.10,0 77.02,9.03,0 77.15,8.83,0 77.10,8.63,0 76.92,8.50,0 76.73,8.53,0 76.62,8.73,0 76.72,9.10,0
+        </coordinates></LinearRing></outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+
+    <!-- Kallada Basin (Kollam) -->
+    <Placemark>
+      <name>6. Kallada Basin</name>
+      <description>Kallada river basin, Thenmala dam region</description>
+      <styleUrl>#kalladaBasin</styleUrl>
+      <Polygon>
+        <outerBoundaryIs><LinearRing><coordinates>
+          76.62,8.95,0 76.92,8.88,0 77.05,8.68,0 77.00,8.48,0 76.82,8.35,0 76.65,8.38,0 76.52,8.58,0 76.62,8.95,0
+        </coordinates></LinearRing></outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+
+    <!-- Kadalundi Basin (Kozhikode-Malappuram) -->
+    <Placemark>
+      <name>7. Kadalundi Basin</name>
+      <description>Kadalundi river basin region</description>
+      <styleUrl>#kadalundiBasin</styleUrl>
+      <Polygon>
+        <outerBoundaryIs><LinearRing><coordinates>
+          75.95,11.18,0 76.22,11.10,0 76.35,10.88,0 76.32,10.68,0 76.18,10.55,0 75.98,10.58,0 75.88,10.78,0 75.95,11.18,0
+        </coordinates></LinearRing></outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+
+    <!-- Valapattanam Basin (Kannur) -->
+    <Placemark>
+      <name>8. Valapattanam Basin</name>
+      <description>Valapattanam river basin, northern Kerala</description>
+      <styleUrl>#valapattanamBasin</styleUrl>
+      <Polygon>
+        <outerBoundaryIs><LinearRing><coordinates>
+          75.65,11.92,0 75.98,11.85,0 76.10,11.63,0 76.08,11.43,0 75.92,11.28,0 75.72,11.32,0 75.62,11.53,0 75.65,11.92,0
+        </coordinates></LinearRing></outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+
+    <!-- Meenachil Basin (Kottayam) -->
+    <Placemark>
+      <name>9. Meenachil Basin</name>
+      <description>Meenachil river basin, Kuttanad lowlands</description>
+      <styleUrl>#meenacholBasin</styleUrl>
+      <Polygon>
+        <outerBoundaryIs><LinearRing><coordinates>
+          76.55,9.68,0 76.82,9.60,0 76.95,9.38,0 76.92,9.18,0 76.78,9.05,0 76.58,9.08,0 76.45,9.28,0 76.55,9.68,0
+        </coordinates></LinearRing></outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+
+    <!-- Chalakudy Basin (Thrissur-Ernakulam) -->
+    <Placemark>
+      <name>10. Chalakudy Basin</name>
+      <description>Chalakudy river basin, Athirappilly falls region</description>
+      <styleUrl>#chalakudyBasin</styleUrl>
+      <Polygon>
+        <outerBoundaryIs><LinearRing><coordinates>
+          76.45,10.38,0 76.78,10.30,0 76.92,10.08,0 76.88,9.88,0 76.73,9.73,0 76.55,9.78,0 76.42,9.98,0 76.45,10.38,0
+        </coordinates></LinearRing></outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+
+  </Document>
+</kml>

@@ -68,38 +68,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     }
   }
 
-  Future<void> _sendLogoToLeftScreen() async {
-    try {
-      setState(() => _isLoading = true);
-      
-      await widget.lgController.sendLogoToLeftScreen(
-        assetPath: 'assets/logo.png',
-        logoScreenNumber: 3,
-      );
-      
-      _showSuccess('Logo sent to left screen');
-    } catch (e) {
-      _showError('Failed: $e');
-    } finally {
-      setState(() => _isLoading = false);
-    }
-  }
+  
 
-  Future<void> _clearLogoFromLeftScreen() async {
-    try {
-      setState(() => _isLoading = true);
-      
-      await widget.lgController.clearLogoFromLeftScreen(
-        logoScreenNumber: 3,
-      );
-      
-      _showSuccess('Logo cleared');
-    } catch (e) {
-      _showError('Failed: $e');
-    } finally {
-      setState(() => _isLoading = false);
-    }
-  }
+  
 
   Future<void> _setupLiveUpdates() async {
     try {
@@ -108,6 +79,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       _showSuccess('Live updates enabled (rebooting...)');
     } catch (e) {
       _showError('Failed: $e');
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _showFloodProneRegions() async {
+    try {
+      setState(() => _isLoading = true);
+      await widget.lgController.sendFloodProneRegionsKml();
+      _showSuccess('Flood prone regions displayed on Liquid Galaxy');
+    } catch (e) {
+      _showError('Failed to display flood regions: $e');
     } finally {
       setState(() => _isLoading = false);
     }
@@ -258,12 +241,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         final crossAxisCount = constraints.maxWidth > 600 ? 4 : 2;
         
         final children = [
-          NeuButton(
-            icon: Icons.image,
-            label: 'Send Logo\n(Left Screen)',
-            color: const Color(0xFF3B82F6), // Blue
-            onPressed: _isConnected ? _sendLogoToLeftScreen : null,
-          ),
+          
           NeuButton(
             icon: Icons.layers,
             label: 'Send KML\nLayers',
@@ -310,17 +288,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
           ),
           NeuButton(
-            icon: Icons.hide_image,
-            label: 'Clear Logo\n(Left Screen)',
-            color: const Color(0xFF8B5CF6), // Violet
-            onPressed: _isConnected ? _clearLogoFromLeftScreen : null,
-          ),
-
-          NeuButton(
-            icon: Icons.cleaning_services,
-            label: 'Clean Logos\n(All Screens)',
-            color: const Color(0xFFEF4444), // Red
-            onPressed: _isConnected ? () => widget.lgController.clearLogos() : null,
+            icon: Icons.water_damage,
+            label: 'Flood Prone\nRegions',
+            color: const Color(0xFF3B82F6), // Blue
+            onPressed: _isConnected ? _showFloodProneRegions : null,
           ),
           NeuButton(
             icon: Icons.clear_all,
