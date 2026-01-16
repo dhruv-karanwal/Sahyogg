@@ -70,13 +70,6 @@ class _SendKmlScreenState extends State<SendKmlScreen> {
       'path': 'assets/test 2/4_kerala_river_basin_impact.kml',
       'color': Colors.cyan
     },
-    {
-      'title': 'Start Tour',
-      'subtitle': 'Disaster Overview',
-      'icon': Icons.movie_filter,
-      'path': 'assets/test 2/9_kerala_disaster_tour.kml',
-      'color': Colors.purple
-    },
   ];
 
   Future<void> _sendLayer(String path, String name) async {

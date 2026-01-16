@@ -1,4 +1,5 @@
 import 'package:apps/screens/dashboard/dashboard_screen.dart';
+import 'package:apps/screens/map_controller_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../controllers/ssh_controller.dart';
@@ -259,10 +260,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         
         final children = [
           NeuButton(
-            icon: Icons.image,
-            label: 'Send Logo\n(Left Screen)',
-            color: const Color(0xFF3B82F6), // Blue
-            onPressed: _isConnected ? _sendLogoToLeftScreen : null,
+            icon: Icons.map_outlined,
+            label: 'Map\nController',
+            color: const Color(0xFF06B6D4), // Cyan
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => MapControllerScreen(lgController: widget.lgController),
+              ),
+            ),
           ),
           NeuButton(
             icon: Icons.layers,
@@ -301,6 +307,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
           ),
           NeuButton(
+            icon: Icons.water_damage,
+            label: 'Flood Prone\nRegions',
+            color: const Color(0xFF3B82F6), // Blue
+            onPressed: _isConnected ? _showFloodProneRegions : null,
+          ),
+          NeuButton(
             icon: Icons.analytics,
             label: 'Analytics\nDashboard',
             color: const Color(0xFF10B981), // Green
@@ -309,19 +321,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               MaterialPageRoute(builder: (_) => const DashboardScreen()),
             ),
           ),
-          NeuButton(
-            icon: Icons.hide_image,
-            label: 'Clear Logo\n(Left Screen)',
-            color: const Color(0xFF8B5CF6), // Violet
-            onPressed: _isConnected ? _clearLogoFromLeftScreen : null,
-          ),
-
-          NeuButton(
-            icon: Icons.cleaning_services,
-            label: 'Clean Logos\n(All Screens)',
-            color: const Color(0xFFEF4444), // Red
-            onPressed: _isConnected ? () => widget.lgController.clearLogos() : null,
-          ),
+          
           NeuButton(
             icon: Icons.clear_all,
             label: 'Clean KMLs\n(Reset Earth)',
@@ -358,5 +358,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         );
       }
     );
+  }
+  Future<void> _showFloodProneRegions() async {
+    try {
+      setState(() => _isLoading = true);
+      await widget.lgController.sendFloodProneRegionsKml();
+      _showSuccess('Flood prone regions displayed on Liquid Galaxy');
+    } catch (e) {
+      _showError('Failed to display flood regions: $e');
+    } finally {
+      setState(() => _isLoading = false);
+    }
   }
 }
