@@ -12,6 +12,9 @@ import 'package:geocoding/geocoding.dart';
 import 'package:http/http.dart' as http;
 import 'package:user_gdg/widgets/live_advisory_banner.dart';
 import 'package:user_gdg/widgets/sos_dialog.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'dart:io';
 
 class FloodMapScreen extends StatefulWidget {
   const FloodMapScreen({super.key});
@@ -46,6 +49,10 @@ class _FloodMapScreenState extends State<FloodMapScreen>
   // SOS State
   bool _sendingSOS = false;
   String? _activeSOSId;
+  
+  // Camera & Upload State
+  final ImagePicker _picker = ImagePicker();
+  bool _isUploading = false;
 
   // OpenRouteService API Key
   static const String _orsApiKey = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjZiMzQ4NjAzNjAzYzQ5OWNhOWJkMTMyNWFmZDg0OGUwIiwiaCI6Im11cm11cjY0In0=';
@@ -495,6 +502,73 @@ class _FloodMapScreenState extends State<FloodMapScreen>
     }
   }
 
+  Future<void> _captureAndUploadPhoto() async {
+    try {
+      // 1. Check Location Permissions
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+           // Allow, but location will be unknown
+        }
+      }
+
+      // 2. Capture Photo
+      final XFile? photo = await _picker.pickImage(
+        source: ImageSource.camera,
+        imageQuality: 70, // Optimize size
+      );
+
+      if (photo == null) return; // User canceled
+
+      setState(() => _isUploading = true);
+      _showSnackBar('Uploading photo...', isError: false);
+
+      // 3. Get Location
+      Position? position;
+      try {
+         position = await Geolocator.getCurrentPosition(
+            desiredAccuracy: LocationAccuracy.medium);
+      } catch (e) {
+        print('Location error: $e');
+      }
+
+      final lat = position?.latitude ?? 0.0;
+      final lng = position?.longitude ?? 0.0;
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      
+      // 4. Upload to Firebase Storage
+      final storageRef = FirebaseStorage.instance
+          .ref()
+          .child('user_reports/images/$timestamp.jpg');
+
+      final uploadTask = storageRef.putFile(File(photo.path));
+      final snapshot = await uploadTask;
+      final downloadUrl = await snapshot.ref.getDownloadURL();
+
+      // 5. Store Metadata in Firestore
+      await FirebaseFirestore.instance.collection('crowdsourced_reports').add({
+        'imageUrl': downloadUrl,
+        'lat': lat,
+        'lng': lng,
+        'reportedBy': 'USER_APP',
+        'district': 'Unknown', // Can be updated with reverse geocoding if needed
+        'city': 'Unknown',
+        'type': 'GROUND_IMAGE',
+        'status': 'UNVERIFIED',
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+
+      _showSnackBar('Photo uploaded successfully!', isError: false);
+
+    } catch (e) {
+      _showSnackBar('Upload failed. Try again.', isError: true);
+      print('Upload Error: $e');
+    } finally {
+      if (mounted) setState(() => _isUploading = false);
+    }
+  }
+
   void _showSnackBar(String message, {bool isError = false}) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -882,6 +956,23 @@ class _FloodMapScreenState extends State<FloodMapScreen>
         automaticallyImplyLeading: true,
         title: const Text('Flood Zones'),
         actions: [
+          if (_isUploading)
+             const Padding(
+               padding: EdgeInsets.symmetric(horizontal: 16.0),
+               child: Center(
+                 child: SizedBox(
+                   width: 20, height: 20,
+                   child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                 ),
+               ),
+             )
+          else
+            IconButton(
+              icon: const Icon(Icons.camera_alt),
+              onPressed: _captureAndUploadPhoto,
+              tooltip: 'Report Disaster',
+            ),
+            
           if (_isLoading)
             const Padding(
               padding: EdgeInsets.all(16.0),
