@@ -90,4 +90,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'floodlg.firebasestorage.app',
     measurementId: 'G-7VPW38WN43',
   );
+
 }

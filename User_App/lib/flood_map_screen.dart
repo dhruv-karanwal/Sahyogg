@@ -1,13 +1,15 @@
 import 'dart:async';
-import 'dart:math';
+import 'dart:convert';
+import 'dart:typed_data';
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
-import 'package:user_gdg/advisory_screen.dart';
-import 'package:user_gdg/safe_zone_screen.dart';
+import 'package:http/http.dart' as http;
 import 'package:user_gdg/widgets/live_advisory_banner.dart';
 import 'package:user_gdg/widgets/sos_dialog.dart';
 
@@ -24,9 +26,11 @@ class _FloodMapScreenState extends State<FloodMapScreen>
 
   Set<Polygon> _polygons = {};
   Set<Marker> _markers = {};
+  Set<Polyline> _polylines = {};
   
   String _selectedLayer = '';
   bool _isLoading = false;
+  bool _isLoadingRoute = false;
 
   // User Location
   LatLng? _userLocation;
@@ -41,20 +45,31 @@ class _FloodMapScreenState extends State<FloodMapScreen>
 
   // SOS State
   bool _sendingSOS = false;
-  String? _activeSOSId; // Tracks the current active SOS document ID
+  String? _activeSOSId;
+
+  // OpenRouteService API Key
+  static const String _orsApiKey = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjZiMzQ4NjAzNjAzYzQ5OWNhOWJkMTMyNWFmZDg0OGUwIiwiaCI6Im11cm11cjY0In0=';
+  
+  // Route information
+  String? _routeDistance;
+  String? _routeDuration;
+  LatLng? _selectedDestination;
+
+  // Custom marker icons
+  BitmapDescriptor? _reliefCampIcon;
+  BitmapDescriptor? _hospitalIcon;
 
   static const CameraPosition _keralaDefault = CameraPosition(
-    target: LatLng(10.1076, 76.3519), // Aluva/Kerala center
+    target: LatLng(10.1076, 76.3519),
     zoom: 12,
   );
 
   @override
   void initState() {
     super.initState();
-    // Start tracking user location
     _startLocationUpdates();
+    _createCustomMarkerIcons();
 
-    // Initialize FAB Animation
     _fabAnimationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 250),
@@ -71,12 +86,60 @@ class _FloodMapScreenState extends State<FloodMapScreen>
     );
   }
 
+  Future<void> _createCustomMarkerIcons() async {
+    _reliefCampIcon = await _createCustomIcon(Icons.home, Colors.green);
+    _hospitalIcon = await _createCustomIcon(Icons.local_hospital, Colors.red);
+    if (mounted) setState(() {});
+  }
+
+  Future<BitmapDescriptor> _createCustomIcon(IconData icon, Color color) async {
+    final pictureRecorder = ui.PictureRecorder();
+    final canvas = Canvas(pictureRecorder);
+    final paint = Paint()..color = color;
+    
+    const double size = 120.0;
+    
+    // Draw circle background
+    canvas.drawCircle(const Offset(size / 2, size / 2), size / 2, paint);
+    
+    // Draw white border
+    final borderPaint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 8;
+    canvas.drawCircle(const Offset(size / 2, size / 2), size / 2 - 4, borderPaint);
+    
+    // Draw icon
+    final textPainter = TextPainter(textDirection: TextDirection.ltr);
+    textPainter.text = TextSpan(
+      text: String.fromCharCode(icon.codePoint),
+      style: TextStyle(
+        fontSize: 60,
+        fontFamily: icon.fontFamily,
+        color: Colors.white,
+      ),
+    );
+    textPainter.layout();
+    textPainter.paint(
+      canvas,
+      Offset(
+        (size - textPainter.width) / 2,
+        (size - textPainter.height) / 2,
+      ),
+    );
+
+    final picture = pictureRecorder.endRecording();
+    final image = await picture.toImage(size.toInt(), size.toInt());
+    final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
+    
+    return BitmapDescriptor.fromBytes(bytes!.buffer.asUint8List());
+  }
+
   @override
   void dispose() {
     _safeZoneSubscription?.cancel();
     _positionStream?.cancel();
     _fabAnimationController.dispose();
-    // _mapController?.dispose(); // GoogleMapController doesn't have dispose
     super.dispose();
   }
 
@@ -97,11 +160,198 @@ class _FloodMapScreenState extends State<FloodMapScreen>
           setState(() {
             _userLocation = LatLng(position.latitude, position.longitude);
           });
+          
+          // Update route if one is active
+          if (_selectedDestination != null) {
+            _getRouteToSafeZone(_selectedDestination!);
+          }
         }
       });
     } catch (e) {
       debugPrint('Error getting location stream: $e');
     }
+  }
+
+  // OpenRouteService Route Fetching
+  Future<void> _getRouteToSafeZone(LatLng destination) async {
+    if (_userLocation == null) {
+      _showSnackBar('Unable to get your current location', isError: true);
+      return;
+    }
+
+    setState(() {
+      _isLoadingRoute = true;
+      _selectedDestination = destination;
+    });
+
+    try {
+      final url = Uri.parse(
+        'https://api.openrouteservice.org/v2/directions/driving-car',
+      );
+
+      final response = await http.post(
+        url,
+        headers: {
+          'Authorization': _orsApiKey,
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'coordinates': [
+            [_userLocation!.longitude, _userLocation!.latitude],
+            [destination.longitude, destination.latitude],
+          ],
+          'instructions': true,
+          'elevation': false,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        _processRouteData(data, destination);
+      } else {
+        throw Exception('Route API error: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching route: $e');
+      _showSnackBar('Failed to get route: $e', isError: true);
+      setState(() {
+        _isLoadingRoute = false;
+        _selectedDestination = null;
+      });
+    }
+  }
+
+  void _processRouteData(Map<String, dynamic> data, LatLng destination) {
+    try {
+      final routes = data['routes'] as List<dynamic>;
+      if (routes.isEmpty) {
+        throw Exception('No routes found');
+      }
+      
+      final route = routes[0] as Map<String, dynamic>;
+      final summary = route['summary'] as Map<String, dynamic>;
+
+      final distanceMeters = summary['distance'] as num;
+      final durationSeconds = summary['duration'] as num;
+      
+      final distance = (distanceMeters / 1000).toStringAsFixed(1);
+      final duration = (durationSeconds / 60).toStringAsFixed(0);
+
+      setState(() {
+        _routeDistance = '$distance km';
+        _routeDuration = '$duration min';
+      });
+
+      List<LatLng> routePoints = [];
+      final geometry = route['geometry'];
+      
+      if (geometry is String) {
+        routePoints = _decodeEncodedPolyline(geometry);
+      } else if (geometry is Map) {
+        final coordinates = geometry['coordinates'] as List<dynamic>;
+        routePoints = _decodeGeoJsonCoordinates(coordinates);
+      }
+
+      if (routePoints.isEmpty) {
+        throw Exception('No route points decoded');
+      }
+
+      setState(() {
+        _polylines.clear();
+        _polylines.add(
+          Polyline(
+            polylineId: const PolylineId('route_to_safe_zone'),
+            points: routePoints,
+            color: Colors.blue,
+            width: 6,
+            startCap: Cap.roundCap,
+            endCap: Cap.roundCap,
+            jointType: JointType.round,
+          ),
+        );
+        _isLoadingRoute = false;
+      });
+
+      // Animate camera to show complete route
+      final bounds = _boundsFromLatLngList([
+        _userLocation!,
+        destination,
+        ...routePoints,
+      ]);
+      _mapController?.animateCamera(
+        CameraUpdate.newLatLngBounds(bounds, 100),
+      );
+
+      _showSnackBar('Route: $_routeDistance, $_routeDuration', isError: false);
+    } catch (e) {
+      print('Error processing route: $e');
+      _showSnackBar('Error processing route', isError: true);
+      setState(() => _isLoadingRoute = false);
+    }
+  }
+
+  List<LatLng> _decodeGeoJsonCoordinates(List<dynamic> coordinates) {
+    List<LatLng> points = [];
+    try {
+      for (var coord in coordinates) {
+        if (coord is List && coord.length >= 2) {
+          final lng = (coord[0] as num).toDouble();
+          final lat = (coord[1] as num).toDouble();
+          points.add(LatLng(lat, lng));
+        }
+      }
+    } catch (e) {
+      print('Error decoding GeoJSON: $e');
+    }
+    return points;
+  }
+
+  List<LatLng> _decodeEncodedPolyline(String encoded) {
+    List<LatLng> points = [];
+    int index = 0;
+    int len = encoded.length;
+    int lat = 0;
+    int lng = 0;
+
+    while (index < len) {
+      int b;
+      int shift = 0;
+      int result = 0;
+      
+      do {
+        b = encoded.codeUnitAt(index++) - 63;
+        result |= (b & 0x1f) << shift;
+        shift += 5;
+      } while (b >= 0x20);
+      
+      int dlat = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+      lat += dlat;
+
+      shift = 0;
+      result = 0;
+      
+      do {
+        b = encoded.codeUnitAt(index++) - 63;
+        result |= (b & 0x1f) << shift;
+        shift += 5;
+      } while (b >= 0x20);
+      
+      int dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+      lng += dlng;
+
+      points.add(LatLng(lat / 1E5, lng / 1E5));
+    }
+
+    return points;
+  }
+
+  void _clearRoute() {
+    setState(() {
+      _polylines.clear();
+      _routeDistance = null;
+      _routeDuration = null;
+      _selectedDestination = null;
+    });
   }
 
   void _toggleFab() {
@@ -233,7 +483,6 @@ class _FloodMapScreenState extends State<FloodMapScreen>
         _activeSOSId = newDocRef.id;
       });
 
-      // Animate map to SOS location
       _mapController?.animateCamera(
         CameraUpdate.newLatLng(LatLng(position.latitude, position.longitude)),
       );
@@ -264,18 +513,15 @@ class _FloodMapScreenState extends State<FloodMapScreen>
     );
   }
 
-  // --- LAYER LOADING LOGIC ---
-
   Future<void> _loadLayer(String layer) async {
     setState(() {
       _isLoading = true;
       _polygons = {};
       _markers = {};
+      _clearRoute();
     });
 
-    // Special handling for Safe Zones: Real-time listener
     if (layer == 'safe_zones_relief') {
-      print('Subscribing to safe_zones stream...');
       _safeZoneSubscription?.cancel();
 
       _safeZoneSubscription = FirebaseFirestore.instance
@@ -284,8 +530,6 @@ class _FloodMapScreenState extends State<FloodMapScreen>
           .snapshots()
           .listen((snapshot) {
         if (!mounted) return;
-        
-        print('Safe Zone update received: ${snapshot.docs.length} docs');
         
         final newMarkers = <Marker>{};
 
@@ -302,12 +546,11 @@ class _FloodMapScreenState extends State<FloodMapScreen>
           final name = data['name'] ?? 'Safe Zone';
           final type = data['type'] as String? ?? 'Other';
 
-          // Color Logic
-          double hue = BitmapDescriptor.hueGreen; // Default Active
+          BitmapDescriptor? icon;
           if (category == 'Medical Facility' || type == 'Hospital') {
-            hue = BitmapDescriptor.hueBlue;
-          } else if (category == 'Relief Camp' || type == 'Relief Camp') {
-            hue = BitmapDescriptor.hueOrange;
+            icon = _hospitalIcon;
+          } else {
+            icon = _reliefCampIcon;
           }
 
           newMarkers.add(
@@ -321,7 +564,10 @@ class _FloodMapScreenState extends State<FloodMapScreen>
                   _showSafeZoneDetails(point, data);
                 },
               ),
-              icon: BitmapDescriptor.defaultMarkerWithHue(hue),
+              icon: icon ?? BitmapDescriptor.defaultMarker,
+              onTap: () {
+                _showSafeZoneDetails(point, data);
+              },
             ),
           );
         }
@@ -341,7 +587,6 @@ class _FloodMapScreenState extends State<FloodMapScreen>
       return;
     }
 
-    // Default Firestore Loading for other layers (Floods, Impact, etc.)
     try {
       final docRef = FirebaseFirestore.instance
           .collection('floods')
@@ -384,16 +629,10 @@ class _FloodMapScreenState extends State<FloodMapScreen>
       return;
     }
 
-    // Create Markers
     if (_shouldShowMarkers(layer)) {
       _markers = {};
       for (var i = 0; i < points.length; i++) {
         final point = points[i];
-        
-        Map<String, dynamic> metadata = {};
-        if (layer == 'safe_zones_relief' && i < coords.length && coords[i] is Map) {
-          metadata = coords[i] as Map<String, dynamic>;
-        }
 
        _markers.add(
           Marker(
@@ -407,7 +646,6 @@ class _FloodMapScreenState extends State<FloodMapScreen>
       }
     }
 
-    // Create Polygon
     if (points.length >= 3) {
       final colors = _getLayerColors(layer);
       _polygons = {
@@ -423,7 +661,6 @@ class _FloodMapScreenState extends State<FloodMapScreen>
 
     setState(() => _isLoading = false);
 
-    // Fit bounds
     if (points.isNotEmpty) {
        LatLngBounds bounds = _boundsFromLatLngList(points);
        _mapController?.animateCamera(CameraUpdate.newLatLngBounds(bounds, 50));
@@ -455,7 +692,7 @@ class _FloodMapScreenState extends State<FloodMapScreen>
         if (lat != null && lng != null) return LatLng(lat.toDouble(), lng.toDouble());
         
         var value = item.values.first;
-         if (value is Map) { // Nested
+         if (value is Map) {
              final num? lat2 = value['lat']; 
              final num? lng2 = value['lng'];
              if (lat2 != null && lng2 != null) return LatLng(lat2.toDouble(), lng2.toDouble());
@@ -471,7 +708,6 @@ class _FloodMapScreenState extends State<FloodMapScreen>
 
   bool _shouldShowMarkers(String layer) {
     return layer == 'household_impact' || layer == 'disaster_tour'; 
-    // safe_zones_relief handled separately
   }
 
   Map<String, Color> _getLayerColors(String layer) {
@@ -506,7 +742,6 @@ class _FloodMapScreenState extends State<FloodMapScreen>
     final String category = data['category'] ?? 'Emergency Shelter';
     final String capacity = data['capacity']?.toString() ?? 'N/A';
     
-    // Distance
     String distanceStr = '';
     if (_userLocation != null) {
        final dist = Geolocator.distanceBetween(
@@ -535,7 +770,7 @@ class _FloodMapScreenState extends State<FloodMapScreen>
              const SizedBox(height: 20),
              Row(
                children: [
-                 Icon(category == 'Hospital' ? Icons.local_hospital : Icons.holiday_village, 
+                 Icon(category == 'Hospital' ? Icons.local_hospital : Icons.home, 
                    color: category == 'Hospital' ? Colors.redAccent : Colors.greenAccent, size: 28),
                  const SizedBox(width: 12),
                  Expanded(
@@ -567,18 +802,72 @@ class _FloodMapScreenState extends State<FloodMapScreen>
                  Text('Capacity: $capacity', style: const TextStyle(color: Colors.white)),
                ], 
              ),
-             const SizedBox(height: 24),
-             SizedBox(
-               width: double.infinity,
-               child: ElevatedButton.icon(
-                 style: ElevatedButton.styleFrom(
-                   backgroundColor: Colors.blueAccent[700],
-                   padding: const EdgeInsets.symmetric(vertical: 16),
+             
+             if (_routeDistance != null && _routeDuration != null && _selectedDestination == point) ...[
+               const SizedBox(height: 16),
+               Container(
+                 padding: const EdgeInsets.all(12),
+                 decoration: BoxDecoration(
+                   color: Colors.blue.withOpacity(0.1),
+                   borderRadius: BorderRadius.circular(12),
+                   border: Border.all(color: Colors.blueAccent.withOpacity(0.3)),
                  ),
-                 onPressed: () => Navigator.pop(context),
-                 icon: const Icon(Icons.directions),
-                 label: const Text('GET DIRECTIONS', style: TextStyle(color: Colors.white)),
+                 child: Row(
+                   children: [
+                     const Icon(Icons.route, color: Colors.blueAccent, size: 20),
+                     const SizedBox(width: 12),
+                     Text('Route: $_routeDistance • $_routeDuration', 
+                       style: const TextStyle(color: Colors.blueAccent, fontWeight: FontWeight.w500)),
+                   ],
+                 ),
                ),
+             ],
+             
+             const SizedBox(height: 24),
+             Row(
+               children: [
+                 if (_userLocation != null) ...[
+                   Expanded(
+                     child: ElevatedButton.icon(
+                       style: ElevatedButton.styleFrom(
+                         backgroundColor: Colors.blueAccent[700],
+                         padding: const EdgeInsets.symmetric(vertical: 16),
+                       ),
+                       onPressed: _isLoadingRoute 
+                         ? null 
+                         : () {
+                             Navigator.pop(context);
+                             _getRouteToSafeZone(point);
+                           },
+                       icon: _isLoadingRoute 
+                         ? const SizedBox(
+                             width: 16, 
+                             height: 16, 
+                             child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                           )
+                         : const Icon(Icons.directions),
+                       label: Text(
+                         _isLoadingRoute ? 'LOADING...' : 'GET DIRECTIONS',
+                         style: const TextStyle(color: Colors.white),
+                       ),
+                     ),
+                   ),
+                   if (_selectedDestination == point) ...[
+                     const SizedBox(width: 8),
+                     ElevatedButton(
+                       style: ElevatedButton.styleFrom(
+                         backgroundColor: Colors.red[700],
+                         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                       ),
+                       onPressed: () {
+                         Navigator.pop(context);
+                         _clearRoute();
+                       },
+                       child: const Icon(Icons.close, color: Colors.white),
+                     ),
+                   ],
+                 ],
+               ],
              ),
           ],
         ),
@@ -586,13 +875,12 @@ class _FloodMapScreenState extends State<FloodMapScreen>
     );
   }
 
-  // --- WIDGET BUILD ---
-  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Flood Zones (Google Maps)'),
+        automaticallyImplyLeading: true,
+        title: const Text('Flood Zones'),
         actions: [
           if (_isLoading)
             const Padding(
@@ -618,13 +906,11 @@ class _FloodMapScreenState extends State<FloodMapScreen>
                    mapType: MapType.normal,
                    markers: _markers,
                    polygons: _polygons,
+                   polylines: _polylines,
                  ),
                ),
              ],
            ),
-           
-           // SOS Status & Fab Logic (Overlay)
-           // ... (Reusing existing layout logic)
            
            if (_sendingSOS)
              Positioned(
@@ -649,7 +935,7 @@ class _FloodMapScreenState extends State<FloodMapScreen>
                      if (!snapshot.hasData || !snapshot.data!.exists) return const SizedBox.shrink();
                      final data = snapshot.data!.data() as Map<String, dynamic>;
                      return GestureDetector(
-                       onTap: () => _showSOSDetailsWrapped(data), // Using wrapper
+                       onTap: () => _showSOSDetailsWrapped(data),
                        child: _buildSOSStatusCard(data['status'] ?? 'PENDING'),
                      );
                   },
