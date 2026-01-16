@@ -107,16 +107,6 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
             _buildSmartInsights(),
             
             const SizedBox(height: 24),
-            
-            // Quick Actions
-            _buildQuickActions(context),
-            
-            const SizedBox(height: 24),
-            
-            // Cast to Liquid Galaxy Button
-            _buildCastButton(context),
-            
-            const SizedBox(height: 16),
           ],
         ),
       ),
@@ -973,78 +963,6 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.white.withOpacity(0.1)),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.bolt, color: Colors.blue.shade400, size: 20),
-              const SizedBox(width: 8),
-              const Text(
-                'Quick Actions',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: _buildQuickActionButton(
-                  context,
-                  'Broadcast Alert',
-                  Icons.campaign,
-                  const Color(0xFFEAB308),
-                  () => Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const BroadcastAdvisoryScreen()),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildQuickActionButton(
-                  context,
-                  'Update Safe Zone',
-                  Icons.add_location_alt,
-                  const Color(0xFF10B981),
-                  () => Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const UpdateSafeZoneScreen()),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: _buildQuickActionButton(
-              context,
-              'Cast Hotspots to LG',
-              Icons.cast,
-              const Color(0xFF3B82F6),
-              () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: const Text(
-                      'Casting live hotspots to Liquid Galaxy…',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    backgroundColor: const Color(0xFF3B82F6),
-                    behavior: SnackBarBehavior.floating,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -1088,50 +1006,5 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
     );
   }
 
-  Widget _buildCastButton(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton(
-        onPressed: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Text(
-                'Casting live hotspots to Liquid Galaxy…',
-                style: TextStyle(color: Colors.white),
-              ),
-              backgroundColor: const Color(0xFF3B82F6),
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              duration: const Duration(seconds: 2),
-            ),
-          );
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF3B82F6),
-          foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          elevation: 4,
-          shadowColor: const Color(0xFF3B82F6).withOpacity(0.5),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.cast, size: 20),
-            const SizedBox(width: 8),
-            Text(
-              'Cast to Liquid Galaxy',
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: Colors.white,
-                fontWeight: FontWeight.w600,
-                fontSize: 16,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  
 }
