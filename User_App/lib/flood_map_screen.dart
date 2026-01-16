@@ -1003,8 +1003,15 @@ class _FloodMapScreenState extends State<FloodMapScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.blueAccent,
         automaticallyImplyLeading: true,
-        title: const Text('SAHYOG'),
+        title: const Text(
+          'SAHYOG',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
         actions: [
           if (_isUploading)
              const Padding(
