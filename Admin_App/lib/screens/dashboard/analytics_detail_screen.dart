@@ -1,19 +1,39 @@
+import 'package:apps/controllers/ssh_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:apps/controllers/lg_controller.dart';
 
-class AnalyticsDetailScreen extends StatelessWidget {
+class AnalyticsDetailScreen extends StatefulWidget {
   final String type;
+  final LGController? lgController;
+  final SSHController? sshController;
 
-  const AnalyticsDetailScreen({super.key, required this.type});
+  const AnalyticsDetailScreen({
+    super.key, 
+    required this.type,
+    this.lgController,
+    this.sshController,
+  });
+
+  @override
+  State<AnalyticsDetailScreen> createState() => _AnalyticsDetailScreenState();
+}
+
+class _AnalyticsDetailScreenState extends State<AnalyticsDetailScreen> {
+  bool _isCasting = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        title: Text(type),
+        title: Text(widget.type),
         backgroundColor: Colors.transparent,
+        actions: [
+          _buildLGConnectionStatus(),
+          const SizedBox(width: 16),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -25,70 +45,115 @@ class AnalyticsDetailScreen extends StatelessWidget {
       ),
     );
   }
+  
+  Widget _buildLGConnectionStatus() {
+    final isConnected = widget.lgController?.isConnected ?? false;
+    
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: isConnected 
+          ? Colors.green.withOpacity(0.2) 
+          : Colors.grey.withOpacity(0.2),
+        border: Border.all(
+          color: isConnected ? Colors.green : Colors.grey,
+        ),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 6,
+            height: 6,
+            decoration: BoxDecoration(
+              color: isConnected ? Colors.green : Colors.grey,
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(width: 6),
+          Text(
+            isConnected ? 'LG' : 'LG',
+            style: TextStyle(
+              color: isConnected ? Colors.green : Colors.grey,
+              fontWeight: FontWeight.bold,
+              fontSize: 11,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildContent() {
-    if (type == 'Active Shelters') {
+    if (widget.type == 'Active Shelters') {
       return Expanded(
-        child: StreamBuilder<QuerySnapshot>(
-          stream: FirebaseFirestore.instance
-              .collection('safe_zones')
-              .where('status', isEqualTo: 'ACTIVE')
-              .snapshots(),
-          builder: (context, snapshot) {
-            if (snapshot.hasError) {
-              return Center(child: Text('Error: ${snapshot.error}', style: const TextStyle(color: Colors.red)));
-            }
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
+        child: Column(
+          children: [
+            Expanded(
+              child: StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('safe_zones')
+                    .where('status', isEqualTo: 'ACTIVE')
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}', style: const TextStyle(color: Colors.red)));
+                  }
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
 
-            final docs = snapshot.data?.docs ?? [];
-            if (docs.isEmpty) {
-              return const Center(child: Text('No active shelters found.', style: TextStyle(color: Colors.grey)));
-            }
+                  final docs = snapshot.data?.docs ?? [];
+                  if (docs.isEmpty) {
+                    return const Center(child: Text('No active shelters found.', style: TextStyle(color: Colors.grey)));
+                  }
 
-            return ListView.builder(
-              itemCount: docs.length,
-              itemBuilder: (context, index) {
-                final data = docs[index].data() as Map<String, dynamic>;
-                final name = data['name'] ?? 'Unknown Shelter';
-                final category = data['category'] ?? 'General';
-                final capacity = data['capacity']?.toString() ?? 'N/A';
-                final city = data['city'] ?? '';
-                
-                return Card(
-                  color: const Color(0xFF141A26),
-                  margin: const EdgeInsets.only(bottom: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: BorderSide(color: Colors.white.withOpacity(0.1))),
-                  child: ListTile(
-                    onTap: () => _showEditShelterDialog(context, docs[index].id, data),
-                    leading: const CircleAvatar(
-                      backgroundColor: Colors.greenAccent,
-                      child: Icon(Icons.shield_outlined, color: Colors.black),
-                    ),
-                    title: Text(name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('$category • Capacity: $capacity', style: TextStyle(color: Colors.grey[400])),
-                        if (city.isNotEmpty) Text('Location: $city', style: TextStyle(color: Colors.grey[600], fontSize: 12)),
-                      ],
-                    ),
-                    trailing: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(color: Colors.green.withOpacity(0.2), borderRadius: BorderRadius.circular(8)),
-                      child: const Text('Active', style: TextStyle(color: Colors.green, fontSize: 10, fontWeight: FontWeight.bold)),
-                    ),
-                  ),
-                );
-              },
-            );
-          },
+                  return ListView.builder(
+                    itemCount: docs.length,
+                    itemBuilder: (context, index) {
+                      final data = docs[index].data() as Map<String, dynamic>;
+                      final name = data['name'] ?? 'Unknown Shelter';
+                      final category = data['category'] ?? 'General';
+                      final capacity = data['capacity']?.toString() ?? 'N/A';
+                      final city = data['city'] ?? '';
+                      
+                      return Card(
+                        color: const Color(0xFF141A26),
+                        margin: const EdgeInsets.only(bottom: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: BorderSide(color: Colors.white.withOpacity(0.1))),
+                        child: ListTile(
+                          onTap: () => _showShelterActionsDialog(context, docs[index].id, data),
+                          leading: const CircleAvatar(
+                            backgroundColor: Colors.greenAccent,
+                            child: Icon(Icons.shield_outlined, color: Colors.black),
+                          ),
+                          title: Text(name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('$category • Capacity: $capacity', style: TextStyle(color: Colors.grey[400])),
+                              if (city.isNotEmpty) Text('Location: $city', style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+                            ],
+                          ),
+                          trailing: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(color: Colors.green.withOpacity(0.2), borderRadius: BorderRadius.circular(8)),
+                            child: const Text('Active', style: TextStyle(color: Colors.green, fontSize: 10, fontWeight: FontWeight.bold)),
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       );
     }
 
-    if (type == 'High Risk Zones') {
+    if (widget.type == 'High Risk Zones') {
       return Expanded(
         child: StreamBuilder<QuerySnapshot>(
           stream: FirebaseFirestore.instance.collection('rescue_requests').snapshots(),
@@ -98,12 +163,10 @@ class AnalyticsDetailScreen extends StatelessWidget {
 
             final docs = snapshot.data!.docs;
             
-            // Group by District -> List of Requests
             final Map<String, List<DocumentSnapshot>> zonedRequests = {};
             
             for (var doc in docs) {
               final data = doc.data() as Map<String, dynamic>;
-              // Use District as the primary View Zone, fallback to City
               String zoneName = data['district'] ?? data['city'] ?? 'Unknown Zone';
               if (data['city'] != null && data['district'] != null) {
                   zoneName = '${data['city']}, ${data['district']}';
@@ -115,7 +178,6 @@ class AnalyticsDetailScreen extends StatelessWidget {
               zonedRequests[zoneName]!.add(doc);
             }
 
-            // Sort zones by request count (descending)
             final sortedZones = zonedRequests.entries.toList()
               ..sort((a, b) => b.value.length.compareTo(a.value.length));
 
@@ -163,10 +225,14 @@ class AnalyticsDetailScreen extends StatelessWidget {
                         isCritical ? 'Critical Risk Zone' : 'Moderate Risk Zone',
                         style: TextStyle(color: isCritical ? Colors.redAccent : Colors.orangeAccent, fontSize: 12),
                       ),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.cast_connected, color: Colors.blue),
+                        onPressed: () => _castHighPriorityZoneToLG(zoneName, count),
+                      ),
                       children: [
                         Container(
                           color: Colors.black12,
-                          constraints: const BoxConstraints(maxHeight: 250), // Limit height to avoid massive lists
+                          constraints: const BoxConstraints(maxHeight: 250),
                           child: ListView.builder(
                             shrinkWrap: true,
                             itemCount: requests.length,
@@ -195,16 +261,6 @@ class AnalyticsDetailScreen extends StatelessWidget {
                             },
                           ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: TextButton.icon(
-                            onPressed: () {
-                              // Navigate to map or detailed list if needed
-                            }, 
-                            icon: const Icon(Icons.map, size: 16),
-                            label: const Text('View on Map'),
-                          ),
-                        )
                       ],
                     ),
                   ),
@@ -216,7 +272,7 @@ class AnalyticsDetailScreen extends StatelessWidget {
       );
     }
 
-    if (type == 'SOS Requests') {
+    if (widget.type == 'SOS Requests') {
       return Expanded(
         child: StreamBuilder<QuerySnapshot>(
           stream: FirebaseFirestore.instance.collection('rescue_requests').snapshots(),
@@ -226,28 +282,21 @@ class AnalyticsDetailScreen extends StatelessWidget {
 
             final docs = snapshot.data!.docs;
             
-            // 1. Filter & Aggregate Data
             final areaCounts = <String, int>{};
             
             for (var doc in docs) {
               final data = doc.data() as Map<String, dynamic>;
-              // Filter active requests if needed, or count all (currently counting all for analytics)
-              // String status = data['status'] ?? 'PENDING';
-              
               String area = data['area'] ?? data['city'] ?? 'Unknown Area';
               areaCounts[area] = (areaCounts[area] ?? 0) + 1;
             }
 
-            // 2. Sort by Count (Descending)
             final sortedAreas = areaCounts.entries.toList()
               ..sort((a, b) => b.value.compareTo(a.value));
 
-            // 3. Take Top 5 for Chart
             final top5 = sortedAreas.take(5).toList();
 
             return Column(
               children: [
-                // --- Chart Section ---
                 Card(
                   color: const Color(0xFF141A26),
                   margin: const EdgeInsets.only(bottom: 16),
@@ -293,7 +342,7 @@ class AnalyticsDetailScreen extends StatelessWidget {
                                       return Padding(
                                         padding: const EdgeInsets.only(top: 8.0),
                                         child: Text(
-                                          top5[value.toInt()].key.split(' ').first, // Show first word of area
+                                          top5[value.toInt()].key.split(' ').first,
                                           style: const TextStyle(color: Colors.grey, fontSize: 10),
                                         ),
                                       );
@@ -327,7 +376,6 @@ class AnalyticsDetailScreen extends StatelessWidget {
                   ),
                 ),
 
-                // --- List Section ---
                 Row(
                   children: [
                     const Text('High Priority Zones', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
@@ -393,7 +441,6 @@ class AnalyticsDetailScreen extends StatelessWidget {
       );
     }
     
-    // Default Content for other types
     return Column(
       children: [
          Card(
@@ -402,7 +449,7 @@ class AnalyticsDetailScreen extends StatelessWidget {
              padding: const EdgeInsets.all(16.0),
              child: SizedBox(
                height: 300,
-               child: _buildChart(type),
+               child: _buildChart(widget.type),
              ),
            ),
          ),
@@ -416,7 +463,7 @@ class AnalyticsDetailScreen extends StatelessWidget {
     );
   }
 
-  void _showEditShelterDialog(BuildContext context, String docId, Map<String, dynamic> data) {
+  void _showShelterActionsDialog(BuildContext context, String docId, Map<String, dynamic> data) {
     final name = data['name'] ?? 'Shelter';
     final currentCapacity = data['capacity']?.toString() ?? '0';
     final TextEditingController capacityController = TextEditingController(text: currentCapacity);
@@ -425,11 +472,27 @@ class AnalyticsDetailScreen extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xFF1E2738),
-        title: Text('Manage $name', style: const TextStyle(color: Colors.white)),
+        title: Text(name, style: const TextStyle(color: Colors.white)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.pop(context);
+                _castSingleShelterToLG(docId, data);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue.withOpacity(0.2),
+                foregroundColor: Colors.blue,
+                minimumSize: const Size(double.infinity, 48),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                side: const BorderSide(color: Colors.blue),
+              ),
+              icon: const Icon(Icons.cast_connected),
+              label: const Text('Cast to Liquid Galaxy'),
+            ),
+            const SizedBox(height: 16),
             const Text('Update Capacity', style: TextStyle(color: Colors.grey, fontSize: 12)),
             const SizedBox(height: 8),
             TextField(
@@ -443,12 +506,9 @@ class AnalyticsDetailScreen extends StatelessWidget {
                 suffixIcon: const Icon(Icons.people, color: Colors.grey),
               ),
             ),
-            const SizedBox(height: 24),
-            const Text('Status', style: TextStyle(color: Colors.grey, fontSize: 12)),
-            const SizedBox(height: 8),
+            const SizedBox(height: 16),
             ElevatedButton.icon(
               onPressed: () async {
-                 // Close Shelter Logic
                  Navigator.pop(context);
                  await FirebaseFirestore.instance.collection('safe_zones').doc(docId).update({
                    'status': 'CLOSED',
@@ -478,7 +538,6 @@ class AnalyticsDetailScreen extends StatelessWidget {
           ),
           ElevatedButton(
             onPressed: () async {
-              // Update Capacity Logic
               final newCap = int.tryParse(capacityController.text) ?? 0;
               Navigator.pop(context);
               await FirebaseFirestore.instance.collection('safe_zones').doc(docId).update({
@@ -493,15 +552,114 @@ class AnalyticsDetailScreen extends StatelessWidget {
               backgroundColor: Colors.teal,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Save Changes'),
+            child: const Text('Save'),
           ),
         ],
       ),
     );
   }
 
+  Future<void> _castSingleShelterToLG(String docId, Map<String, dynamic> data) async {
+    if (widget.lgController == null || !widget.lgController!.isConnected) {
+      _showErrorSnackBar('Not connected to Liquid Galaxy');
+      return;
+    }
+
+    setState(() => _isCasting = true);
+
+    try {
+      final name = data['name'] ?? 'Shelter';
+      final lat = data['latitude'] ?? data['lat'];
+      final lng = data['longitude'] ?? data['lng'];
+      final capacity = data['capacity'] ?? 'N/A';
+      final category = data['category'] ?? 'General';
+      final city = data['city'] ?? '';
+      
+      if (lat == null || lng == null) {
+        _showErrorSnackBar('No location data available');
+        return;
+      }
+
+      final kml = '''<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <Placemark>
+      <name>$name</name>
+      <description>Category: $category | Capacity: $capacity | Location: $city</description>
+      <Point>
+        <coordinates>$lng,$lat,0</coordinates>
+      </Point>
+    </Placemark>
+  </Document>
+</kml>''';
+      
+      await widget.lgController!.sendKMLToSlave(widget.lgController!.firstScreen, kml);
+      await widget.lgController!.refreshView(screen: widget.lgController!.firstScreen);
+      await widget.lgController!.query(
+        'flytoview=<LookAt><longitude>$lng</longitude><latitude>$lat</latitude><range>5000</range><tilt>60</tilt><heading>0</heading></LookAt>'
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('$name cast to LG!'), backgroundColor: Colors.green),
+        );
+      }
+    } catch (e) {
+      _showErrorSnackBar('Failed to cast: $e');
+    } finally {
+      if (mounted) setState(() => _isCasting = false);
+    }
+  }
+
+  Future<void> _castHighPriorityZoneToLG(String zoneName, int count) async {
+    if (widget.lgController == null || !widget.lgController!.isConnected) {
+      _showErrorSnackBar('Not connected to Liquid Galaxy');
+      return;
+    }
+
+    setState(() => _isCasting = true);
+
+    try {
+      final kml = '''<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <Placemark>
+      <name>HIGH PRIORITY: $zoneName</name>
+      <description>This zone has $count SOS requests - CRITICAL ATTENTION REQUIRED</description>
+      <Point>
+        <coordinates>76.0,10.0,0</coordinates>
+      </Point>
+    </Placemark>
+  </Document>
+</kml>''';
+      
+      await widget.lgController!.sendKMLToSlave(widget.lgController!.firstScreen, kml);
+      await widget.lgController!.refreshView(screen: widget.lgController!.firstScreen);
+      await widget.lgController!.query(
+        'flytoview=<LookAt><longitude>76.0</longitude><latitude>10.0</latitude><range>50000</range><tilt>45</tilt><heading>0</heading></LookAt>'
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('High Priority Zone: $zoneName ($count requests) cast to LG!'), backgroundColor: Colors.green),
+        );
+      }
+    } catch (e) {
+      _showErrorSnackBar('Failed to cast: $e');
+    } finally {
+      if (mounted) setState(() => _isCasting = false);
+    }
+  }
+  
+  void _showErrorSnackBar(String message) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message), backgroundColor: Colors.red),
+      );
+    }
+  }
+
   Widget _buildChart(String type) {
-    // Placeholder chart logic
     if (type == 'SOS Requests') {
       return LineChart(
         LineChartData(
@@ -530,10 +688,7 @@ class AnalyticsDetailScreen extends StatelessWidget {
     }
     
     return Center(
-      child: Text(
-        'Chart for $type',
-        style: const TextStyle(color: Colors.white),
-      ),
+      child: Text('Chart for $type', style: const TextStyle(color: Colors.white)),
     );
   }
 }

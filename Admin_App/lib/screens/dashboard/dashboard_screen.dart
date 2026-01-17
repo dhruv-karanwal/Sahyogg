@@ -1,3 +1,6 @@
+import 'package:apps/controllers/lg_controller.dart';
+import 'package:apps/controllers/ssh_controller.dart';
+import 'package:apps/controllers/settings_controller.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -15,6 +18,64 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   String _timeFilter = 'Live'; // Live, 1H, 24H, 7D
+  
+  // Initialize controllers
+  late final SSHController _sshController;
+  late final SettingsController _settingsController;
+  late final LGController _lgController;
+  
+  @override
+  void initState() {
+    super.initState();
+    _initializeControllers();
+  }
+  
+  void _initializeControllers() {
+    _sshController = SSHController();
+    _settingsController = SettingsController();
+    _lgController = LGController(
+      sshController: _sshController,
+      settingsController: _settingsController,
+    );
+    
+    // Auto-connect to LG if settings exist
+    _autoConnectToLG();
+  }
+  
+  Future<void> _autoConnectToLG() async {
+    try {
+      final settings = await _settingsController.loadSettings();
+      final host = settings['host'] as String;
+      final port = settings['port'] as int;
+      final username = settings['username'] as String;
+      final password = settings['password'] as String;
+      
+      await _lgController.connect(
+        host: host,
+        port: port,
+        username: username,
+        password: password,
+      );
+      
+      if (mounted && _lgController.isConnected) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Connected to Liquid Galaxy'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('Auto-connect to LG failed: $e');
+    }
+  }
+  
+  @override
+  void dispose() {
+    _lgController.disconnect();
+    super.dispose();
+  }
 
   // Firestore Streams
   Stream<QuerySnapshot> get _sosStream =>
@@ -33,7 +94,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      // AppBar is handled by the parent layout or we can have a custom header
       body: CustomScrollView(
         slivers: [
           SliverSafeArea(
@@ -80,7 +140,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              const Text(
                 'Analytics & Insights',
                 style: TextStyle(
                   fontSize: 24,
@@ -90,7 +150,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-              Text(
+              const Text(
                 'Real-time disaster overview',
                 style: TextStyle(color: Colors.grey),
                 maxLines: 1,
@@ -99,9 +159,47 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ],
           ),
         ),
-
-
+        _buildLGConnectionIndicator(),
       ],
+    );
+  }
+  
+  Widget _buildLGConnectionIndicator() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: _lgController.isConnected 
+          ? Colors.green.withOpacity(0.2) 
+          : Colors.grey.withOpacity(0.2),
+        border: Border.all(
+          color: _lgController.isConnected ? Colors.green : Colors.grey,
+        ),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(
+              color: _lgController.isConnected ? Colors.green : Colors.grey,
+              shape: BoxShape.circle,
+              boxShadow: _lgController.isConnected
+                ? [BoxShadow(color: Colors.green.withOpacity(0.5), blurRadius: 4)]
+                : null,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            _lgController.isConnected ? 'LG CONNECTED' : 'LG OFFLINE',
+            style: TextStyle(
+              color: _lgController.isConnected ? Colors.green : Colors.grey,
+              fontWeight: FontWeight.bold,
+              fontSize: 12,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -111,12 +209,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
       builder: (context, snapshot) {
         if (!snapshot.hasData) return const SizedBox.shrink();
         
-        // Simple risk calculation based on active SOS count
-        // You might want to filter active/pending ones only
         final count = snapshot.data!.docs.where((doc) { 
             final data = doc.data() as Map<String, dynamic>;
             final status = data['status'] as String? ?? '';
-            return status != 'RESOLVED'; // Count unresolved
+            return status != 'RESOLVED';
         }).length;
 
         String level = 'LOW';
@@ -221,7 +317,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildKpiGrid() {
     return LayoutBuilder(
       builder: (context, constraints) {
-        // Adapt grid based on width
         final crossAxisCount = constraints.maxWidth > 600 ? 4 : 2;
         
         return GridView.count(
@@ -242,14 +337,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
   
-  // KPI Builders
   Widget _buildSosKpi() {
       return StreamBuilder<QuerySnapshot>(
           stream: _sosStream,
           builder: (context, snapshot) {
               final isLoading = !snapshot.hasData;
               final count = snapshot.data?.docs.length ?? 0;
-              // Filter logic for time can be added here
               
               return KpiCard(
                   title: 'Total SOS',
@@ -271,7 +364,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
               int highRiskCount = 0;
               
               if (snapshot.hasData) {
-                  // Group by area
                   final Map<String, int> areaCounts = {};
                   for (var doc in snapshot.data!.docs) {
                       final data = doc.data() as Map<String, dynamic>;
@@ -302,7 +394,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
               int activeCount = 0;
               
               if (snapshot.hasData) {
-                  // Filter for Open/Active shelters
                   activeCount = snapshot.data!.docs.where((doc) {
                       final data = doc.data() as Map<String, dynamic>;
                       final status = data['status'] as String? ?? 'Open';
@@ -323,8 +414,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildBlockedRoutesKpi() {
-      // Assuming a routes collection exists, or modify path if needed.
-      // User mentioned 'floods/routes' where isBlocked==true
       return StreamBuilder<QuerySnapshot>(
           stream: _routesStream,
           builder: (context, snapshot) {
@@ -351,16 +440,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   void _navigateToDetail(String type) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => AnalyticsDetailScreen(type: type),
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AnalyticsDetailScreen(
+          type: type,
+          lgController: _lgController,
+          sshController: _sshController,
         ),
-      );
+      ),
+    );
   }
 
   Widget _buildSmartInsights() {
-      // Generated from all streams combined (simplified for now)
       return StreamBuilder<QuerySnapshot>(
           stream: _sosStream,
           builder: (context, snapshot) {
@@ -369,13 +461,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                final docs = snapshot.data!.docs;
                final List<Widget> insights = [];
                
-               // Logic for insights
                if (docs.length > 50) {
                    insights.add(_buildInsightTile('High SOS Volume Detected', Icons.trending_up, Colors.red));
                }
-               
-               // Check for recent surge (last hour) - simplified check
-               // Real logic would check timestamps
                
                if (insights.isEmpty) {
                    return const SizedBox.shrink();
@@ -422,15 +510,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
               const Text('Live SOS Feed', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 12),
               StreamBuilder<QuerySnapshot>(
-                  stream: _sosStream, // Should limit to 5 sorted by desc in query ideally
+                  stream: _sosStream,
                   builder: (context, snapshot) {
                        if(!snapshot.hasData) return const Center(child: CircularProgressIndicator());
                        if(snapshot.data!.docs.isEmpty) return const Text('No recent SOS requests', style: TextStyle(color: Colors.grey));
                        
-                       // Sort client side since stream is all docs (or use orderBy in query)
                        final docs = snapshot.data!.docs;
                        docs.sort((a,b) {
-                           // Timestamp comparison
                            final tA = (a.data() as Map)['timestamp'] as Timestamp?;
                            final tB = (b.data() as Map)['timestamp'] as Timestamp?;
                            if(tA == null) return 1; 
@@ -521,7 +607,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                        final top5 = sortedKeys.take(5).toList();
                        
                        return SizedBox(
-                           height: 120, // Horizontal list height
+                           height: 120,
                            child: ListView.builder(
                                scrollDirection: Axis.horizontal,
                                itemCount: top5.length,
@@ -567,7 +653,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildQuickActions() {
-
       return Column(
         children: [
           Row(
@@ -576,7 +661,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Broadcast Alert sent!')));
                   })),
                   const SizedBox(width: 12),
-                  Expanded(child: _buildActionButton('Cast to LG', Icons.cast_connected, Colors.blue, () {
+                  Expanded(child: _buildActionButton('Cast to LG', Icons.cast_connected, Colors.blue, () async {
+                      if (!_lgController.isConnected) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Please connect to Liquid Galaxy first'),
+                            backgroundColor: Colors.orange,
+                          ),
+                        );
+                        return;
+                      }
                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Casting hotspots to Liquid Galaxy...')));
                   })),
                   const SizedBox(width: 12),
@@ -590,7 +684,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         final service = SafeZoneIngestionService();
                         final count = await service.ingestSafeZones();
                             if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Successfully ingsted $count safe zones!'), backgroundColor: Colors.green));
+                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Successfully ingested $count safe zones!'), backgroundColor: Colors.green));
                             }
                           } catch (e) {
                              if (context.mounted) {
