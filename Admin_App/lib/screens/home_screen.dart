@@ -15,6 +15,10 @@ import 'update_safe_zone_screen.dart';
 import 'broadcast_advisory_screen.dart';
 import 'rescue_requests_screen.dart';
 
+import 'shelter_list_screen.dart';
+
+import 'package:apps/services/safe_zone_lg_service.dart';
+
 class HomeScreen extends ConsumerStatefulWidget {
   final SSHController sshController;
   final SettingsController settingsController;
@@ -34,14 +38,21 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   bool _isConnected = false;
   bool _isLoading = false;
+  late SafeZoneLGService _safeZoneLGService;
 
   @override
   void initState() {
     super.initState();
+    _safeZoneLGService = SafeZoneLGService(widget.lgController);
     if (widget.settingsController.lgHost.isNotEmpty && 
         widget.settingsController.lgPassword.isNotEmpty) {
       _checkConnection();
     }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   Future<void> _checkConnection() async {
@@ -62,6 +73,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       );
       
       setState(() => _isConnected = success);
+      
+      if (success) {
+        _showSuccess('LG Connection Active');
+      }
     } catch (e) {
       setState(() => _isConnected = false);
     } finally {
@@ -252,6 +267,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
+  @override
   Widget _buildControlGrid() {
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -286,6 +302,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             onPressed: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const UpdateSafeZoneScreen()),
+            ),
+          ),
+          NeuButton(
+            icon: Icons.visibility, // Visibility icon
+            label: 'Visualise\nShelters',
+            color: const Color(0xFFD946EF), // Magenta
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => ShelterListScreen(lgController: widget.lgController)),
             ),
           ),
           NeuButton(
