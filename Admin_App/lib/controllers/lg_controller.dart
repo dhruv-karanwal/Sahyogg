@@ -468,4 +468,8 @@ class LGController {
     
     await query('flytoview=<LookAt><longitude>$lng</longitude><latitude>$lat</latitude><range>50000</range><tilt>30</tilt><heading>0</heading></LookAt>');
   }
+  Future<void> flyTo(double lat, double lng, double range, double tilt, double heading) async {
+    if (!isConnected) throw Exception('Not connected to LG');
+    await query('flytoview=<LookAt><longitude>$lng</longitude><latitude>$lat</latitude><range>$range</range><tilt>$tilt</tilt><heading>$heading</heading></LookAt>');
+  }
 }

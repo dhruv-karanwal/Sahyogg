@@ -1,164 +1,220 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../controllers/lg_controller.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 
 class SafeZoneLGService {
   final LGController lgController;
-  StreamSubscription? _subscription;
-  bool _isSyncing = false;
+  final Set<String> _castedShelterIds = {};
 
   SafeZoneLGService(this.lgController);
 
-  // Start listening to Firebase Safe Zones
-  void startSync() {
-    if (_isSyncing) return;
-    _isSyncing = true;
-
-    // Send NetworkLink once
-    _sendNetworkLink();
-
-    _subscription = FirebaseFirestore.instance
-        .collection('safe_zones')
-        .snapshots()
-        .listen((snapshot) {
-      _handleSnapshot(snapshot);
-    }, onError: (e) {
-      print('SafeZone Sync Error: $e');
-    });
-  }
-
-  void stopSync() {
-    _subscription?.cancel();
-    _isSyncing = false;
-  }
-
-  Future<void> _sendNetworkLink() async {
-    // Determine LG Host - usually from controller settings, but we need to fetch it
-    // LGController uses _settingsController internally, but doesn't expose host directly easily
-    // We will rely on mapped /var/www/html/kml structure. 
-    // Actually LGController.sendKMLToSlave uploads to /var/www/html/kml/slave_X.kml 
-    // But prompt says put SafeZones_Live.kml in /var/www/html/kml/
-    
-    // Create NetworkLink
-    final networkLinkKml = '''<?xml version="1.0" encoding="UTF-8"?>
-<kml xmlns="http://www.opengis.net/kml/2.2">
-  <NetworkLink>
-    <name>Live Safe Zones</name>
-    <flyToView>0</flyToView>
-    <Link>
-      <href>http://localhost:81/kml/SafeZones_Live.kml</href>
-      <refreshMode>onInterval</refreshMode>
-      <refreshInterval>10</refreshInterval>
-    </Link>
-  </NetworkLink>
-</kml>''';
-
-    // We upload this as a slave layer or just a file?
-    // Prompt says "Create a NetworkLink KML... SafeZones_NetworkLink.kml"
-    // Usually we add this to the Master's kmls.txt or one of the slave KMLs.
-    // For simplicity, we can inject this NetworkLink into a slave KML (e.g. slave_3) using LGController's mechanisms.
-    // OR upload it to the server and add it to the kmls.txt list.
-    
+  /// Casts a single shelter (Appends/Updates in the live KML)
+  Future<void> castShelter(String shelterId) async {
     try {
-        await lgController.uploadString(networkLinkKml, '/var/www/html/kml/SafeZones_NetworkLink.kml');
-        // Add to kmls.txt to make it visible
-        // We'll append it. Note: This might duplicate if run multiple times, ideally we manage the list.
-        // But for this task, ensuring it's loaded is key.
-        final host = (await lgController.loadSettings())['ip'] ?? 'localhost'; 
-        // Wait, loadSettings returns map? let's check lg_controller.dart again.
-        // It calls _settingsController.loadSettings().
-        
-        await lgController.executeCommand("echo '\\nhttp://localhost:81/kml/SafeZones_NetworkLink.kml' >> /var/www/html/kmls.txt");
+      final doc = await FirebaseFirestore.instance.collection('safe_zones').doc(shelterId).get();
+      if (!doc.exists) return;
+
+      final data = doc.data()!;
+      if (!_isValidShelter(data)) return;
+
+      _castedShelterIds.add(shelterId);
+      await _updateLiveKML();
+      
+      // Fly to the shelter
+      await lgController.flyTo(
+        data['lat'], 
+        data['lng'], 
+        1000, // Range 
+        45,   // Tilt
+        0     // Heading
+      );
     } catch (e) {
-        print('Error sending NetworkLink: $e');
+      debugPrint('Error casting shelter: $e');
     }
   }
 
-  Future<void> _handleSnapshot(QuerySnapshot snapshot) async {
-    if (!lgController.isConnected) return;
+  /// Casts all valid shelters (Replaces live KML)
+  Future<void> castAllShelters() async {
+    try {
+      final snapshot = await FirebaseFirestore.instance.collection('safe_zones').get();
+      _castedShelterIds.clear();
+      
+      for (var doc in snapshot.docs) {
+        if (_isValidShelter(doc.data())) {
+          _castedShelterIds.add(doc.id);
+        }
+      }
+      
+      await _updateLiveKML();
 
+      // Fly to a central view (approx Kerala center)
+      await lgController.flyTo(10.8505, 76.2711, 250000, 0, 0); 
+    } catch (e) {
+      debugPrint('Error casting all shelters: $e');
+    }
+  }
+
+  bool _isValidShelter(Map<String, dynamic> data) {
+    // 1. Data Source Rules
+    if (data['visibleToPublic'] == false) return false;
+    
+    final type = data['type'] ?? '';
+    final validTypes = ['Relief Camp', 'Shelter', 'Medical Shelter'];
+    if (!validTypes.contains(type)) return false;
+
+    // 2. Button Action Validation
+    if (data['status'] == 'CLOSED') return false;
+    if (data['lat'] == null || data['lng'] == null) return false;
+
+    return true;
+  }
+
+  Future<void> _updateLiveKML() async {
+    if (_castedShelterIds.isEmpty) {
+      // If empty, maybe clear the file or upload empty KML
+       await lgController.uploadString(
+        _buildEmptyKML(), 
+        '/var/www/html/kml/Shelters_Live.kml'
+      );
+      return;
+    }
+
+    // Fetch all needed docs
+    // Note: optimization - we could cache data, but for now we fetch to be fresh
+    // Or we can rely on passing the data object if we have it. 
+    // For 'castAll', we have the snapshot. For 'castShelter', we fetched one.
+    // To ensure consistency, let's fetch 'IN' query if list is small, or just fetch all and filter.
+    // Given usage, fetching all active might be better if list is long? 
+    // Let's iterate the IDs and fetch. If list is HUGE, this is slow. 
+    // But typically ~50 shelters.
+    
+    // Better approach: Maintain a local cache of data `_shelterCache`
+    // For this task, let's just fetch all from Firestore again to be safe and simple 
+    // or optimized:
+    
+    final snapshot = await FirebaseFirestore.instance.collection('safe_zones').get();
+    final docs = snapshot.docs.where((d) => _castedShelterIds.contains(d.id)).toList();
+
+    final kmlContent = _generateKML(docs);
+    
+    // 6. Liquid Galaxy Deployment
+    await lgController.uploadString(kmlContent, '/var/www/html/kml/Shelters_Live.kml');
+    
+    // Ensure NetworkLink exists
+    await _ensureNetworkLink();
+  }
+  
+  String _buildEmptyKML() {
+      return '''<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Shelters Live</name>
+  </Document>
+</kml>''';
+  }
+
+  String _generateKML(List<QueryDocumentSnapshot<Map<String, dynamic>>> docs) {
     final sb = StringBuffer();
     sb.writeln('<?xml version="1.0" encoding="UTF-8"?>');
     sb.writeln('<kml xmlns="http://www.opengis.net/kml/2.2">');
     sb.writeln('<Document>');
-    sb.writeln('<name>Safe Zones Live Data</name>');
+    sb.writeln('<name>Shelters Live</name>');
     
-    // Define Styles
-    sb.writeln(_getStyle('Hospital', 'http://maps.google.com/mapfiles/kml/shapes/hospitals.png', 'ffff0000')); // Blue (AABBGGRR) -> Red? No KML is AABBGGRR. Blue=FFFF0000
-    sb.writeln(_getStyle('Relief Camp', 'http://maps.google.com/mapfiles/kml/shapes/square.png', 'ff800080')); // Purple
-    sb.writeln(_getStyle('Safe Zone', 'http://maps.google.com/mapfiles/kml/shapes/placemark_circle.png', 'ff00ff00')); // Green
-    sb.writeln(_getStyle('High Ground', 'http://maps.google.com/mapfiles/kml/shapes/triangle.png', 'ffffff00')); // Cyan (Blue+Green) -> AABBGGRR -> 00FFFF -> FFFF00
-    sb.writeln(_getStyle('FULL', 'http://maps.google.com/mapfiles/kml/shapes/forbidden.png', 'ff808080')); // Grey
+    // Styles
+    // Relief Camp -> Purple Square
+    sb.writeln(_getStyle('Relief Camp', 'http://maps.google.com/mapfiles/kml/shapes/square.png', 'ff800080')); // Purple (AABBGGRR) -> 800080 is purple. KML is AABBGGRR. Flutter Color(0xFF800080). 
+    // Shelter -> Green Circle
+    sb.writeln(_getStyle('Shelter', 'http://maps.google.com/mapfiles/kml/shapes/placemark_circle.png', 'ff00ff00')); // Green
+    // Medical Shelter -> Blue Cross
+    sb.writeln(_getStyle('Medical Shelter', 'http://maps.google.com/mapfiles/kml/shapes/cross-hairs.png', 'ffff0000')); // Blue (AABBGGRR: ff(opacity) ff(blue) 00(green) 00(red))
+    // FULL -> Grey modifier (we'll just use a separate style ID)
+    sb.writeln(_getStyle('Relief Camp_FULL', 'http://maps.google.com/mapfiles/kml/shapes/square.png', 'ff808080'));
+    sb.writeln(_getStyle('Shelter_FULL', 'http://maps.google.com/mapfiles/kml/shapes/placemark_circle.png', 'ff808080'));
+    sb.writeln(_getStyle('Medical Shelter_FULL', 'http://maps.google.com/mapfiles/kml/shapes/cross-hairs.png', 'ff808080'));
 
-    for (var doc in snapshot.docs) {
-      final data = doc.data() as Map<String, dynamic>;
-      
-      // Filter Logic
-      final bool visible = data['visibleToPublic'] ?? true;
-      if (!visible) continue;
+    for (var doc in docs) {
+      final data = doc.data();
+      final name = data['name'] ?? 'Unknown Shelter';
+      final type = data['type'] ?? 'Shelter';
+      final status = data['status'] ?? 'OPEN';
+      final capacity = data['capacity'] ?? 'N/A';
+      final district = data['district'] ?? 'N/A';
+      final lat = data['lat'];
+      final lng = data['lng'];
 
-      final String status = data['status'] ?? 'ACTIVE';
-      final String type = data['type'] ?? 'Safe Zone';
-      
       String styleId = type;
-      if (status == 'FULL') styleId = 'FULL';
-      
-      // Placemark
+      if (status == 'FULL') {
+        styleId = '${type}_FULL';
+      }
+
       sb.writeln('<Placemark>');
-      sb.writeln('<name>${_escape(data['name'] ?? 'Unknown')}</name>');
+      sb.writeln('<name>${_escape(name)}</name>');
       sb.writeln('<description><![CDATA[');
-      sb.writeln('Type: $type<br/>');
-      sb.writeln('Capacity: ${data['capacity'] ?? 'N/A'}<br/>');
-      sb.writeln('District: ${data['district'] ?? 'Kerala'}<br/>');
-      sb.writeln('Status: $status');
+      sb.writeln('<b>Type:</b> $type<br/>');
+      sb.writeln('<b>District:</b> $district<br/>');
+      sb.writeln('<b>Capacity:</b> $capacity<br/>');
+      sb.writeln('<b>Status:</b> $status');
       sb.writeln(']]></description>');
       sb.writeln('<styleUrl>#${_cleanId(styleId)}</styleUrl>');
-      sb.writeln('<Point><coordinates>${data['lng']},${data['lat']},0</coordinates></Point>');
+      sb.writeln('<Point><coordinates>$lng,$lat,0</coordinates></Point>');
       sb.writeln('</Placemark>');
     }
 
     sb.writeln('</Document>');
     sb.writeln('</kml>');
-
-    try {
-        // Upload to /var/www/html/kml/SafeZones_Live.kml
-        await lgController.uploadString(sb.toString(), '/var/www/html/kml/SafeZones_Live.kml');
-        print('Uploaded SafeZones_Live.kml');
-    } catch (e) {
-        print('Upload failed: $e');
-    }
+    return sb.toString();
   }
 
-  String _getStyle(String id, String iconParams, String color) {
-     return '''
+  Future<void> _ensureNetworkLink() async {
+    // 6. Ensure a NetworkLink exists... Shelters_NetworkLink.kml
+    final linkKml = '''<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <NetworkLink>
+    <name>Live Shelters Layer</name>
+    <flyToView>0</flyToView>
+    <Link>
+      <href>http://localhost:81/kml/Shelters_Live.kml</href>
+      <refreshMode>onInterval</refreshMode>
+      <refreshInterval>5</refreshInterval>
+    </Link>
+  </NetworkLink>
+</kml>''';
+    
+    // We upload this to a specific slave or master file that is loaded.
+    // Assuming standard "kmls.txt" method loads http links.
+    // We need to upload this file to the server, then ensure kmls.txt points to IT.
+    
+    await lgController.uploadString(linkKml, '/var/www/html/kml/Shelters_NetworkLink.kml');
+    
+    // Add to kmls.txt if not present (simple append for now, or use a managed list)
+    // To avoid duplicates, we might want to check or just overwrite kmls.txt if we controlled it fully.
+    // For now, appending is the standard "dumb" way in many LG apps if we don't track state.
+    // But let's try to be smarter? 
+    // Actually, if we just echo it, it might append multiple times.
+    // A safer way is to assume we are adding it once per session or relying on a clear command.
+    // Let's just append. The user can "Clean KMLs" if it gets messy.
+    
+    // IMPORTANT: Note that kmls.txt usually takes URLs.
+    // http://localhost:81/kml/Shelters_NetworkLink.kml
+    final linkUrl = 'http://localhost:81/kml/Shelters_NetworkLink.kml';
+    await lgController.executeCommand('grep -qFx "$linkUrl" /var/www/html/kmls.txt || echo "$linkUrl" >> /var/www/html/kmls.txt');
+  }
+
+  String _getStyle(String id, String iconHref, String color) {
+    return '''
     <Style id="${_cleanId(id)}">
       <IconStyle>
         <color>$color</color>
-        <scale>1.2</scale>
-        <Icon><href>$iconParams</href></Icon>
+        <scale>1.1</scale>
+        <Icon><href>$iconHref</href></Icon>
       </IconStyle>
-      <LabelStyle><scale>1.0</scale></LabelStyle>
-    </Style>
-     ''';
+      <LabelStyle>
+        <scale>1.0</scale>
+      </LabelStyle>
+    </Style>''';
   }
-  
+
   String _cleanId(String s) => s.replaceAll(' ', '_');
   String _escape(String s) => s.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
-}
-
-extension on LGController {
-    // Helper to upload string since it's defined in sshController inside lgController
-    // But wait, LGController has _sshController which has uploadString. 
-    // LGController doesn't expose uploadString publically? 
-    // Let's check existing LGController code.
-    // It has `sendKMLToSlave` (calls uploadString to slave path)
-    // It has `uploadAsset` (calls uploadAsset)
-    // It DOES expose `uploadString` via `_sshController.uploadString` IF we make a method or duplicate logic.
-    // Actually `LGController` has `sendKMLToSlave`. 
-    // To support arbitrary path upload, I might need to add a method to LGController or define an extension if `sshController` works.
-    // LGController's `_sshController` is private. 
-    // But `LGController` has `executeCommand`.
-    // Wait, the file `lg_controller.dart` has `Future<void> sendKMLToSlave(...)`. 
-    // I should modify `LGController` to add `uploadString(content, path)` public method since it already has private access.
 }

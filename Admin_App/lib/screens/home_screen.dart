@@ -15,6 +15,8 @@ import 'update_safe_zone_screen.dart';
 import 'broadcast_advisory_screen.dart';
 import 'rescue_requests_screen.dart';
 
+import 'shelter_list_screen.dart';
+
 import 'package:apps/services/safe_zone_lg_service.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -50,7 +52,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   void dispose() {
-    _safeZoneLGService.stopSync();
     super.dispose();
   }
 
@@ -74,10 +75,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       setState(() => _isConnected = success);
       
       if (success) {
-        _safeZoneLGService.startSync();
-        _showSuccess('Safe Zone Sync Active');
-      } else {
-        _safeZoneLGService.stopSync();
+        _showSuccess('LG Connection Active');
       }
     } catch (e) {
       setState(() => _isConnected = false);
@@ -269,6 +267,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
+  @override
   Widget _buildControlGrid() {
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -303,6 +302,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             onPressed: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const UpdateSafeZoneScreen()),
+            ),
+          ),
+          NeuButton(
+            icon: Icons.visibility, // Visibility icon
+            label: 'Visualise\nShelters',
+            color: const Color(0xFFD946EF), // Magenta
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => ShelterListScreen(lgController: widget.lgController)),
             ),
           ),
           NeuButton(
