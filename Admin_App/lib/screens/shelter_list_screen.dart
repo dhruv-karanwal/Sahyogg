@@ -52,6 +52,32 @@ class _ShelterListScreenState extends State<ShelterListScreen> {
     }
   }
 
+  Future<void> _castStrategic() async {
+    setState(() => _isCasting = true);
+    try {
+      await _lgService.castStrategicOverview();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Launching Strategic Overview (High Altitude, Large Icons)...'),
+            backgroundColor: Colors.amber,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to cast strategic overview: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isCasting = false);
+    }
+  }
+
   Future<void> _castShelter(String id, String name) async {
     try {
       await _lgService.castShelter(id);
@@ -97,14 +123,29 @@ class _ShelterListScreenState extends State<ShelterListScreen> {
             padding: const EdgeInsets.only(right: 16.0),
             child: _isCasting 
             ? const Center(child: CircularProgressIndicator(color: Colors.white))
-            : ElevatedButton.icon(
-                onPressed: _castAll,
-                icon: const Icon(Icons.cast_connected),
-                label: const Text('Cast All'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.purple.shade700,
-                  foregroundColor: Colors.white,
-                ),
+            : Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: _castStrategic,
+                    icon: const Icon(Icons.map_outlined),
+                    label: const Text('Strategic Map'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.amber.shade700,
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  ElevatedButton.icon(
+                    onPressed: _castAll,
+                    icon: const Icon(Icons.cast_connected),
+                    label: const Text('Cast All'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.purple.shade700,
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                ],
               ),
           ),
         ],
