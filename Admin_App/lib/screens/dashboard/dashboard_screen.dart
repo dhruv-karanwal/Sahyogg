@@ -80,13 +80,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   // Firestore Streams
-  Stream<QuerySnapshot> get _sosStream =>
-      FirebaseFirestore.instance.collection('Disasters').doc(widget.disasterType).collection('rescue_requests').snapshots();
+  Stream<QuerySnapshot> get _sosStream => FirebaseFirestore.instance
+      .collection('Disasters')
+      .doc('Flood')
+      .collection('rescue_requests')
+      .snapshots();
 
-  Stream<QuerySnapshot> get _safeZonesStream =>
-      FirebaseFirestore.instance.collection('Disasters').doc(widget.disasterType).collection('safe_zones').snapshots();
+  Stream<QuerySnapshot> get _safeZonesStream => FirebaseFirestore.instance
+      .collection('Disasters')
+      .doc('Flood')
+      .collection('safe_zones')
+      .snapshots();
 
   Stream<QuerySnapshot> get _incomingSmsStream => FirebaseFirestore.instance
+      .collection('Disasters')
+      .doc('Flood')
       .collection('incoming_sms')
       .snapshots();
 
