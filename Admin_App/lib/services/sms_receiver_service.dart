@@ -92,7 +92,7 @@ class SMSReceiverService {
         'createdAt': FieldValue.serverTimestamp(),
       };
 
-      await db.collection('rescue_requests').add(newDoc);
+      await db.collection('Disasters').doc('Flood').collection('rescue_requests').add(newDoc);
       print('Offline SMS successfully injected into Firestore Rescue Requests!');
       
     } catch (e) {

@@ -7,11 +7,13 @@ class AnalyticsDetailsScreen extends StatefulWidget {
   final String title;
   final String type; // 'sos', 'zones', 'shelters', 'routes'
   final TimeFilter? selectedFilter;
+  final String disasterType;
 
   const AnalyticsDetailsScreen({
     super.key,
     required this.title,
     required this.type,
+    required this.disasterType,
     this.selectedFilter,
   });
 
@@ -44,7 +46,7 @@ class _AnalyticsDetailsScreenState extends State<AnalyticsDetailsScreen> {
 
   Query<Map<String, dynamic>> _getFilteredQuery() {
     final startTime = _getFilterStartTime();
-    Query<Map<String, dynamic>> query = FirebaseFirestore.instance.collection('rescue_requests');
+    Query<Map<String, dynamic>> query = FirebaseFirestore.instance.collection('Disasters').doc(widget.disasterType).collection('rescue_requests');
     
     if (startTime != null) {
       query = query.where('createdAt', isGreaterThan: Timestamp.fromDate(startTime));
@@ -450,11 +452,13 @@ class _AnalyticsDetailsScreenState extends State<AnalyticsDetailsScreen> {
   Widget _buildSheltersChart() {
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
+          .collection('Disasters')
+          .doc(widget.disasterType)
           .collection('safe_zones')
           .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
-          // Try alternate collection name
+          // Fallback to older collection if needed
           return StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance
                 .collection('safe-zones')
