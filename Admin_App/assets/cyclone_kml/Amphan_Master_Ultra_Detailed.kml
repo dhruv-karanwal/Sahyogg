@@ -1,0 +1,347 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>SAHYOG: Ultra-Detailed Amphan Intelligence</name>
+    <open>1</open>
+    <description>Profoundly enriched multi-layer Liquid Galaxy Demo (Track, Polygons, Centers)</description>
+    
+    <Folder><name>Cyclone Track (Time-Series)</name>
+      <Style id="trackLine"><LineStyle><color>ff0000ff</color><width>6</width></LineStyle></Style>
+      <Style id="trackPoint">
+        <IconStyle><scale>0.8</scale><Icon><href>http://maps.google.com/mapfiles/kml/shapes/placemark_circle.png</href></Icon></IconStyle>
+        <LabelStyle><color>ffffffff</color><scale>0.9</scale></LabelStyle>
+      </Style>
+
+      <Placemark>
+        <name>Amphan Trajectory</name>
+        <styleUrl>#trackLine</styleUrl>
+        <LineString><tessellate>1</tessellate><coordinates>87.0,10.4,0 86.3,10.9,0 86.0,11.4,0 86.0,12.0,0 86.3,13.2,0 86.3,14.0,0 86.7,15.6,0 87.0,17.4,0 87.5,19.1,0 88.4,21.9,0 89.3,24.2,0 89.6,25.4,0</coordinates></LineString>
+      </Placemark>
+
+      <Placemark>
+        <name>16 May 00:00 UTC</name>
+        <description>Depression | Wind: 25 kt | Min Pressure: 1000 hPa</description>
+        <styleUrl>#trackPoint</styleUrl>
+        <Point><coordinates>87.0,10.4,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>16 May 12:00 UTC</name>
+        <description>Cyclonic Storm | Wind: 35 kt | Min Pressure: 996 hPa</description>
+        <styleUrl>#trackPoint</styleUrl>
+        <Point><coordinates>86.3,10.9,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>17 May 00:00 UTC</name>
+        <description>Cyclonic Storm | Wind: 45 kt | Min Pressure: 992 hPa</description>
+        <styleUrl>#trackPoint</styleUrl>
+        <Point><coordinates>86.0,11.4,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>17 May 12:00 UTC</name>
+        <description>Very Severe CS | Wind: 70 kt | Min Pressure: 978 hPa</description>
+        <styleUrl>#trackPoint</styleUrl>
+        <Point><coordinates>86.0,12.0,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>18 May 00:00 UTC</name>
+        <description>Extremely Severe CS | Wind: 100 kt | Min Pressure: 952 hPa</description>
+        <styleUrl>#trackPoint</styleUrl>
+        <Point><coordinates>86.3,13.2,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>18 May 12:00 UTC</name>
+        <description>Super Cyclonic Storm | Wind: 125 kt | Min Pressure: 926 hPa</description>
+        <styleUrl>#trackPoint</styleUrl>
+        <Point><coordinates>86.3,14.0,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>19 May 00:00 UTC</name>
+        <description>Super Cyclonic Storm | Wind: 125 kt | Min Pressure: 926 hPa</description>
+        <styleUrl>#trackPoint</styleUrl>
+        <Point><coordinates>86.7,15.6,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>19 May 12:00 UTC</name>
+        <description>Extremely Severe CS | Wind: 105 kt | Min Pressure: 946 hPa</description>
+        <styleUrl>#trackPoint</styleUrl>
+        <Point><coordinates>87.0,17.4,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>20 May 00:00 UTC</name>
+        <description>Extremely Severe CS | Wind: 95 kt | Min Pressure: 954 hPa</description>
+        <styleUrl>#trackPoint</styleUrl>
+        <Point><coordinates>87.5,19.1,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>20 May 12:00 UTC</name>
+        <description>Very Severe CS (Landfall) | Wind: 80 kt | Min Pressure: 968 hPa</description>
+        <styleUrl>#trackPoint</styleUrl>
+        <Point><coordinates>88.4,21.9,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>21 May 00:00 UTC</name>
+        <description>Cyclonic Storm | Wind: 40 kt | Min Pressure: 988 hPa</description>
+        <styleUrl>#trackPoint</styleUrl>
+        <Point><coordinates>89.3,24.2,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>21 May 12:00 UTC</name>
+        <description>Depression | Wind: 20 kt | Min Pressure: 995 hPa</description>
+        <styleUrl>#trackPoint</styleUrl>
+        <Point><coordinates>89.6,25.4,0</coordinates></Point>
+      </Placemark>
+</Folder>
+    <Folder><name>Wind Intensity (Concentric Zones)</name>
+      <Style id="windRed"><PolyStyle><color>800000aa</color></PolyStyle><LineStyle><color>ff0000ff</color><width>2</width></LineStyle></Style>
+      <Style id="windOrange"><PolyStyle><color>600066aa</color></PolyStyle><LineStyle><color>ff0088ff</color><width>2</width></LineStyle></Style>
+      <Style id="windYellow"><PolyStyle><color>5000ffff</color></PolyStyle><LineStyle><color>ff00ffff</color><width>2</width></LineStyle></Style>
+      <Placemark>
+        <name>160+ kmph (Catastrophic Zone)</name>
+        <styleUrl>#windRed</styleUrl>
+        <Polygon><outerBoundaryIs><LinearRing><coordinates>88.3000,22.2405,0 88.4135,22.2302,0 88.5226,22.1994,0 88.6232,22.1494,0 88.7114,22.0822,0 88.7837,22.0003,0 88.8375,21.9069,0 88.8706,21.8055,0 88.8818,21.7000,0 88.8706,21.5945,0 88.8375,21.4931,0 88.7837,21.3997,0 88.7114,21.3178,0 88.6232,21.2506,0 88.5226,21.2006,0 88.4135,21.1698,0 88.3000,21.1595,0 88.1865,21.1698,0 88.0774,21.2006,0 87.9768,21.2506,0 87.8886,21.3178,0 87.8163,21.3997,0 87.7625,21.4931,0 87.7294,21.5945,0 87.7182,21.7000,0 87.7294,21.8055,0 87.7625,21.9069,0 87.8163,22.0003,0 87.8886,22.0822,0 87.9768,22.1494,0 88.0774,22.1994,0 88.1865,22.2302,0 88.3000,22.2405,0</coordinates></LinearRing></outerBoundaryIs></Polygon>
+      </Placemark>
+      <Placemark>
+        <name>120-160 kmph (Severe Damage Zone)</name>
+        <styleUrl>#windOrange</styleUrl>
+        <Polygon><outerBoundaryIs><LinearRing><coordinates>88.3000,22.8712,0 88.5459,22.8487,0 88.7824,22.7820,0 89.0003,22.6738,0 89.1913,22.5281,0 89.3481,22.3507,0 89.4645,22.1482,0 89.5363,21.9285,0 89.5605,21.7000,0 89.5363,21.4715,0 89.4645,21.2518,0 89.3481,21.0493,0 89.1913,20.8719,0 89.0003,20.7262,0 88.7824,20.6180,0 88.5459,20.5513,0 88.3000,20.5288,0 88.0541,20.5513,0 87.8176,20.6180,0 87.5997,20.7262,0 87.4087,20.8719,0 87.2519,21.0493,0 87.1355,21.2518,0 87.0637,21.4715,0 87.0395,21.7000,0 87.0637,21.9285,0 87.1355,22.1482,0 87.2519,22.3507,0 87.4087,22.5281,0 87.5997,22.6738,0 87.8176,22.7820,0 88.0541,22.8487,0 88.3000,22.8712,0</coordinates></LinearRing></outerBoundaryIs></Polygon>
+      </Placemark>
+      <Placemark>
+        <name>90-120 kmph (High Wind Zone)</name>
+        <styleUrl>#windYellow</styleUrl>
+        <Polygon><outerBoundaryIs><LinearRing><coordinates>87.8000,23.5820,0 88.2159,23.5439,0 88.6158,23.4311,0 88.9843,23.2480,0 89.3073,23.0015,0 89.5724,22.7011,0 89.7694,22.3585,0 89.8907,21.9867,0 89.9317,21.6000,0 89.8907,21.2133,0 89.7694,20.8415,0 89.5724,20.4989,0 89.3073,20.1985,0 88.9843,19.9520,0 88.6158,19.7689,0 88.2159,19.6561,0 87.8000,19.6180,0 87.3841,19.6561,0 86.9842,19.7689,0 86.6157,19.9520,0 86.2927,20.1985,0 86.0276,20.4989,0 85.8306,20.8415,0 85.7093,21.2133,0 85.6683,21.6000,0 85.7093,21.9867,0 85.8306,22.3585,0 86.0276,22.7011,0 86.2927,23.0015,0 86.6157,23.2480,0 86.9842,23.4311,0 87.3841,23.5439,0 87.8000,23.5820,0</coordinates></LinearRing></outerBoundaryIs></Polygon>
+      </Placemark>
+</Folder>
+    <Folder><name>Rainfall Severity (Accumulation Boundaries)</name>
+      <Style id="rainExtreme"><PolyStyle><color>aa990000</color></PolyStyle><LineStyle><color>ffff0000</color><width>2</width></LineStyle></Style>
+      <Style id="rainHigh"><PolyStyle><color>aaff9900</color></PolyStyle><LineStyle><color>ffff9900</color><width>2</width></LineStyle></Style>
+      <Placemark>
+        <name>Kolkata & Sundarbans (>300mm)</name>
+        <styleUrl>#rainExtreme</styleUrl>
+        <Polygon><outerBoundaryIs><LinearRing><coordinates>
+          88.0,21.5,0 89.0,21.5,0 89.0,23.0,0 88.0,23.0,0 88.0,21.5,0
+        </coordinates></LinearRing></outerBoundaryIs></Polygon>
+      </Placemark>
+      <Placemark>
+        <name>North Odisha (>200mm)</name>
+        <styleUrl>#rainHigh</styleUrl>
+        <Polygon><outerBoundaryIs><LinearRing><coordinates>
+          86.5,20.5,0 87.5,20.5,0 87.5,21.5,0 86.5,21.5,0 86.5,20.5,0
+        </coordinates></LinearRing></outerBoundaryIs></Polygon>
+      </Placemark>
+</Folder>
+    <Folder><name>Power Grid Outage (Blackout Nodes &amp; Region)</name>
+      <Style id="powerFail">
+        <IconStyle><scale>1.5</scale><Icon><href>http://maps.google.com/mapfiles/kml/shapes/forbidden.png</href></Icon></IconStyle>
+        <LabelStyle><color>ff0000ff</color><scale>1.2</scale></LabelStyle>
+      </Style>
+
+      <Placemark>
+        <name>CESC Kolkata Area Grid Failure</name>
+        <description>Urban power disrupted for 48+ hours</description>
+        <styleUrl>#powerFail</styleUrl>
+        <Point><coordinates>88.36,22.57,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>South 24 Parganas Substations</name>
+        <description>Widespread failure due to fallen trees</description>
+        <styleUrl>#powerFail</styleUrl>
+        <Point><coordinates>88.42,22.35,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>East Midnapore Grid</name>
+        <description>Coastline stations submerged</description>
+        <styleUrl>#powerFail</styleUrl>
+        <Point><coordinates>87.85,21.95,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>Bhadrak Grid (Odisha)</name>
+        <description>High tension wires snapped (~3.2B INR damage)</description>
+        <styleUrl>#powerFail</styleUrl>
+        <Point><coordinates>86.92,21.05,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>Kendrapara Distribution</name>
+        <description>Infrastructure critically damaged</description>
+        <styleUrl>#powerFail</styleUrl>
+        <Point><coordinates>86.36,20.32,0</coordinates></Point>
+      </Placemark>
+
+      <Style id="powerPoly"><PolyStyle><color>80800080</color></PolyStyle><LineStyle><color>ff800080</color><width>2</width></LineStyle></Style>
+      <Placemark>
+        <name>Total Blackout Region</name>
+        <styleUrl>#powerPoly</styleUrl>
+        <Polygon><outerBoundaryIs><LinearRing><coordinates>
+          86.0,20.0,0 89.5,20.0,0 89.5,23.5,0 86.0,23.5,0 86.0,20.0,0
+        </coordinates></LinearRing></outerBoundaryIs></Polygon>
+      </Placemark>
+</Folder>
+    <Folder><name>Infrastructure Damage (District-level)</name>
+      <Style id="infraCrit"><PolyStyle><color>aaff00ff</color></PolyStyle><LineStyle><color>ffff00ff</color><width>2</width></LineStyle></Style>
+      <Style id="infraSevere"><PolyStyle><color>aaccccff</color></PolyStyle><LineStyle><color>ffccccff</color><width>2</width></LineStyle></Style>
+      <Placemark>
+        <name>Sundarbans (Catastrophic: Mud houses destroyed)</name>
+        <styleUrl>#infraCrit</styleUrl>
+        <Polygon><outerBoundaryIs><LinearRing><coordinates>
+          88.0,21.5,0 89.2,21.5,0 89.2,22.2,0 88.0,22.2,0 88.0,21.5,0
+        </coordinates></LinearRing></outerBoundaryIs></Polygon>
+      </Placemark>
+      <Placemark>
+        <name>Kolkata & Suburbs (Severe: Up-rooted trees, collapsed walls)</name>
+        <styleUrl>#infraSevere</styleUrl>
+        <Polygon><outerBoundaryIs><LinearRing><coordinates>
+          88.1,22.3,0 88.6,22.3,0 88.6,22.8,0 88.1,22.8,0 88.1,22.3,0
+        </coordinates></LinearRing></outerBoundaryIs></Polygon>
+      </Placemark>
+</Folder>
+    <Folder><name>Agriculture Impact (Agro-Economic Loss)</name>
+      <Style id="agriRice"><PolyStyle><color>aa004080</color></PolyStyle><LineStyle><color>ff004080</color><width>2</width></LineStyle></Style>
+      <Style id="agriMix"><PolyStyle><color>aa008000</color></PolyStyle><LineStyle><color>ff008000</color><width>2</width></LineStyle></Style>
+      <Placemark>
+        <name>Ganges Delta Crop Loss - Saline Inundation</name>
+        <styleUrl>#agriRice</styleUrl>
+        <Polygon><outerBoundaryIs><LinearRing><coordinates>
+          88.2,21.6,0 89.5,21.6,0 89.5,22.6,0 88.2,22.6,0 88.2,21.6,0
+        </coordinates></LinearRing></outerBoundaryIs></Polygon>
+      </Placemark>
+      <Placemark>
+        <name>Odisha Coastal Agriculture (Poultry & Livestock Death)</name>
+        <styleUrl>#agriMix</styleUrl>
+        <Polygon><outerBoundaryIs><LinearRing><coordinates>
+          86.5,20.0,0 87.5,20.0,0 87.5,21.5,0 86.5,21.5,0 86.5,20.0,0
+        </coordinates></LinearRing></outerBoundaryIs></Polygon>
+      </Placemark>
+</Folder>
+    <Folder><name>Safe Zones (Relief Camp Network)</name>
+      <Style id="safePoint">
+        <IconStyle><scale>1.3</scale><Icon><href>http://maps.google.com/mapfiles/kml/pushpin/grn-pushpin.png</href></Icon></IconStyle>
+        <LabelStyle><color>ff00ff00</color><scale>1.1</scale></LabelStyle>
+      </Style>
+
+      <Placemark>
+        <name>Kolkata Central Relief HQ</name>
+        <styleUrl>#safePoint</styleUrl>
+        <Point><coordinates>88.36,22.57,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>Salt Lake Stadium Camp</name>
+        <styleUrl>#safePoint</styleUrl>
+        <Point><coordinates>88.4,22.6,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>Alipore High School Shelter</name>
+        <styleUrl>#safePoint</styleUrl>
+        <Point><coordinates>88.32,22.52,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>Diamond Harbour Camp 1</name>
+        <styleUrl>#safePoint</styleUrl>
+        <Point><coordinates>88.05,21.85,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>Diamond Harbour Camp 2</name>
+        <styleUrl>#safePoint</styleUrl>
+        <Point><coordinates>88.1,21.9,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>Kakdwip Emergency Shelter</name>
+        <styleUrl>#safePoint</styleUrl>
+        <Point><coordinates>88.2,21.65,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>Namkhana Cyclone Center</name>
+        <styleUrl>#safePoint</styleUrl>
+        <Point><coordinates>88.4,21.75,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>Digha Safe Zone</name>
+        <styleUrl>#safePoint</styleUrl>
+        <Point><coordinates>87.35,21.55,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>Bhadrak IRCS Shelter 01</name>
+        <styleUrl>#safePoint</styleUrl>
+        <Point><coordinates>86.92,21.05,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>Bhadrak IRCS Shelter 02</name>
+        <styleUrl>#safePoint</styleUrl>
+        <Point><coordinates>86.85,20.95,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>Kendrapara Multipurpose Shelter</name>
+        <styleUrl>#safePoint</styleUrl>
+        <Point><coordinates>86.55,20.45,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>Jagatsinghpur Relief Hub</name>
+        <styleUrl>#safePoint</styleUrl>
+        <Point><coordinates>86.2,20.25,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>Puri Safe Evacuation Point</name>
+        <styleUrl>#safePoint</styleUrl>
+        <Point><coordinates>86.15,20.1,0</coordinates></Point>
+      </Placemark>
+</Folder>
+    <Folder><name>Evacuation Routes (Multi-Corridor)</name>
+      <Style id="routeLine"><LineStyle><color>ff00ff00</color><width>5</width></LineStyle></Style>
+
+      <Placemark>
+        <name>Namkhana to Kolkata Corridor</name>
+        <styleUrl>#routeLine</styleUrl>
+        <LineString><tessellate>1</tessellate><coordinates>88.35,21.76,0 88.30,22.10,0 88.36,22.57,0</coordinates></LineString>
+      </Placemark>
+
+      <Placemark>
+        <name>Digha Inland Route</name>
+        <styleUrl>#routeLine</styleUrl>
+        <LineString><tessellate>1</tessellate><coordinates>87.52,21.62,0 87.65,22.05,0 87.80,22.35,0</coordinates></LineString>
+      </Placemark>
+
+      <Placemark>
+        <name>Bhadrak Highway Access</name>
+        <styleUrl>#routeLine</styleUrl>
+        <LineString><tessellate>1</tessellate><coordinates>86.95,21.00,0 86.60,20.80,0 86.40,20.50,0</coordinates></LineString>
+      </Placemark>
+
+      <Placemark>
+        <name>Jagatsinghpur Bypass</name>
+        <styleUrl>#routeLine</styleUrl>
+        <LineString><tessellate>1</tessellate><coordinates>86.25,20.10,0 85.80,20.20,0 85.50,20.40,0</coordinates></LineString>
+      </Placemark>
+
+      <Placemark>
+        <name>Sundarban Delta Escapes</name>
+        <styleUrl>#routeLine</styleUrl>
+        <LineString><tessellate>1</tessellate><coordinates>88.80,21.60,0 88.60,22.10,0 88.50,22.50,0</coordinates></LineString>
+      </Placemark>
+</Folder>
+  </Document>
+</kml>

@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class BroadcastAdvisoryScreen extends StatefulWidget {
-  const BroadcastAdvisoryScreen({super.key});
+  final String disasterType;
+  const BroadcastAdvisoryScreen({super.key, required this.disasterType});
 
   @override
   State<BroadcastAdvisoryScreen> createState() => _BroadcastAdvisoryScreenState();
@@ -78,19 +79,19 @@ class _BroadcastAdvisoryScreenState extends State<BroadcastAdvisoryScreen> {
 
       // 1. Specific Type Doc (for overwriting previous of same type)
       await FirebaseFirestore.instance
-          .collection('advisories')
+          .collection('Disasters').doc(widget.disasterType).collection('advisories')
           .doc(_selectedAdvisoryType)
           .set(data);
 
       // 2. Current Active Doc (Live Banner Source)
       await FirebaseFirestore.instance
-          .collection('advisories')
+          .collection('Disasters').doc(widget.disasterType).collection('advisories')
           .doc('current')
           .set(data);
 
       // 3. History Log (New Request)
       // We assume the user wants a log of all sent advisories
-      await FirebaseFirestore.instance.collection('advisories_history').add({
+      await FirebaseFirestore.instance.collection('Disasters').doc(widget.disasterType).collection('advisories_history').add({
         ...data,
         'sentAt': FieldValue.serverTimestamp(), // Exact server time for sorting
       });
@@ -127,14 +128,14 @@ class _BroadcastAdvisoryScreenState extends State<BroadcastAdvisoryScreen> {
     try {
        // Clear the 'current' advisory
        await FirebaseFirestore.instance
-          .collection('advisories')
+          .collection('Disasters').doc(widget.disasterType).collection('advisories')
           .doc('current')
           .update({'isActive': false});
           
        // Optionally clear the specific type doc too, or leave it as history.
        // Let's mark it inactive.
        await FirebaseFirestore.instance
-          .collection('advisories')
+          .collection('Disasters').doc(widget.disasterType).collection('advisories')
           .doc(_selectedAdvisoryType)
           .update({'isActive': false});
        

@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>SAHYOG: Uttarakhand Forest Fire Intelligence</name>
+    <open>1</open>
+    <description>Profoundly enriched multi-layer Liquid Galaxy Demo for Forest Fires</description>
+    
+    <Folder><name>Fire Spread Perimeter (Severity Zones)</name>
+      <Style id="Pauri">
+        <PolyStyle><color>aa0000ff</color></PolyStyle>
+        <LineStyle><color>ffff0000</color><width>2</width></LineStyle>
+      </Style>
+      <Placemark>
+        <name>Pauri (Severe Spread: 402 Incidents)</name>
+        <styleUrl>#Pauri</styleUrl>
+        <Polygon><outerBoundaryIs><LinearRing><coordinates>78.7800,30.3302,0 78.8207,30.3267,0 78.8597,30.3165,0 78.8958,30.2998,0 78.9273,30.2774,0 78.9533,30.2501,0 78.9725,30.2190,0 78.9844,30.1852,0 78.9884,30.1500,0 78.9844,30.1148,0 78.9725,30.0810,0 78.9533,30.0499,0 78.9273,30.0226,0 78.8958,30.0002,0 78.8597,29.9835,0 78.8207,29.9733,0 78.7800,29.9698,0 78.7393,29.9733,0 78.7003,29.9835,0 78.6642,30.0002,0 78.6327,30.0226,0 78.6067,30.0499,0 78.5875,30.0810,0 78.5756,30.1148,0 78.5716,30.1500,0 78.5756,30.1852,0 78.5875,30.2190,0 78.6067,30.2501,0 78.6327,30.2774,0 78.6642,30.2998,0 78.7003,30.3165,0 78.7393,30.3267,0 78.7800,30.3302,0</coordinates></LinearRing></outerBoundaryIs></Polygon>
+      </Placemark>
+
+      <Style id="Nainital">
+        <PolyStyle><color>aa0088ff</color></PolyStyle>
+        <LineStyle><color>ffff8800</color><width>2</width></LineStyle>
+      </Style>
+      <Placemark>
+        <name>Nainital (High Spread: 266 Incidents)</name>
+        <styleUrl>#Nainital</styleUrl>
+        <Polygon><outerBoundaryIs><LinearRing><coordinates>79.4500,29.5251,0 79.4803,29.5225,0 79.5094,29.5148,0 79.5362,29.5024,0 79.5597,29.4856,0 79.5790,29.4651,0 79.5933,29.4417,0 79.6021,29.4164,0 79.6051,29.3900,0 79.6021,29.3636,0 79.5933,29.3383,0 79.5790,29.3149,0 79.5597,29.2944,0 79.5362,29.2776,0 79.5094,29.2652,0 79.4803,29.2575,0 79.4500,29.2549,0 79.4197,29.2575,0 79.3906,29.2652,0 79.3638,29.2776,0 79.3403,29.2944,0 79.3210,29.3149,0 79.3067,29.3383,0 79.2979,29.3636,0 79.2949,29.3900,0 79.2979,29.4164,0 79.3067,29.4417,0 79.3210,29.4651,0 79.3403,29.4856,0 79.3638,29.5024,0 79.3906,29.5148,0 79.4197,29.5225,0 79.4500,29.5251,0</coordinates></LinearRing></outerBoundaryIs></Polygon>
+      </Placemark>
+
+      <Style id="Tehri">
+        <PolyStyle><color>aa0088ff</color></PolyStyle>
+        <LineStyle><color>ffff8800</color><width>2</width></LineStyle>
+      </Style>
+      <Placemark>
+        <name>Tehri (High Spread: 247 Incidents)</name>
+        <styleUrl>#Tehri</styleUrl>
+        <Polygon><outerBoundaryIs><LinearRing><coordinates>78.4800,30.5151,0 78.5106,30.5125,0 78.5399,30.5048,0 78.5670,30.4924,0 78.5908,30.4756,0 78.6102,30.4551,0 78.6247,30.4317,0 78.6336,30.4064,0 78.6366,30.3800,0 78.6336,30.3536,0 78.6247,30.3283,0 78.6102,30.3049,0 78.5908,30.2844,0 78.5670,30.2676,0 78.5399,30.2552,0 78.5106,30.2475,0 78.4800,30.2449,0 78.4494,30.2475,0 78.4201,30.2552,0 78.3930,30.2676,0 78.3692,30.2844,0 78.3498,30.3049,0 78.3353,30.3283,0 78.3264,30.3536,0 78.3234,30.3800,0 78.3264,30.4064,0 78.3353,30.4317,0 78.3498,30.4551,0 78.3692,30.4756,0 78.3930,30.4924,0 78.4201,30.5048,0 78.4494,30.5125,0 78.4800,30.5151,0</coordinates></LinearRing></outerBoundaryIs></Polygon>
+      </Placemark>
+
+      <Style id="Chamoli">
+        <PolyStyle><color>aa00aaff</color></PolyStyle>
+        <LineStyle><color>ffffff00</color><width>2</width></LineStyle>
+      </Style>
+      <Placemark>
+        <name>Chamoli (Moderate Spread: 221 Incidents)</name>
+        <styleUrl>#Chamoli</styleUrl>
+        <Polygon><outerBoundaryIs><LinearRing><coordinates>79.3200,30.3981,0 79.3444,30.3960,0 79.3679,30.3899,0 79.3896,30.3799,0 79.4085,30.3664,0 79.4241,30.3501,0 79.4357,30.3314,0 79.4428,30.3111,0 79.4452,30.2900,0 79.4428,30.2689,0 79.4357,30.2486,0 79.4241,30.2299,0 79.4085,30.2136,0 79.3896,30.2001,0 79.3679,30.1901,0 79.3444,30.1840,0 79.3200,30.1819,0 79.2956,30.1840,0 79.2721,30.1901,0 79.2504,30.2001,0 79.2315,30.2136,0 79.2159,30.2299,0 79.2043,30.2486,0 79.1972,30.2689,0 79.1948,30.2900,0 79.1972,30.3111,0 79.2043,30.3314,0 79.2159,30.3501,0 79.2315,30.3664,0 79.2504,30.3799,0 79.2721,30.3899,0 79.2956,30.3960,0 79.3200,30.3981,0</coordinates></LinearRing></outerBoundaryIs></Polygon>
+      </Placemark>
+
+      <Style id="Almora">
+        <PolyStyle><color>aa00aaff</color></PolyStyle>
+        <LineStyle><color>ffffff00</color><width>2</width></LineStyle>
+      </Style>
+      <Placemark>
+        <name>Almora (Moderate Spread: 195 Incidents)</name>
+        <styleUrl>#Almora</styleUrl>
+        <Polygon><outerBoundaryIs><LinearRing><coordinates>79.6400,29.6981,0 79.6643,29.6960,0 79.6876,29.6899,0 79.7091,29.6799,0 79.7279,29.6664,0 79.7434,29.6501,0 79.7549,29.6314,0 79.7619,29.6111,0 79.7643,29.5900,0 79.7619,29.5689,0 79.7549,29.5486,0 79.7434,29.5299,0 79.7279,29.5136,0 79.7091,29.5001,0 79.6876,29.4901,0 79.6643,29.4840,0 79.6400,29.4819,0 79.6157,29.4840,0 79.5924,29.4901,0 79.5709,29.5001,0 79.5521,29.5136,0 79.5366,29.5299,0 79.5251,29.5486,0 79.5181,29.5689,0 79.5157,29.5900,0 79.5181,29.6111,0 79.5251,29.6314,0 79.5366,29.6501,0 79.5521,29.6664,0 79.5709,29.6799,0 79.5924,29.6899,0 79.6157,29.6960,0 79.6400,29.6981,0</coordinates></LinearRing></outerBoundaryIs></Polygon>
+      </Placemark>
+</Folder>
+    <Folder><name>Thermal Hotspots (District Nodes)</name>
+      <Style id="fireIcon">
+        <IconStyle><scale>1.5</scale><Icon><href>http://maps.google.com/mapfiles/kml/shapes/firedept.png</href></Icon></IconStyle>
+        <LabelStyle><color>ff0000ff</color><scale>1.2</scale></LabelStyle>
+      </Style>
+
+      <Placemark>
+        <name>Dehradun Hotspots (175)</name>
+        <description>375 ha affected</description>
+        <styleUrl>#fireIcon</styleUrl>
+        <Point><coordinates>78.03,30.31,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>Haridwar Hotspots (52)</name>
+        <description>132 ha affected</description>
+        <styleUrl>#fireIcon</styleUrl>
+        <Point><coordinates>78.16,29.94,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>Uttarkashi Hotspots (172)</name>
+        <description>240 ha affected</description>
+        <styleUrl>#fireIcon</styleUrl>
+        <Point><coordinates>78.43,30.72,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>Rudraprayag Hotspots (82)</name>
+        <description>159 ha affected</description>
+        <styleUrl>#fireIcon</styleUrl>
+        <Point><coordinates>78.98,30.28,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>Pithoragarh Hotspots (97)</name>
+        <description>288 ha affected</description>
+        <styleUrl>#fireIcon</styleUrl>
+        <Point><coordinates>80.21,29.58,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>Bageshwar Hotspots (60)</name>
+        <description>215 ha affected</description>
+        <styleUrl>#fireIcon</styleUrl>
+        <Point><coordinates>79.77,29.83,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>Champawat Hotspots (59)</name>
+        <description>119 ha affected</description>
+        <styleUrl>#fireIcon</styleUrl>
+        <Point><coordinates>80.09,29.33,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>Udham Singh Nagar (16)</name>
+        <description>14 ha affected</description>
+        <styleUrl>#fireIcon</styleUrl>
+        <Point><coordinates>79.4,28.98,0</coordinates></Point>
+      </Placemark>
+</Folder>
+    <Folder><name>Vegetation Loss (Ecosystem Impact)</name>
+      <Style id="vegLossPine"><PolyStyle><color>9914b4a3</color></PolyStyle><LineStyle><color>ff14b4a3</color><width>2</width></LineStyle></Style>
+      <Style id="vegLossDeciduous"><PolyStyle><color>99245131</color></PolyStyle><LineStyle><color>ff245131</color><width>2</width></LineStyle></Style>
+      <Placemark>
+        <name>Subtropical Pine Forest Burnt Area (29%) - Approx 628 sq km</name>
+        <styleUrl>#vegLossPine</styleUrl>
+        <Polygon><outerBoundaryIs><LinearRing><coordinates>
+          78.2,29.8,0 79.5,29.8,0 79.5,30.5,0 78.2,30.5,0 78.2,29.8,0
+        </coordinates></LinearRing></outerBoundaryIs></Polygon>
+      </Placemark>
+      <Placemark>
+        <name>Moist Deciduous Forest Burnt Area (55%) - Approx 1191 sq km</name>
+        <styleUrl>#vegLossDeciduous</styleUrl>
+        <Polygon><outerBoundaryIs><LinearRing><coordinates>
+          78.5,29.3,0 80.0,29.3,0 80.0,29.7,0 78.5,29.7,0 78.5,29.3,0
+        </coordinates></LinearRing></outerBoundaryIs></Polygon>
+      </Placemark>
+</Folder>
+    <Folder><name>Smoke Plume Dispersion (Air Quality)</name>
+      <Style id="smokeDark"><PolyStyle><color>70333333</color></PolyStyle><LineStyle><color>aa333333</color><width>1</width></LineStyle></Style>
+      <Style id="smokeLight"><PolyStyle><color>50777777</color></PolyStyle><LineStyle><color>aa777777</color><width>1</width></LineStyle></Style>
+      <Placemark>
+        <name>Dense Smoke / High Black Carbon Concentration</name>
+        <styleUrl>#smokeDark</styleUrl>
+        <Polygon><outerBoundaryIs><LinearRing><coordinates>
+          77.8,29.5,0 79.8,29.5,0 80.2,30.8,0 78.2,30.8,0 77.8,29.5,0
+        </coordinates></LinearRing></outerBoundaryIs></Polygon>
+      </Placemark>
+      <Placemark>
+        <name>Light Smoke Dispersion / Poor Visibility</name>
+        <styleUrl>#smokeLight</styleUrl>
+        <Polygon><outerBoundaryIs><LinearRing><coordinates>
+          77.0,28.5,0 80.5,28.5,0 80.8,29.5,0 77.2,29.5,0 77.0,28.5,0
+        </coordinates></LinearRing></outerBoundaryIs></Polygon>
+      </Placemark>
+</Folder>
+    <Folder><name>Infrastructure At Risk (Housing &amp; Facilities)</name>
+      <Style id="houseIcon">
+        <IconStyle><scale>1.3</scale><Icon><href>http://maps.google.com/mapfiles/kml/shapes/lodging.png</href></Icon></IconStyle>
+        <LabelStyle><color>ff0000ff</color><scale>1.1</scale></LabelStyle>
+      </Style>
+
+      <Placemark>
+        <name>Pauri Village Settlements (At Risk)</name>
+        <styleUrl>#houseIcon</styleUrl>
+        <Point><coordinates>78.8,30.15,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>Nainital Suburban Houses (Evacuated)</name>
+        <styleUrl>#houseIcon</styleUrl>
+        <Point><coordinates>79.45,29.39,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>Tehri Hydro Dam Facilities (Surrounded by Fire)</name>
+        <styleUrl>#houseIcon</styleUrl>
+        <Point><coordinates>78.5,30.38,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>Almora Rural Homes (Under threat)</name>
+        <styleUrl>#houseIcon</styleUrl>
+        <Point><coordinates>79.6,29.6,0</coordinates></Point>
+      </Placemark>
+
+      <Style id="infraRiskPoly"><PolyStyle><color>600000ff</color></PolyStyle><LineStyle><color>ff0000ff</color><width>2</width></LineStyle></Style>
+      <Placemark>
+        <name>Critical Infrastructure Threat Zone (6 lives lost, 31 injured)</name>
+        <styleUrl>#infraRiskPoly</styleUrl>
+        <Polygon><outerBoundaryIs><LinearRing><coordinates>
+          78.2,29.3,0 79.8,29.3,0 79.5,30.5,0 78.0,30.5,0 78.2,29.3,0
+        </coordinates></LinearRing></outerBoundaryIs></Polygon>
+      </Placemark>
+</Folder>
+    <Folder><name>Wildlife Impact (National Parks &amp; Sanctuaries)</name>
+      <Style id="parkIcon">
+        <IconStyle><scale>1.5</scale><Icon><href>http://maps.google.com/mapfiles/kml/shapes/parks.png</href></Icon></IconStyle>
+        <LabelStyle><color>ff00aaff</color><scale>1.2</scale></LabelStyle>
+      </Style>
+
+      <Style id="Corbett">
+        <PolyStyle><color>9966ccaa</color></PolyStyle>
+        <LineStyle><color>ff66ccaa</color><width>2</width></LineStyle>
+      </Style>
+      <Placemark>
+        <name>Corbett National Park (261 ha affected) - Burnt Area Zone</name>
+        <styleUrl>#Corbett</styleUrl>
+        <Polygon><outerBoundaryIs><LinearRing><coordinates>78.7700,29.6201,0 78.7902,29.6184,0 78.8096,29.6132,0 78.8275,29.6049,0 78.8432,29.5937,0 78.8561,29.5801,0 78.8657,29.5645,0 78.8716,29.5476,0 78.8735,29.5300,0 78.8716,29.5124,0 78.8657,29.4955,0 78.8561,29.4799,0 78.8432,29.4663,0 78.8275,29.4551,0 78.8096,29.4468,0 78.7902,29.4416,0 78.7700,29.4399,0 78.7498,29.4416,0 78.7304,29.4468,0 78.7125,29.4551,0 78.6968,29.4663,0 78.6839,29.4799,0 78.6743,29.4955,0 78.6684,29.5124,0 78.6665,29.5300,0 78.6684,29.5476,0 78.6743,29.5645,0 78.6839,29.5801,0 78.6968,29.5937,0 78.7125,29.6049,0 78.7304,29.6132,0 78.7498,29.6184,0 78.7700,29.6201,0</coordinates></LinearRing></outerBoundaryIs></Polygon>
+      </Placemark>
+      <Placemark>
+        <name>Wildlife Habitat Under threat</name>
+        <styleUrl>#parkIcon</styleUrl>
+        <Point><coordinates>78.77,29.53,0</coordinates></Point>
+      </Placemark>
+
+      <Style id="Rajaji">
+        <PolyStyle><color>99cc9933</color></PolyStyle>
+        <LineStyle><color>ffcc9933</color><width>2</width></LineStyle>
+      </Style>
+      <Placemark>
+        <name>Rajaji National Park (70 ha affected) - Burnt Area Zone</name>
+        <styleUrl>#Rajaji</styleUrl>
+        <Polygon><outerBoundaryIs><LinearRing><coordinates>78.0200,30.0550,0 78.0301,30.0542,0 78.0399,30.0516,0 78.0489,30.0475,0 78.0568,30.0419,0 78.0633,30.0350,0 78.0681,30.0272,0 78.0710,30.0188,0 78.0720,30.0100,0 78.0710,30.0012,0 78.0681,29.9928,0 78.0633,29.9850,0 78.0568,29.9781,0 78.0489,29.9725,0 78.0399,29.9684,0 78.0301,29.9658,0 78.0200,29.9650,0 78.0099,29.9658,0 78.0001,29.9684,0 77.9911,29.9725,0 77.9832,29.9781,0 77.9767,29.9850,0 77.9719,29.9928,0 77.9690,30.0012,0 77.9680,30.0100,0 77.9690,30.0188,0 77.9719,30.0272,0 77.9767,30.0350,0 77.9832,30.0419,0 77.9911,30.0475,0 78.0001,30.0516,0 78.0099,30.0542,0 78.0200,30.0550,0</coordinates></LinearRing></outerBoundaryIs></Polygon>
+      </Placemark>
+      <Placemark>
+        <name>Wildlife Habitat Under threat</name>
+        <styleUrl>#parkIcon</styleUrl>
+        <Point><coordinates>78.02,30.01,0</coordinates></Point>
+      </Placemark>
+
+      <Style id="Kedarnath">
+        <PolyStyle><color>993399ff</color></PolyStyle>
+        <LineStyle><color>ff3399ff</color><width>2</width></LineStyle>
+      </Style>
+      <Placemark>
+        <name>Kedarnath Musk Deer Sanctuary (60 ha affected) - Burnt Area Zone</name>
+        <styleUrl>#Kedarnath</styleUrl>
+        <Polygon><outerBoundaryIs><LinearRing><coordinates>79.1300,30.6450,0 79.1402,30.6442,0 79.1500,30.6416,0 79.1591,30.6375,0 79.1670,30.6319,0 79.1735,30.6250,0 79.1783,30.6172,0 79.1813,30.6088,0 79.1823,30.6000,0 79.1813,30.5912,0 79.1783,30.5828,0 79.1735,30.5750,0 79.1670,30.5681,0 79.1591,30.5625,0 79.1500,30.5584,0 79.1402,30.5558,0 79.1300,30.5550,0 79.1198,30.5558,0 79.1100,30.5584,0 79.1009,30.5625,0 79.0930,30.5681,0 79.0865,30.5750,0 79.0817,30.5828,0 79.0787,30.5912,0 79.0777,30.6000,0 79.0787,30.6088,0 79.0817,30.6172,0 79.0865,30.6250,0 79.0930,30.6319,0 79.1009,30.6375,0 79.1100,30.6416,0 79.1198,30.6442,0 79.1300,30.6450,0</coordinates></LinearRing></outerBoundaryIs></Polygon>
+      </Placemark>
+      <Placemark>
+        <name>Wildlife Habitat Under threat</name>
+        <styleUrl>#parkIcon</styleUrl>
+        <Point><coordinates>79.13,30.6,0</coordinates></Point>
+      </Placemark>
+</Folder>
+    <Folder><name>Safe Zones (Relief Camp Network)</name>
+      <Style id="safePoint">
+        <IconStyle><scale>1.4</scale><Icon><href>http://maps.google.com/mapfiles/kml/pushpin/grn-pushpin.png</href></Icon></IconStyle>
+        <LabelStyle><color>ff00ff00</color><scale>1.2</scale></LabelStyle>
+      </Style>
+
+      <Placemark>
+        <name>Dehradun Central Relief Camp</name>
+        <styleUrl>#safePoint</styleUrl>
+        <Point><coordinates>78.03,30.34,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>Haridwar City Evacuation Center</name>
+        <styleUrl>#safePoint</styleUrl>
+        <Point><coordinates>78.16,29.98,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>Nainital Lake Safe Zone</name>
+        <styleUrl>#safePoint</styleUrl>
+        <Point><coordinates>79.45,29.4,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>Almora Cantonment Safe Hub</name>
+        <styleUrl>#safePoint</styleUrl>
+        <Point><coordinates>79.64,29.62,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>Pauri Medical Relief Station</name>
+        <styleUrl>#safePoint</styleUrl>
+        <Point><coordinates>78.78,30.17,0</coordinates></Point>
+      </Placemark>
+</Folder>
+    <Folder><name>Evacuation Routes (Multi-Corridor)</name>
+      <Style id="routeLine"><LineStyle><color>ff00ff00</color><width>6</width></LineStyle></Style>
+
+      <Placemark>
+        <name>Pauri to Dehradun Evacuation Highway</name>
+        <styleUrl>#routeLine</styleUrl>
+        <LineString><tessellate>1</tessellate><coordinates>78.78,30.15,0 78.4,30.2,0 78.03,30.34,0</coordinates></LineString>
+      </Placemark>
+
+      <Placemark>
+        <name>Nainital Downhill Escape Route</name>
+        <styleUrl>#routeLine</styleUrl>
+        <LineString><tessellate>1</tessellate><coordinates>79.45,29.39,0 79.5,29.2,0 79.4,28.98,0</coordinates></LineString>
+      </Placemark>
+
+      <Placemark>
+        <name>Tehri to Haridwar Corridor</name>
+        <styleUrl>#routeLine</styleUrl>
+        <LineString><tessellate>1</tessellate><coordinates>78.48,30.38,0 78.3,30.1,0 78.16,29.98,0</coordinates></LineString>
+      </Placemark>
+
+      <Placemark>
+        <name>Almora Inter-district Safety Route</name>
+        <styleUrl>#routeLine</styleUrl>
+        <LineString><tessellate>1</tessellate><coordinates>79.64,29.59,0 79.5,29.45,0 79.45,29.40,0</coordinates></LineString>
+      </Placemark>
+</Folder>
+  </Document>
+</kml>

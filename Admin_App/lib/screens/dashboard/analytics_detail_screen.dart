@@ -6,12 +6,14 @@ import 'package:apps/controllers/lg_controller.dart';
 
 class AnalyticsDetailScreen extends StatefulWidget {
   final String type;
+  final String disasterType;
   final LGController? lgController;
   final SSHController? sshController;
 
   const AnalyticsDetailScreen({
     super.key, 
     required this.type,
+    required this.disasterType,
     this.lgController,
     this.sshController,
   });
@@ -93,7 +95,7 @@ class _AnalyticsDetailScreenState extends State<AnalyticsDetailScreen> {
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
                 stream: FirebaseFirestore.instance
-                    .collection('safe_zones')
+                    .collection('Disasters').doc(widget.disasterType).collection('safe_zones')
                     .where('status', isEqualTo: 'ACTIVE')
                     .snapshots(),
                 builder: (context, snapshot) {
@@ -156,7 +158,7 @@ class _AnalyticsDetailScreenState extends State<AnalyticsDetailScreen> {
     if (widget.type == 'High Risk Zones') {
       return Expanded(
         child: StreamBuilder<QuerySnapshot>(
-          stream: FirebaseFirestore.instance.collection('rescue_requests').snapshots(),
+          stream: FirebaseFirestore.instance.collection('Disasters').doc(widget.disasterType).collection('rescue_requests').snapshots(),
           builder: (context, snapshot) {
             if (snapshot.hasError) return const Center(child: Text('Error loading data', style: TextStyle(color: Colors.red)));
             if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
@@ -275,7 +277,7 @@ class _AnalyticsDetailScreenState extends State<AnalyticsDetailScreen> {
     if (widget.type == 'SOS Requests') {
       return Expanded(
         child: StreamBuilder<QuerySnapshot>(
-          stream: FirebaseFirestore.instance.collection('rescue_requests').snapshots(),
+          stream: FirebaseFirestore.instance.collection('Disasters').doc(widget.disasterType).collection('rescue_requests').snapshots(),
           builder: (context, snapshot) {
             if (snapshot.hasError) return const Center(child: Text('Error loading data', style: TextStyle(color: Colors.red)));
             if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
@@ -510,7 +512,7 @@ class _AnalyticsDetailScreenState extends State<AnalyticsDetailScreen> {
             ElevatedButton.icon(
               onPressed: () async {
                  Navigator.pop(context);
-                 await FirebaseFirestore.instance.collection('safe_zones').doc(docId).update({
+                 await FirebaseFirestore.instance.collection('Disasters').doc(widget.disasterType).collection('safe_zones').doc(docId).update({
                    'status': 'CLOSED',
                    'visibleToPublic': false,
                    'lastUpdated': FieldValue.serverTimestamp(),
@@ -540,7 +542,7 @@ class _AnalyticsDetailScreenState extends State<AnalyticsDetailScreen> {
             onPressed: () async {
               final newCap = int.tryParse(capacityController.text) ?? 0;
               Navigator.pop(context);
-              await FirebaseFirestore.instance.collection('safe_zones').doc(docId).update({
+              await FirebaseFirestore.instance.collection('Disasters').doc(widget.disasterType).collection('safe_zones').doc(docId).update({
                 'capacity': newCap,
                 'lastUpdated': FieldValue.serverTimestamp(),
               });

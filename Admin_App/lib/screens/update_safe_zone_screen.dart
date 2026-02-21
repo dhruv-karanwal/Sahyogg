@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UpdateSafeZoneScreen extends StatefulWidget {
-  const UpdateSafeZoneScreen({super.key});
+  final String disasterType;
+  const UpdateSafeZoneScreen({super.key, required this.disasterType});
 
   @override
   State<UpdateSafeZoneScreen> createState() => _UpdateSafeZoneScreenState();
@@ -84,7 +85,7 @@ class _UpdateSafeZoneScreenState extends State<UpdateSafeZoneScreen> {
       // Since this screen creates new zones (based on context), we use .doc() to generate a new ID.
       // If we need to support editing existing zones later, we would need an ID passed to the widget.
       await FirebaseFirestore.instance
-          .collection('safe_zones')
+          .collection('Disasters').doc(widget.disasterType).collection('safe_zones')
           .doc() // Auto-ID
           .set(data, SetOptions(merge: true));
 

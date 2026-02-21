@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2">
+    <Document id="39">
+        <Style id="44">
+            <LineStyle id="46">
+                <color>ff13458b</color>
+                <colorMode>normal</colorMode>
+                <width>3</width>
+            </LineStyle>
+            <PolyStyle id="45">
+                <color>9613458b</color>
+                <colorMode>normal</colorMode>
+                <fill>1</fill>
+                <outline>1</outline>
+            </PolyStyle>
+        </Style>
+        <Style id="49">
+            <LineStyle id="50">
+                <color>ff13458b</color>
+                <colorMode>normal</colorMode>
+                <width>5</width>
+            </LineStyle>
+        </Style>
+        <name>Debris Flow Paths</name>
+        <Placemark id="41">
+            <name>Main Debris Runout Zone</name>
+            <description>Primary path of the debris avalanche containing mud, uprooted trees, and boulders.</description>
+            <styleUrl>#44</styleUrl>
+            <Polygon id="40">
+                <outerBoundaryIs>
+                    <LinearRing id="42">
+                        <coordinates>73.688,19.155,0.0 73.691,19.156,0.0 73.694,19.152,0.0 73.697,19.148,0.0 73.696,19.145,0.0 73.692,19.146,0.0 73.689,19.15,0.0 73.688,19.155,0.0</coordinates>
+                    </LinearRing>
+                </outerBoundaryIs>
+            </Polygon>
+        </Placemark>
+        <Placemark id="48">
+            <name>Secondary Runoff</name>
+            <description>Secondary mud sludge path flowing into the valley.</description>
+            <styleUrl>#49</styleUrl>
+            <LineString id="47">
+                <coordinates>73.686,19.155,0.0 73.684,19.152,0.0 73.683,19.149,0.0 73.685,19.146,0.0</coordinates>
+            </LineString>
+        </Placemark>
+    </Document>
+</kml>

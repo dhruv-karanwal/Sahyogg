@@ -5,10 +5,11 @@ import 'package:flutter/foundation.dart';
 
 class SafeZoneLGService {
   final LGController lgController;
+  final String disasterType;
   final Set<String> _castedShelterIds = {};
   double _currentScale = 1.1;
 
-  SafeZoneLGService(this.lgController);
+  SafeZoneLGService(this.lgController, this.disasterType);
 
   /// Casts a single shelter (Appends/Updates in the live KML)
   Future<void> castShelter(String shelterId) async {
