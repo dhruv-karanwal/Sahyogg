@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AdvisoryScreen extends StatelessWidget {
-  const AdvisoryScreen({super.key});
+  final String scenarioId;
+  const AdvisoryScreen({super.key, required this.scenarioId});
 
-  @override
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -13,15 +13,20 @@ class AdvisoryScreen extends StatelessWidget {
         children: [
           // 1. Current Active Advisory
           StreamBuilder<DocumentSnapshot>(
-            stream: FirebaseFirestore.instance.collection('advisories').doc('current').snapshots(),
+            stream: FirebaseFirestore.instance
+                .collection('Disasters')
+                .doc(scenarioId)
+                .collection('advisories')
+                .doc('current')
+                .snapshots(),
             builder: (context, snapshot) {
-              if (snapshot.hasError) return SizedBox.shrink();
-              if (!snapshot.hasData || !snapshot.data!.exists) return SizedBox.shrink();
+              if (snapshot.hasError) return const SizedBox.shrink();
+              if (!snapshot.hasData || !snapshot.data!.exists) return const SizedBox.shrink();
 
               final data = snapshot.data!.data() as Map<String, dynamic>;
               final isActive = data['isActive'] == true || data['isActive'].toString().toLowerCase() == 'true';
               
-              if (!isActive) return SizedBox.shrink();
+              if (!isActive) return const SizedBox.shrink();
 
               return Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -50,6 +55,8 @@ class AdvisoryScreen extends StatelessWidget {
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
+                  .collection('Disasters')
+                  .doc(scenarioId)
                   .collection('advisories_history')
                   .orderBy('sentAt', descending: true)
                   .limit(20)
