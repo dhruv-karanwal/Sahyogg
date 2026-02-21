@@ -18,6 +18,9 @@ dependencies:
   google_maps_flutter: ^2.5.0
   http: 1.6.0
   firebase_database: ^12.1.1
+  url_launcher: ^6.3.2
+  telephony: ^0.2.0
+  shared_preferences: ^2.5.4
 
 dev_dependencies:
   flutter_test:

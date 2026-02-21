@@ -117,4 +117,112 @@ class SOSManagementService {
       rethrow;
     }
   }
+
+  Future<void> migrateOldSOSToNewPriorityTiers() async {
+    print('Starting SOS Migration to 4-Tier System...');
+    try {
+      final snapshot = await _db.collection('rescue_requests').get();
+      final batch = _db.batch();
+      int migratedCount = 0;
+
+      // Duplicate dictionaries locally for the standalone migration script
+      const List<String> redKeywords = [
+        'medical', 'heart', 'attack', 'bleeding', 'blood', 'dying', 'dead', 'death',
+        'trapped', 'stuck', 'drowning', 'water rising', 'fire', 'burn', 'breathe',
+        'choking', 'unconscious', 'fainted', 'seizure', 'casualty', 'severe',
+        'critical', 'emergency', 'crushed', 'collapse'
+      ];
+
+      const List<String> orangeKeywords = [
+        'pregnant', 'baby', 'child', 'infant', 'elderly', 'old man', 'old woman',
+        'senior', 'disabled', 'wheelchair', 'stranded', 'isolated', 'running out',
+        'starving', 'dehydrated', 'fever', 'infection', 'asthma', 'inhaler',
+        'insulin', 'property damage', 'roof collapse'
+      ];
+
+      const List<String> yellowKeywords = [
+        'food', 'water', 'hungry', 'thirsty', 'ration', 'supply', 'medicine',
+        'pill', 'prescription', 'cold', 'freezing', 'blanket', 'shelter', 'roof',
+        'power', 'electricity', 'battery', 'charge', 'generator', 'evacuate',
+        'flooded', 'damage', 'injured', 'sprain', 'cut'
+      ];
+
+      const List<String> whiteKeywords = [
+        'info', 'information', 'update', 'road', 'blocked', 'highway', 'street',
+        'bridge', 'when', 'how', 'where', 'status', 'safe', 'clear', 'weather',
+        'rain', 'storm', 'wind', 'alert', 'notice', 'query', 'check', 'report',
+        'tree down', 'pothole', 'traffic', 'general'
+      ];
+
+      for (var doc in snapshot.docs) {
+        final data = doc.data();
+        final priority = data['priority'] as String?;
+        final pUpper = priority?.toUpperCase();
+
+        // If the priority is not already one of the exact 4 tiers, we must migrate it.
+        // We also migrate if it's completely missing.
+        if (pUpper != 'RED' && pUpper != 'ORANGE' && pUpper != 'YELLOW' && pUpper != 'WHITE') {
+          final description = data['description'] as String? ?? '';
+          final emergencyType = data['emergencyType'] as String? ?? '';
+          
+          final textToAnalyze = '$description $emergencyType'.toLowerCase();
+          
+          String newPriority = 'WHITE';
+          String newTag = 'Unclassified Info';
+
+          // Basic triage logic
+          if (textToAnalyze.isEmpty) {
+            newPriority = 'WHITE';
+            newTag = 'General Context';
+          } else {
+             bool found = false;
+             for (final k in redKeywords) {
+                if (textToAnalyze.contains(k)) {
+                  newPriority = 'RED'; newTag = 'Life-Threatening'; found = true; break;
+                }
+             }
+             if (!found) {
+                for (final k in orangeKeywords) {
+                  if (textToAnalyze.contains(k)) {
+                     newPriority = 'ORANGE'; newTag = 'High Urgency'; found = true; break;
+                  }
+                }
+             }
+             if (!found) {
+                for (final k in yellowKeywords) {
+                  if (textToAnalyze.contains(k)) {
+                     newPriority = 'YELLOW'; newTag = 'Moderate Relieve'; found = true; break;
+                  }
+                }
+             }
+             if (!found) {
+                for (final k in whiteKeywords) {
+                  if (textToAnalyze.contains(k)) {
+                     newPriority = 'WHITE'; newTag = 'Information/General'; break;
+                  }
+                }
+             }
+          }
+
+          batch.update(doc.reference, {
+            'priority': newPriority,
+            'triageTag': newTag,
+            'legacyPriority': priority, // Keep the old one just in case
+          });
+          migratedCount++;
+        }
+      }
+
+      if (migratedCount > 0) {
+        await batch.commit();
+        print('Migration Complete. Successfully upgraded $migratedCount old tickets.');
+      } else {
+        print('Migration Complete. No legacy tickets found.');
+      }
+      
+    } catch (e) {
+      print('Error migrating requests: $e');
+      rethrow;
+    }
+  }
 }

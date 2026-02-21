@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:telephony/telephony.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SOSDialog extends StatefulWidget {
   final Function(Map<String, dynamic> data) onSubmit;
@@ -34,7 +36,7 @@ class _SOSDialogState extends State<SOSDialog> {
     super.dispose();
   }
 
-  void _submit() {
+  Future<void> _submit() async {
     if (_descriptionController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please describe the emergency')),
@@ -43,12 +45,73 @@ class _SOSDialogState extends State<SOSDialog> {
     }
 
     final int people = int.tryParse(_peopleController.text) ?? 1;
+    final prefs = await SharedPreferences.getInstance();
+    final phone = prefs.getString('userPhone') ?? 'Unknown Config';
 
     widget.onSubmit({
       'description': _descriptionController.text.trim(),
       'peopleCount': people,
       'emergencyType': _selectedType,
+      'phone': phone,
     });
+  }
+
+  Future<void> _sendOfflineSMS() async {
+    if (_descriptionController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please describe the emergency')),
+      );
+      return;
+    }
+
+    final int people = int.tryParse(_peopleController.text) ?? 1;
+    final prefs = await SharedPreferences.getInstance();
+    final String phone = prefs.getString('userPhone') ?? 'Unknown Config';
+    final String type = _selectedType;
+    final String desc = _descriptionController.text.trim();
+
+    final String message = 'SOS EMERGENCY\nType: $type\nPeople: $people\nPhone: $phone\nDesc: $desc';
+    
+    // Direct SMS to the Admin's physical phone number
+    const String adminPhone = '+919420881915'; 
+    
+    final Telephony telephony = Telephony.instance;
+
+    try {
+      bool? permissionsGranted = await telephony.requestPhoneAndSmsPermissions;
+      
+      if (permissionsGranted != null && permissionsGranted) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Sending SOS SMS in background...')),
+          );
+        }
+        
+        await telephony.sendSms(
+          to: adminPhone,
+          message: message,
+        );
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Offline SOS SMS Sent natively!'), backgroundColor: Colors.green),
+          );
+          Navigator.pop(context); // Close the dialog
+        }
+      } else {
+        if (mounted) {
+           ScaffoldMessenger.of(context).showSnackBar(
+             const SnackBar(content: Text('SMS permission denied. Cannot send offline SOS.'), backgroundColor: Colors.orange),
+           );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+             SnackBar(content: Text('Error sending SMS natively: $e'), backgroundColor: Colors.red),
+        );
+      }
+    }
   }
 
   @override
@@ -114,18 +177,41 @@ class _SOSDialogState extends State<SOSDialog> {
             child: CircularProgressIndicator(),
           )
         else ...[
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
-          ),
-          ElevatedButton(
-            onPressed: _submit,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.redAccent,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            ),
-            child: const Text('SEND SOS', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+                  ),
+                  const SizedBox(width: 8),
+                  ElevatedButton(
+                    onPressed: _submit,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.redAccent,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                    child: const Text('SEND SOS (ONLINE)', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              OutlinedButton.icon(
+                onPressed: _sendOfflineSMS,
+                icon: const Icon(Icons.sms, color: Colors.orange),
+                label: const Text('SEND VIA SMS (OFFLINE)', style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)),
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Colors.orange),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
+              ),
+            ],
+          )
         ],
       ],
     );
