@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Thermal Hotspots</name>
+    <Folder>
+      <name>Thermal Hotspots</name>
+
+      <Style id="fireIcon">
+        <IconStyle><scale>1.5</scale><Icon><href>http://maps.google.com/mapfiles/kml/shapes/firedept.png</href></Icon></IconStyle>
+        <LabelStyle><color>ff0000ff</color><scale>1.2</scale></LabelStyle>
+      </Style>
+
+      <Placemark>
+        <name>Dehradun Hotspots (175)</name>
+        <description>375 ha affected</description>
+        <styleUrl>#fireIcon</styleUrl>
+        <Point><coordinates>78.03,30.31,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>Haridwar Hotspots (52)</name>
+        <description>132 ha affected</description>
+        <styleUrl>#fireIcon</styleUrl>
+        <Point><coordinates>78.16,29.94,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>Uttarkashi Hotspots (172)</name>
+        <description>240 ha affected</description>
+        <styleUrl>#fireIcon</styleUrl>
+        <Point><coordinates>78.43,30.72,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>Rudraprayag Hotspots (82)</name>
+        <description>159 ha affected</description>
+        <styleUrl>#fireIcon</styleUrl>
+        <Point><coordinates>78.98,30.28,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>Pithoragarh Hotspots (97)</name>
+        <description>288 ha affected</description>
+        <styleUrl>#fireIcon</styleUrl>
+        <Point><coordinates>80.21,29.58,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>Bageshwar Hotspots (60)</name>
+        <description>215 ha affected</description>
+        <styleUrl>#fireIcon</styleUrl>
+        <Point><coordinates>79.77,29.83,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>Champawat Hotspots (59)</name>
+        <description>119 ha affected</description>
+        <styleUrl>#fireIcon</styleUrl>
+        <Point><coordinates>80.09,29.33,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>Udham Singh Nagar (16)</name>
+        <description>14 ha affected</description>
+        <styleUrl>#fireIcon</styleUrl>
+        <Point><coordinates>79.4,28.98,0</coordinates></Point>
+      </Placemark>
+
+    </Folder>
+  </Document>
+</kml>

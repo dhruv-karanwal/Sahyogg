@@ -6,10 +6,12 @@ import '../widgets/custom_glass_card.dart';
 
 class ShelterListScreen extends StatefulWidget {
   final LGController lgController;
+  final String disasterType;
 
   const ShelterListScreen({
     super.key,
     required this.lgController,
+    required this.disasterType,
   });
 
   @override
@@ -23,7 +25,7 @@ class _ShelterListScreenState extends State<ShelterListScreen> {
   @override
   void initState() {
     super.initState();
-    _lgService = SafeZoneLGService(widget.lgController);
+    _lgService = SafeZoneLGService(widget.lgController, widget.disasterType);
   }
 
   Future<void> _castAll() async {
@@ -164,7 +166,7 @@ class _ShelterListScreenState extends State<ShelterListScreen> {
         child: SafeArea(
           child: StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance
-                .collection('safe_zones')
+                .collection('Disasters').doc(widget.disasterType).collection('safe_zones')
                 .where('visibleToPublic', isEqualTo: true)
                 .snapshots(),
             builder: (context, snapshot) {

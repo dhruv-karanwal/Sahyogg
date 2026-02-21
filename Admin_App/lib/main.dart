@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'firebase_options.dart';
 import 'controllers/ssh_controller.dart';
 import 'controllers/settings_controller.dart';
 import 'controllers/lg_controller.dart';
 import 'screens/home_screen.dart';
 import 'services/sms_receiver_service.dart';
+import 'screens/scenario_selection_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  
+  FirebaseFirestore.instance.settings = const Settings(persistenceEnabled: true);
   
   final settingsController = SettingsController();
   await settingsController.loadSettings();
@@ -55,7 +59,7 @@ class MyApp extends StatelessWidget {
       title: 'LG Controller',
       debugShowCheckedModeBanner: false,
       theme: _buildDarkTheme(),
-      home: HomeScreen(
+      home: ScenarioSelectionScreen(
         sshController: sshController,
         settingsController: settingsController,
         lgController: lgController,

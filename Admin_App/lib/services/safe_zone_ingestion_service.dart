@@ -2,6 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class SafeZoneIngestionService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final String disasterType;
+
+  SafeZoneIngestionService(this.disasterType);
 
   // Authoritative Data from 2018 Kerala Flood Reports & Verified Coordinates
   static final List<Map<String, dynamic>> builtInSafeZones = [
@@ -105,7 +108,7 @@ class SafeZoneIngestionService {
 
   Future<int> ingestSafeZones() async {
     int addedCount = 0;
-    final collection = _firestore.collection('safe_zones');
+    final collection = _firestore.collection('Disasters').doc(disasterType).collection('safe_zones');
 
     for (var zone in builtInSafeZones) {
       final docId = zone['id'] as String;

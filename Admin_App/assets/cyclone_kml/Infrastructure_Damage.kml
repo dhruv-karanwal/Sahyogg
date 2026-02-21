@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Infrastructure Damage</name>
+    <Folder>
+      <name>Infrastructure Damage</name>
+
+      <Style id="infraCrit"><PolyStyle><color>aaff00ff</color></PolyStyle><LineStyle><color>ffff00ff</color><width>2</width></LineStyle></Style>
+      <Style id="infraSevere"><PolyStyle><color>aaccccff</color></PolyStyle><LineStyle><color>ffccccff</color><width>2</width></LineStyle></Style>
+      <Placemark>
+        <name>Sundarbans (Catastrophic: Mud houses destroyed)</name>
+        <styleUrl>#infraCrit</styleUrl>
+        <Polygon><outerBoundaryIs><LinearRing><coordinates>
+          88.0,21.5,0 89.2,21.5,0 89.2,22.2,0 88.0,22.2,0 88.0,21.5,0
+        </coordinates></LinearRing></outerBoundaryIs></Polygon>
+      </Placemark>
+      <Placemark>
+        <name>Kolkata & Suburbs (Severe: Up-rooted trees, collapsed walls)</name>
+        <styleUrl>#infraSevere</styleUrl>
+        <Polygon><outerBoundaryIs><LinearRing><coordinates>
+          88.1,22.3,0 88.6,22.3,0 88.6,22.8,0 88.1,22.8,0 88.1,22.3,0
+        </coordinates></LinearRing></outerBoundaryIs></Polygon>
+      </Placemark>
+
+    </Folder>
+  </Document>
+</kml>

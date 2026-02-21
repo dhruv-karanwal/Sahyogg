@@ -8,9 +8,11 @@ import 'package:apps/screens/dashboard/widgets/kpi_card.dart';
 import 'package:apps/screens/dashboard/analytics_detail_screen.dart';
 import 'package:apps/services/safe_zone_ingestion_service.dart';
 import 'package:apps/services/sos_management_service.dart';
+import 'package:apps/screens/broadcast_advisory_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
-  const DashboardScreen({super.key});
+  final String disasterType;
+  const DashboardScreen({super.key, required this.disasterType});
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
@@ -459,6 +461,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       MaterialPageRoute(
         builder: (context) => AnalyticsDetailScreen(
           type: type,
+          disasterType: widget.disasterType,
           lgController: _lgController,
           sshController: _sshController,
         ),
@@ -633,6 +636,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                            final tA = dataA['timestamp'] as Timestamp?;
                            final tB = dataB['timestamp'] as Timestamp?;
                            
+                           if(tA == null && tB == null) return 0;
                            if(tA == null) return 1; 
                            if(tB == null) return -1;
                            return tB.compareTo(tA);
@@ -775,7 +779,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Row(
               children: [
                   Expanded(child: _buildActionButton('Broadcast Alert', Icons.campaign, Colors.orange, () {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Broadcast Alert sent!')));
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => BroadcastAdvisoryScreen(disasterType: widget.disasterType)),
+                      );
                   })),
                   const SizedBox(width: 12),
                   Expanded(child: _buildActionButton('Cast to LG', Icons.cast_connected, Colors.blue, () async {
@@ -798,7 +805,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   Expanded(child: _buildActionButton('Ingest Data', Icons.cloud_upload, Colors.teal, () async {
                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Ingesting authoritative safe zones...')));
                       try {
-                        final service = SafeZoneIngestionService();
+                        final service = SafeZoneIngestionService(widget.disasterType);
                         final count = await service.ingestSafeZones();
                             if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Successfully ingested $count safe zones!'), backgroundColor: Colors.green));
@@ -817,7 +824,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   Expanded(child: _buildActionButton('Reset SOS DB', Icons.restore, Colors.orange, () async {
                     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Resetting SOS Database...')));
                     try {
-                      final service = SOSManagementService();
+                      final service = SOSManagementService(widget.disasterType);
                       await service.cleanupSOSRequests();
                       await service.seedRealisticSOSData();
                       if (context.mounted) {
@@ -830,21 +837,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     }
                   })),
                   const SizedBox(width: 12),
-                  Expanded(child: _buildActionButton('Migrate SOS DB', Icons.upgrade, Colors.purple, () async {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Migrating Old SOS Tickets...')));
-                    try {
-                      final service = SOSManagementService();
-                      await service.migrateOldSOSToNewPriorityTiers();
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Legacy SOS DB Migrated!'), backgroundColor: Colors.green));
+                    Expanded(child: _buildActionButton('Migrate SOS DB', Icons.upgrade, Colors.purple, () async {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Migrating Old SOS Tickets...')));
+                      try {
+                        final service = SOSManagementService(widget.disasterType);
+                        await service.migrateOldSOSToNewPriorityTiers();
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Legacy SOS DB Migrated!'), backgroundColor: Colors.green));
+                        }
+                      } catch (e) {
+                         if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Migration failed: $e'), backgroundColor: Colors.red));
+                        }
                       }
-                    } catch (e) {
-                       if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Migration failed: $e'), backgroundColor: Colors.red));
-                      }
-                    }
-                  })),
-                  const Spacer(flex: 2),
+                    })),
+                    const SizedBox(width: 12),
+                    Expanded(child: _buildActionButton('Refresh Data', Icons.refresh, Colors.tealAccent, () {
+                       setState(() {}); // Trigger stream rebuild
+                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Feed Refreshed Manually')));
+                    })),
                 ],
               ),
             ],

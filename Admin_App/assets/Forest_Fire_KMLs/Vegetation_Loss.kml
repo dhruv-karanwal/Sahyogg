@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Vegetation Loss</name>
+    <Folder>
+      <name>Vegetation Loss</name>
+
+      <Style id="vegLossPine"><PolyStyle><color>9914b4a3</color></PolyStyle><LineStyle><color>ff14b4a3</color><width>2</width></LineStyle></Style>
+      <Style id="vegLossDeciduous"><PolyStyle><color>99245131</color></PolyStyle><LineStyle><color>ff245131</color><width>2</width></LineStyle></Style>
+      <Placemark>
+        <name>Subtropical Pine Forest Burnt Area (29%) - Approx 628 sq km</name>
+        <styleUrl>#vegLossPine</styleUrl>
+        <Polygon><outerBoundaryIs><LinearRing><coordinates>
+          78.2,29.8,0 79.5,29.8,0 79.5,30.5,0 78.2,30.5,0 78.2,29.8,0
+        </coordinates></LinearRing></outerBoundaryIs></Polygon>
+      </Placemark>
+      <Placemark>
+        <name>Moist Deciduous Forest Burnt Area (55%) - Approx 1191 sq km</name>
+        <styleUrl>#vegLossDeciduous</styleUrl>
+        <Polygon><outerBoundaryIs><LinearRing><coordinates>
+          78.5,29.3,0 80.0,29.3,0 80.0,29.7,0 78.5,29.7,0 78.5,29.3,0
+        </coordinates></LinearRing></outerBoundaryIs></Polygon>
+      </Placemark>
+
+    </Folder>
+  </Document>
+</kml>
