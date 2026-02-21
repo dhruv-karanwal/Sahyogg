@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../controllers/lg_controller.dart';
 import 'package:google_fonts/google_fonts.dart' as google_fonts;
 
 class RescueDemandOverviewScreen extends StatefulWidget {
   final LGController lgController;
   final String disasterType;
-  final List<Map<String, dynamic>> requests; // Pass data from parent
 
   const RescueDemandOverviewScreen({
     super.key,
     required this.lgController,
     required this.disasterType,
-    required this.requests,
   });
 
   @override
@@ -19,18 +18,10 @@ class RescueDemandOverviewScreen extends StatefulWidget {
 }
 
 class _RescueDemandOverviewScreenState extends State<RescueDemandOverviewScreen> {
-  late List<AreaSummary> _summaries;
-
-  @override
-  void initState() {
-    super.initState();
-    _aggregateData();
-  }
-
-  void _aggregateData() {
+  List<AreaSummary> _aggregateData(List<Map<String, dynamic>> requests) {
     final Map<String, AreaSummary> tempMap = {};
 
-    for (var req in widget.requests) {
+    for (var req in requests) {
       // Simple extraction: use the location string before the first comma as 'Area'
       // e.g. "Aluva Bridge, Kochi" -> "Aluva Bridge"
       final String rawLoc = req['location'] ?? 'Unknown';
@@ -57,11 +48,9 @@ class _RescueDemandOverviewScreenState extends State<RescueDemandOverviewScreen>
         summary.highPriorityCount++;
       }
     }
-
-    _summaries = tempMap.values.toList();
-    
     // Assign Overall Priority
-    for (var s in _summaries) {
+    final summaries = tempMap.values.toList();
+    for (var s in summaries) {
       if (s.highPriorityCount > 0 || s.totalRequests > 5) {
         s.overallPriority = 'High';
       } else if (s.pendingCount > 3 || s.totalRequests > 2) {
@@ -70,6 +59,7 @@ class _RescueDemandOverviewScreenState extends State<RescueDemandOverviewScreen>
         s.overallPriority = 'Low';
       }
     }
+    return summaries;
   }
 
   Future<void> _castArea(AreaSummary area) async {
@@ -161,12 +151,34 @@ class _RescueDemandOverviewScreenState extends State<RescueDemandOverviewScreen>
                  ),
                ),
               Expanded(
-                child: ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: _summaries.length,
-                  itemBuilder: (context, index) {
-                    final area = _summaries[index];
-                    final color = _getPriorityColor(area.overallPriority);
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection('Disasters')
+                      .doc(widget.disasterType)
+                      .collection('rescue_requests')
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+
+                    final docs = snapshot.data!.docs
+                        .map((d) => d.data() as Map<String, dynamic>)
+                        .toList();
+                    final summaries = _aggregateData(docs);
+
+                    if (summaries.isEmpty) {
+                      return const Center(
+                          child: Text('No demand data available.',
+                              style: TextStyle(color: Colors.white54)));
+                    }
+
+                    return ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      itemCount: summaries.length,
+                      itemBuilder: (context, index) {
+                        final area = summaries[index];
+                        final color = _getPriorityColor(area.overallPriority);
                     
                     return Card(
                       color: Colors.white.withOpacity(0.05),
@@ -237,9 +249,11 @@ class _RescueDemandOverviewScreenState extends State<RescueDemandOverviewScreen>
                       ),
                     );
                   },
-                ),
-              ),
-            ],
+                );
+              },
+            ),
+          ),
+        ],
           ),
         ),
       ),

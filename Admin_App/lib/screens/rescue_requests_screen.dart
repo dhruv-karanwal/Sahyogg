@@ -155,12 +155,19 @@ class _RescueRequestsScreenState extends State<RescueRequestsScreen> {
         elevation: 0,
         actions: [
           IconButton(
+            icon: const Icon(Icons.refresh),
+            tooltip: 'Refresh Feed',
+            onPressed: () {
+              setState(() {});
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Feed Refreshed Manually')));
+            },
+          ),
+          IconButton(
             onPressed: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => RescueDemandOverviewScreen(
                 lgController: widget.lgController,
                 disasterType: widget.disasterType,
-                requests: [], 
               )),
             ),
             icon: const Icon(Icons.analytics_outlined),
@@ -194,9 +201,13 @@ class _RescueRequestsScreenState extends State<RescueRequestsScreen> {
           ),
         ),
         child: SafeArea(
-          child: StreamBuilder<QuerySnapshot>(
-            stream: FirebaseFirestore.instance
-                .collection('Disasters').doc(widget.disasterType).collection('rescue_requests')
+          child: Column(
+            children: [
+              _buildFilterRow(),
+              Expanded(
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection('Disasters').doc(widget.disasterType).collection('rescue_requests')
                 .orderBy('createdAt', descending: true)
                 .snapshots(),
             builder: (context, snapshot) {
@@ -316,6 +327,10 @@ class _RescueRequestsScreenState extends State<RescueRequestsScreen> {
     final isPending = (req['status'] ?? 'PENDING') == 'PENDING';
     final statusColor = isPending ? Colors.red : Colors.green;
     final priority = req['priority'] ?? 'Medium';
+    final source = req['source'] ?? 'MOBILE_USER';
+    final isOffline = source == 'OFFLINE_SMS';
+    final sourceText = isOffline ? 'OFFLINE SMS' : 'ONLINE APP';
+    final sourceColor = isOffline ? Colors.orange : Colors.blue;
     
     // Dynamic Location String
     final location = '${req['area'] ?? 'Unknown Area'}, ${req['city'] ?? 'Unknown City'}';
@@ -383,6 +398,25 @@ class _RescueRequestsScreenState extends State<RescueRequestsScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  margin: const EdgeInsets.only(bottom: 4),
+                  decoration: BoxDecoration(
+                    color: sourceColor.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(isOffline ? Icons.signal_cellular_off : Icons.wifi, color: sourceColor, size: 10),
+                      const SizedBox(width: 4),
+                      Text(
+                        sourceText,
+                        style: TextStyle(color: sourceColor, fontSize: 10, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(

@@ -15,7 +15,7 @@ class SafeZoneLGService {
   Future<void> castShelter(String shelterId) async {
     try {
       _currentScale = 1.1; // Reset scale for individual cast
-      final doc = await FirebaseFirestore.instance.collection('safe_zones').doc(shelterId).get();
+      final doc = await FirebaseFirestore.instance.collection('Disasters').doc(disasterType).collection('safe_zones').doc(shelterId).get();
       if (!doc.exists) return;
 
       final data = doc.data()!;
@@ -62,7 +62,7 @@ class SafeZoneLGService {
   }
 
   Future<void> _castAllInternal() async {
-      final snapshot = await FirebaseFirestore.instance.collection('safe_zones').get();
+      final snapshot = await FirebaseFirestore.instance.collection('Disasters').doc(disasterType).collection('safe_zones').get();
       _castedShelterIds.clear();
       
       for (var doc in snapshot.docs) {
@@ -98,7 +98,7 @@ class SafeZoneLGService {
       return;
     }
 
-    final snapshot = await FirebaseFirestore.instance.collection('safe_zones').get();
+    final snapshot = await FirebaseFirestore.instance.collection('Disasters').doc(disasterType).collection('safe_zones').get();
     final docs = snapshot.docs.where((d) => _castedShelterIds.contains(d.id)).toList();
 
     final kmlContent = _generateKML(docs);

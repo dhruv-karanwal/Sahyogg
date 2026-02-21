@@ -32,7 +32,7 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
 
   Query<Map<String, dynamic>> _getFilteredQuery() {
     final startTime = _getFilterStartTime();
-    Query<Map<String, dynamic>> query = FirebaseFirestore.instance.collection('rescue_requests');
+    Query<Map<String, dynamic>> query = FirebaseFirestore.instance.collection('Disasters').doc(widget.disasterType).collection('rescue_requests');
     
     if (startTime != null) {
       query = query.where('createdAt', isGreaterThan: Timestamp.fromDate(startTime));
@@ -324,10 +324,12 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) => AnalyticsDetailsScreen(
-                title: 'SOS Requests Analysis',
-                type: 'sos',
-                selectedFilter: _selectedFilter,
+                  builder: (context) => AnalyticsDetailsScreen(
+                    title: 'Rescue Request Trends',
+                    type: 'sos',
+                    disasterType: widget.disasterType,
+                    selectedFilter: _selectedFilter,
+                  ),
               ),
             ),
           ),
@@ -363,10 +365,12 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) => AnalyticsDetailsScreen(
-                title: 'High Risk Zones Analysis',
-                type: 'zones',
-                selectedFilter: _selectedFilter,
+                  builder: (context) => AnalyticsDetailsScreen(
+                    title: 'High Risk Zones',
+                    type: 'zones',
+                    disasterType: widget.disasterType,
+                    selectedFilter: _selectedFilter,
+                  ),
               ),
             ),
           ),
@@ -420,10 +424,11 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
       onTap: () => Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => const AnalyticsDetailsScreen(
-            title: 'Shelter Status Analysis',
-            type: 'shelters',
-          ),
+                  builder: (context) => AnalyticsDetailsScreen(
+                    title: 'Active Shelters',
+                    type: 'shelters',
+                    disasterType: widget.disasterType,
+                  ),
         ),
       ),
     );
@@ -473,10 +478,11 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
       onTap: () => Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => const AnalyticsDetailsScreen(
-            title: 'Route Status Analysis',
-            type: 'routes',
-          ),
+                  builder: (context) => AnalyticsDetailsScreen(
+                    title: 'Route Status',
+                    type: 'routes',
+                    disasterType: widget.disasterType,
+                  ),
         ),
       ),
     );

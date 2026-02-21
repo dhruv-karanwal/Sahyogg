@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:telephony/telephony.dart';
 
 class BroadcastAdvisoryScreen extends StatefulWidget {
   final String disasterType;
@@ -95,6 +96,25 @@ class _BroadcastAdvisoryScreenState extends State<BroadcastAdvisoryScreen> {
         ...data,
         'sentAt': FieldValue.serverTimestamp(), // Exact server time for sorting
       });
+      
+      // 4. OFFLINE FALLBACK: Send Native SMS Broadcast to All Registered Users
+      try {
+        final querySnapshot = await FirebaseFirestore.instance.collection('users').get();
+        final telephony = Telephony.instance;
+        int sentCount = 0;
+        final smsContent = 'FLOOD_ALERT: ${_selectedAdvisoryType}\n${_messageController.text.trim()}';
+        
+        for (var doc in querySnapshot.docs) {
+          final phone = doc.data()['phone'] as String?;
+          if (phone != null && phone.isNotEmpty) {
+            await telephony.sendSms(to: phone, message: smsContent);
+            sentCount++;
+          }
+        }
+        print('SMS Broadcast successfully sent to $sentCount offline users.');
+      } catch (e) {
+        print('Error broadcasting SMS fallback: $e');
+      }
       
       setState(() {
         _lastPostedMessage = _messageController.text;
