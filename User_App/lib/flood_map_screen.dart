@@ -471,10 +471,6 @@ class _FloodMapScreenState extends State<FloodMapScreen>
       final phone = userProvidedData['phone'] ?? '';
 
       final newDocRef = db.collection('Disasters').doc('Flood').collection('rescue_requests').doc();
-      // Use the active scenario if passed, else fallback
-      final activeScenario = widget.scenarioId ?? 'flood_kerala'; 
-
-      final newDocRef = db.collection('Disasters').doc(activeScenario).collection('rescue_requests').doc();
 
 
       batch.set(newDocRef, {
@@ -1113,17 +1109,6 @@ class _FloodMapScreenState extends State<FloodMapScreen>
                   stream: FirebaseFirestore.instance.collection('Disasters').doc('Flood').collection('rescue_requests').doc(_activeSOSId).snapshots(),
                   builder: (context, snapshot) {
                      if (!snapshot.hasData || !snapshot.data!.exists) return const SizedBox.shrink();
-              Positioned(
-                 bottom: 24, left: 20, right: 120,
-                 child: StreamBuilder<DocumentSnapshot>(
-                  stream: FirebaseFirestore.instance
-                      .collection('Disasters')
-                      .doc(widget.scenarioId ?? 'flood_kerala')
-                      .collection('rescue_requests')
-                      .doc(_activeSOSId)
-                      .snapshots(),
-                   builder: (context, snapshot) {
-                      if (!snapshot.hasData || !snapshot.data!.exists) return const SizedBox.shrink();
                      final data = snapshot.data!.data() as Map<String, dynamic>;
                      return GestureDetector(
                        onTap: () => _showSOSDetailsWrapped(data),

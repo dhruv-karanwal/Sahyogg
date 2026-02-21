@@ -4,18 +4,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AdvisoryScreen extends StatefulWidget {
-  const AdvisoryScreen({super.key});
+  final String scenarioId;
+  
+  const AdvisoryScreen({super.key, required this.scenarioId});
 
   @override
   State<AdvisoryScreen> createState() => _AdvisoryScreenState();
 }
 
 class _AdvisoryScreenState extends State<AdvisoryScreen> {
-  @override
-class AdvisoryScreen extends StatelessWidget {
-  final String scenarioId;
-  const AdvisoryScreen({super.key, required this.scenarioId});
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,7 +37,7 @@ class AdvisoryScreen extends StatelessWidget {
           StreamBuilder<DocumentSnapshot>(
             stream: FirebaseFirestore.instance
                 .collection('Disasters')
-                .doc(scenarioId)
+                .doc(widget.scenarioId)
                 .collection('advisories')
                 .doc('current')
                 .snapshots(),
@@ -104,7 +101,7 @@ class AdvisoryScreen extends StatelessWidget {
             child: StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
                   .collection('Disasters')
-                  .doc(scenarioId)
+                  .doc(widget.scenarioId)
                   .collection('advisories_history')
                   .orderBy('sentAt', descending: true)
                   .limit(20)

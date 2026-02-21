@@ -29,8 +29,6 @@ Future<void> main() async {
   runApp(FloodCitizenApp(isRegistered: isRegistered));
   // Seed Cyclone Amphan Safe Zones (idempotent, can run once or more)
   await seedCycloneSafeZones();
-
-  runApp(const FloodCitizenApp());
 }
 
 class FloodCitizenApp extends StatelessWidget {
@@ -54,7 +52,6 @@ class FloodCitizenApp extends StatelessWidget {
       routes: {
         '/register': (context) => const RegistrationScreen(),
         '/home': (context) => const FloodMapScreen(),
-        '/advisory': (context) => const AdvisoryScreen(),
         '/': (context) => const ScenarioSelectionScreen(),
         '/flood_map': (context) => const FloodMapScreen(),
         // '/sos': (context) => const SOSScreen(),
