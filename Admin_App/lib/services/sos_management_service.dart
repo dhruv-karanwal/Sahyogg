@@ -2,11 +2,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class SOSManagementService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
+  final String disasterType;
+
+  SOSManagementService(this.disasterType);
 
   Future<void> cleanupSOSRequests() async {
     print('Starting SOS Cleanup...');
     try {
-      final snapshot = await _db.collection('rescue_requests').get();
+      final snapshot = await _db.collection('Disasters').doc(disasterType).collection('rescue_requests').get();
       final batch = _db.batch();
       int deletedCount = 0;
 
@@ -103,7 +106,7 @@ class SOSManagementService {
 
 
       for (var req in allRequests) {
-        final docRef = _db.collection('rescue_requests').doc();
+        final docRef = _db.collection('Disasters').doc(disasterType).collection('rescue_requests').doc();
         batch.set(docRef, {
           ...req,
           'createdAt': FieldValue.serverTimestamp(),

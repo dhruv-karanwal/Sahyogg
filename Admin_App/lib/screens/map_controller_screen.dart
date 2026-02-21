@@ -8,8 +8,9 @@ import 'package:permission_handler/permission_handler.dart';
 
 class MapControllerScreen extends StatefulWidget {
   final LGController lgController;
+  final String disasterType;
 
-  const MapControllerScreen({super.key, required this.lgController});
+  const MapControllerScreen({super.key, required this.lgController, required this.disasterType});
 
   @override
   State<MapControllerScreen> createState() => _MapControllerScreenState();
@@ -80,7 +81,7 @@ class _MapControllerScreenState extends State<MapControllerScreen> {
   Future<void> _loadRescueRequests() async {
     try {
       final snapshot = await FirebaseFirestore.instance
-          .collection('rescue_requests')
+          .collection('Disasters').doc(widget.disasterType).collection('rescue_requests')
           .where('status', isEqualTo: 'PENDING')
           .get();
 
@@ -124,7 +125,7 @@ class _MapControllerScreenState extends State<MapControllerScreen> {
   Future<void> _loadSafeZones() async {
     try {
       final snapshot = await FirebaseFirestore.instance
-          .collection('safe_zones')
+          .collection('Disasters').doc(widget.disasterType).collection('safe_zones')
           .where('visibleToPublic', isEqualTo: true)
           .get();
 
@@ -528,7 +529,7 @@ class _MapControllerScreenState extends State<MapControllerScreen> {
     try {
       final capacity = int.tryParse(_safeZoneCapacityController.text.trim()) ?? 100;
       
-      await FirebaseFirestore.instance.collection('safe_zones').add({
+      await FirebaseFirestore.instance.collection('Disasters').doc(widget.disasterType).collection('safe_zones').add({
         'name': _safeZoneNameController.text.trim(),
         'type': _selectedSafeZoneType,
         'category': 'Primary Shelter',

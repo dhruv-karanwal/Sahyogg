@@ -7,8 +7,13 @@ import 'rescue_demand_overview_screen.dart';
 
 class RescueRequestsScreen extends StatefulWidget {
   final LGController lgController;
+  final String disasterType;
 
-  const RescueRequestsScreen({super.key, required this.lgController});
+  const RescueRequestsScreen({
+    super.key, 
+    required this.lgController,
+    required this.disasterType,
+  });
 
   @override
   State<RescueRequestsScreen> createState() => _RescueRequestsScreenState();
@@ -31,7 +36,7 @@ class _RescueRequestsScreenState extends State<RescueRequestsScreen> {
       batch.update(doc.reference, {'status': 'ACKNOWLEDGED'});
 
       // 2. Decrement Pending Count in Summary
-      final summaryRef = db.doc('rescue_summary/$district/cities/$city/areas/$area');
+      final summaryRef = db.doc('Disasters/${widget.disasterType}/rescue_summary/$district/cities/$city/areas/$area');
       batch.set(summaryRef, {
         'pending': FieldValue.increment(-1),
         'lastUpdated': FieldValue.serverTimestamp(),
@@ -150,13 +155,19 @@ class _RescueRequestsScreenState extends State<RescueRequestsScreen> {
         elevation: 0,
         actions: [
           IconButton(
+            icon: const Icon(Icons.refresh),
+            tooltip: 'Refresh Feed',
+            onPressed: () {
+              setState(() {});
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Feed Refreshed Manually')));
+            },
+          ),
+          IconButton(
             onPressed: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => RescueDemandOverviewScreen(
                 lgController: widget.lgController,
-                // Passing empty list or handling it differently since we now stream directly
-                // For now, let's keep it simple or update that screen later if it needs live data too
-                requests: [], 
+                disasterType: widget.disasterType,
               )),
             ),
             icon: const Icon(Icons.analytics_outlined),
@@ -196,10 +207,10 @@ class _RescueRequestsScreenState extends State<RescueRequestsScreen> {
               Expanded(
                 child: StreamBuilder<QuerySnapshot>(
                   stream: FirebaseFirestore.instance
-                      .collection('rescue_requests')
-                      .orderBy('createdAt', descending: true)
-                      .snapshots(),
-                  builder: (context, snapshot) {
+                      .collection('Disasters').doc(widget.disasterType).collection('rescue_requests')
+                .orderBy('createdAt', descending: true)
+                .snapshots(),
+            builder: (context, snapshot) {
               if (snapshot.hasError) {
                 return Center(child: Text('Error: ${snapshot.error}', style: const TextStyle(color: Colors.white)));
               }
@@ -316,6 +327,10 @@ class _RescueRequestsScreenState extends State<RescueRequestsScreen> {
     final isPending = (req['status'] ?? 'PENDING') == 'PENDING';
     final statusColor = isPending ? Colors.red : Colors.green;
     final priority = req['priority'] ?? 'Medium';
+    final source = req['source'] ?? 'MOBILE_USER';
+    final isOffline = source == 'OFFLINE_SMS';
+    final sourceText = isOffline ? 'OFFLINE SMS' : 'ONLINE APP';
+    final sourceColor = isOffline ? Colors.orange : Colors.blue;
     
     // Dynamic Location String
     final location = '${req['area'] ?? 'Unknown Area'}, ${req['city'] ?? 'Unknown City'}';
@@ -383,6 +398,25 @@ class _RescueRequestsScreenState extends State<RescueRequestsScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  margin: const EdgeInsets.only(bottom: 4),
+                  decoration: BoxDecoration(
+                    color: sourceColor.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(isOffline ? Icons.signal_cellular_off : Icons.wifi, color: sourceColor, size: 10),
+                      const SizedBox(width: 4),
+                      Text(
+                        sourceText,
+                        style: TextStyle(color: sourceColor, fontSize: 10, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(

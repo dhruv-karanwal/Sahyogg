@@ -5,6 +5,9 @@ class NeuButton extends StatefulWidget {
   final String label;
   final Color color;
   final VoidCallback? onPressed;
+  final Color? glowColor;
+  final Color? outlineColor;
+  final String? subtitle;
   
   const NeuButton({
     super.key,
@@ -12,6 +15,9 @@ class NeuButton extends StatefulWidget {
     required this.label,
     required this.color,
     required this.onPressed,
+    this.glowColor,
+    this.outlineColor,
+    this.subtitle,
   });
 
   @override
@@ -74,15 +80,15 @@ class _NeuButtonState extends State<NeuButton> with SingleTickerProviderStateMix
                       ],
               ),
               border: Border.all(
-                color: _isHovered && isEnabled
+                color: widget.outlineColor ?? (_isHovered && isEnabled
                     ? Colors.white.withOpacity(0.2)
-                    : Colors.white.withOpacity(0.05),
+                    : Colors.white.withOpacity(0.05)),
                 width: 1,
               ),
               boxShadow: isEnabled
                   ? [
                       BoxShadow(
-                        color: color.withOpacity(0.3),
+                        color: (widget.glowColor ?? color).withOpacity(0.3),
                         blurRadius: _isHovered ? 20 : 10,
                         offset: const Offset(0, 4),
                       ),
@@ -113,6 +119,21 @@ class _NeuButtonState extends State<NeuButton> with SingleTickerProviderStateMix
                     fontWeight: FontWeight.w600,
                   ),
                 ),
+                if (widget.subtitle != null) ...[
+                  const SizedBox(height: 4),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                    child: Text(
+                      widget.subtitle!,
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: widget.glowColor != null ? widget.glowColor!.withOpacity(0.9) : (isEnabled ? Colors.white70 : Colors.white38),
+                        fontSize: 9,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
