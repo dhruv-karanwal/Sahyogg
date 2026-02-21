@@ -48,7 +48,11 @@ class SMSReceiverService {
 
     // Log the raw SMS explicitly to provide a Live Feed for the Admin Dashboard
     try {
-      await FirebaseFirestore.instance.collection('incoming_sms').add({
+      await FirebaseFirestore.instance
+          .collection('Disasters')
+          .doc('Flood')
+          .collection('incoming_sms')
+          .add({
         'sender': sender,
         'body': body,
         'timestamp': FieldValue.serverTimestamp(),
@@ -92,7 +96,11 @@ class SMSReceiverService {
         'createdAt': FieldValue.serverTimestamp(),
       };
 
-      await db.collection('rescue_requests').add(newDoc);
+      await db
+          .collection('Disasters')
+          .doc('Flood')
+          .collection('rescue_requests')
+          .add(newDoc);
       print('Offline SMS successfully injected into Firestore Rescue Requests!');
       
     } catch (e) {
