@@ -121,7 +121,7 @@ class LGController {
       default: return;
     }
 
-    await _sshController.uploadAsset('assets/test 2/$fileName', '/var/www/html/$fileName');
+    await _sshController.uploadAsset('assets/flood-kml/$fileName', '/var/www/html/$fileName');
     await Future.delayed(const Duration(milliseconds: 300));
     await executeCommand("echo '\nhttp://${_settingsController.lgHost}:81/$fileName' > /var/www/html/kmls.txt");
     await Future.delayed(const Duration(milliseconds: 300));
@@ -401,7 +401,14 @@ class LGController {
     await query('exittour=false');
   }
 
-  Future<void> sendDisasterLayer({required String assetPath}) async {
+  Future<void> sendDisasterLayer({
+    required String assetPath,
+    double lookAtLat = 10.1,
+    double lookAtLng = 76.4,
+    double lookAtRange = 500000,
+    double lookAtTilt = 45,
+    double lookAtHeading = 0,
+  }) async {
     if (!isConnected) throw Exception('Not connected to LG');
     
     try {
@@ -421,8 +428,12 @@ class LGController {
       await executeCommand("echo '\nhttp://${_settingsController.lgHost}:81/$fileName' >> /var/www/html/kmls.txt");
       await Future.delayed(const Duration(milliseconds: 300));
       
-      // Fly to Kerala region to view the layer
-      await query('flytoview=<LookAt><longitude>76.4</longitude><latitude>10.1</latitude><range>500000</range><tilt>45</tilt><heading>0</heading></LookAt>');
+      // Clear pending tours or queries
+      await query('exittour=true');
+      await Future.delayed(const Duration(milliseconds: 300));
+      
+      // Fly to region to view the layer
+      await executeCommand('echo "flytoview=<LookAt><longitude>$lookAtLng</longitude><latitude>$lookAtLat</latitude><range>$lookAtRange</range><tilt>$lookAtTilt</tilt><heading>$lookAtHeading</heading></LookAt>" > /tmp/query.txt');
       
       if (kDebugMode) {
         debugPrint('Successfully sent disaster layer: $fileName');

@@ -10,6 +10,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:http/http.dart' as http;
+import 'package:user_gdg/advisory_screen.dart';
 import 'package:user_gdg/widgets/live_advisory_banner.dart';
 import 'package:user_gdg/widgets/sos_dialog.dart';
 import 'package:user_gdg/services/google_vision_service.dart';
@@ -19,7 +20,10 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
 
 class FloodMapScreen extends StatefulWidget {
-  const FloodMapScreen({super.key});
+  final LatLng? initialLocation;
+  final String? scenarioId;
+
+  const FloodMapScreen({super.key, this.initialLocation, this.scenarioId});
 
   @override
   State<FloodMapScreen> createState() => _FloodMapScreenState();
@@ -68,14 +72,18 @@ class _FloodMapScreenState extends State<FloodMapScreen>
   BitmapDescriptor? _reliefCampIcon;
   BitmapDescriptor? _hospitalIcon;
 
-  static const CameraPosition _keralaDefault = CameraPosition(
-    target: LatLng(10.1076, 76.3519),
-    zoom: 12,
-  );
+  late CameraPosition _initialCameraPosition;
 
   @override
   void initState() {
     super.initState();
+    
+    // Set initial camera position based on passed location or default to Kerala
+    _initialCameraPosition = CameraPosition(
+      target: widget.initialLocation ?? const LatLng(10.1076, 76.3519),
+      zoom: widget.initialLocation != null ? 12.0 : 12.0, // Increased zoom to 12.0
+    );
+
     _startLocationUpdates();
     _createCustomMarkerIcons();
 
@@ -463,6 +471,11 @@ class _FloodMapScreenState extends State<FloodMapScreen>
       final phone = userProvidedData['phone'] ?? '';
 
       final newDocRef = db.collection('Disasters').doc('Flood').collection('rescue_requests').doc();
+      // Use the active scenario if passed, else fallback
+      final activeScenario = widget.scenarioId ?? 'flood_kerala'; 
+
+      final newDocRef = db.collection('Disasters').doc(activeScenario).collection('rescue_requests').doc();
+
 
       batch.set(newDocRef, {
         'district': district,
@@ -663,8 +676,12 @@ class _FloodMapScreenState extends State<FloodMapScreen>
     if (layer == 'safe_zones_relief') {
       _safeZoneSubscription?.cancel();
 
+      final activeScenario = widget.scenarioId ?? 'flood_kerala';
+
       _safeZoneSubscription = FirebaseFirestore.instance
-          .collection('Disasters').doc('Flood').collection('safe_zones')
+          .collection('Disasters')
+          .doc(activeScenario)
+          .collection('safe_zones')
           .where('status', isEqualTo: 'ACTIVE')
           .snapshots()
           .listen((snapshot) {
@@ -1059,10 +1076,10 @@ class _FloodMapScreenState extends State<FloodMapScreen>
         children: [
            Column(
              children: [
-               const LiveAdvisoryBanner(),
+               LiveAdvisoryBanner(scenarioId: widget.scenarioId ?? 'flood_kerala'),
                Expanded(
                  child: GoogleMap(
-                   initialCameraPosition: _keralaDefault,
+                   initialCameraPosition: _initialCameraPosition,
                    onMapCreated: (controller) => _mapController = controller,
                    myLocationEnabled: true,
                    myLocationButtonEnabled: true,
@@ -1096,6 +1113,17 @@ class _FloodMapScreenState extends State<FloodMapScreen>
                   stream: FirebaseFirestore.instance.collection('Disasters').doc('Flood').collection('rescue_requests').doc(_activeSOSId).snapshots(),
                   builder: (context, snapshot) {
                      if (!snapshot.hasData || !snapshot.data!.exists) return const SizedBox.shrink();
+              Positioned(
+                 bottom: 24, left: 20, right: 120,
+                 child: StreamBuilder<DocumentSnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection('Disasters')
+                      .doc(widget.scenarioId ?? 'flood_kerala')
+                      .collection('rescue_requests')
+                      .doc(_activeSOSId)
+                      .snapshots(),
+                   builder: (context, snapshot) {
+                      if (!snapshot.hasData || !snapshot.data!.exists) return const SizedBox.shrink();
                      final data = snapshot.data!.data() as Map<String, dynamic>;
                      return GestureDetector(
                        onTap: () => _showSOSDetailsWrapped(data),
@@ -1123,7 +1151,16 @@ class _FloodMapScreenState extends State<FloodMapScreen>
                           setState(() => _selectedLayer = 'safe_zones_relief');
                           _loadLayer('safe_zones_relief');
                        }),
-                       _buildFabAction(Icons.warning_amber_rounded, 'Advisories', Colors.orange, () => Navigator.pushNamed(context, '/advisory')),
+                       _buildFabAction(Icons.warning_amber_rounded, 'Advisories', Colors.orange, () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => AdvisoryScreen(
+                                scenarioId: widget.scenarioId ?? 'flood_kerala',
+                              ),
+                            ),
+                          );
+                       }),
                        _buildFabAction(_sendingSOS ? Icons.hourglass_top : Icons.sos, 'Send SOS', Colors.red, _sendingSOS ? () {} : _sendSOSDialog),
                      ],
                    ),

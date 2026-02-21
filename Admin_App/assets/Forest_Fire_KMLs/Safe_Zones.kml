@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Safe Zones</name>
+    <Folder>
+      <name>Safe Zones</name>
+
+      <Style id="safePoint">
+        <IconStyle><scale>1.4</scale><Icon><href>http://maps.google.com/mapfiles/kml/pushpin/grn-pushpin.png</href></Icon></IconStyle>
+        <LabelStyle><color>ff00ff00</color><scale>1.2</scale></LabelStyle>
+      </Style>
+
+      <Placemark>
+        <name>Dehradun Central Relief Camp</name>
+        <styleUrl>#safePoint</styleUrl>
+        <Point><coordinates>78.03,30.34,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>Haridwar City Evacuation Center</name>
+        <styleUrl>#safePoint</styleUrl>
+        <Point><coordinates>78.16,29.98,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>Nainital Lake Safe Zone</name>
+        <styleUrl>#safePoint</styleUrl>
+        <Point><coordinates>79.45,29.4,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>Almora Cantonment Safe Hub</name>
+        <styleUrl>#safePoint</styleUrl>
+        <Point><coordinates>79.64,29.62,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>Pauri Medical Relief Station</name>
+        <styleUrl>#safePoint</styleUrl>
+        <Point><coordinates>78.78,30.17,0</coordinates></Point>
+      </Placemark>
+
+    </Folder>
+  </Document>
+</kml>

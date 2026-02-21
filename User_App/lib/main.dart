@@ -10,6 +10,8 @@ import 'package:user_gdg/advisory_screen.dart';
 import 'package:user_gdg/safe_zone_screen.dart';
 import 'package:user_gdg/screens/registration_screen.dart';
 import 'package:user_gdg/services/sms_receiver_service.dart';
+import 'package:user_gdg/scenario_selection_screen.dart';
+import 'package:user_gdg/seed_safe_zones.dart'; // IMPORT
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,6 +27,10 @@ Future<void> main() async {
   final bool isRegistered = prefs.getBool('isRegistered') ?? false;
 
   runApp(FloodCitizenApp(isRegistered: isRegistered));
+  // Seed Cyclone Amphan Safe Zones (idempotent, can run once or more)
+  await seedCycloneSafeZones();
+
+  runApp(const FloodCitizenApp());
 }
 
 class FloodCitizenApp extends StatelessWidget {
@@ -49,6 +55,11 @@ class FloodCitizenApp extends StatelessWidget {
         '/register': (context) => const RegistrationScreen(),
         '/home': (context) => const FloodMapScreen(),
         '/advisory': (context) => const AdvisoryScreen(),
+        '/': (context) => const ScenarioSelectionScreen(),
+        '/flood_map': (context) => const FloodMapScreen(),
+        // '/sos': (context) => const SOSScreen(),
+        // '/advisory': (context) => const AdvisoryScreen(), // removed because it requires scenarioId
+        // '/safezones': (context) => const SafeZoneScreen(),
       },
     );
   }

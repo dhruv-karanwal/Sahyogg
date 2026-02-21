@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2">
+    <Document id="79">
+        <Style id="82">
+            <LineStyle id="83">
+                <color>ff000000</color>
+                <colorMode>normal</colorMode>
+                <width>6</width>
+            </LineStyle>
+        </Style>
+        <Style id="86">
+            <LineStyle id="87">
+                <color>ff0000ff</color>
+                <colorMode>normal</colorMode>
+                <width>4</width>
+            </LineStyle>
+        </Style>
+        <name>Blocked/Damaged Roads</name>
+        <Placemark id="81">
+            <name>Blocked Access Route (Dimbhe Dam Road)</name>
+            <description>Main paved access route buried under 15 feet of mud overlay.</description>
+            <styleUrl>#82</styleUrl>
+            <LineString id="80">
+                <coordinates>73.698,19.145,0.0 73.695,19.148,0.0 73.692,19.15,0.0 73.689,19.153,0.0</coordinates>
+            </LineString>
+        </Placemark>
+        <Placemark id="85">
+            <name>Uprooted Internal Village Road</name>
+            <description>Internal unpaved path completely wiped out by the slide scar.</description>
+            <styleUrl>#86</styleUrl>
+            <LineString id="84">
+                <coordinates>73.685,19.155,0.0 73.688,19.154,0.0 73.691,19.155,0.0</coordinates>
+            </LineString>
+        </Placemark>
+    </Document>
+</kml>

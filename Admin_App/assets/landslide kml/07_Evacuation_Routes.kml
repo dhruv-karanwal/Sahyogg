@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2">
+    <Document id="111">
+        <Style id="114">
+            <LineStyle id="115">
+                <color>ff00ff00</color>
+                <colorMode>normal</colorMode>
+                <width>6</width>
+            </LineStyle>
+        </Style>
+        <Style id="118">
+            <LineStyle id="119">
+                <color>ffffff00</color>
+                <colorMode>normal</colorMode>
+                <width>4</width>
+            </LineStyle>
+        </Style>
+        <name>Evacuation Routes</name>
+        <Placemark id="113">
+            <name>Cleared Medical Airlift Route</name>
+            <description>Corridor cleared by earthmovers to transport victims from ground zero to the triage tent.</description>
+            <styleUrl>#114</styleUrl>
+            <LineString id="112">
+                <coordinates>73.689,19.153,0.0 73.685,19.152,0.0 73.68,19.15,0.0 73.675,19.148,0.0</coordinates>
+            </LineString>
+        </Placemark>
+        <Placemark id="117">
+            <name>Civilian Evacuation Trail</name>
+            <description>Safe foot-trail designated for evacuating neighboring hamlets.</description>
+            <styleUrl>#118</styleUrl>
+            <LineString id="116">
+                <coordinates>73.684,19.152,0.0 73.68,19.155,0.0 73.678,19.158,0.0 73.678,19.16,0.0</coordinates>
+            </LineString>
+        </Placemark>
+    </Document>
+</kml>

@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>SAHYOG: Cyclone Amphan Intelligence (Master)</name>
+    <open>1</open>
+    <description>Consolidated layered view for Multi-Disaster Intelligence Platform (Liquid Galaxy Demo)</description>
+    
+    <Folder><name>Cyclone Track Layer</name>
+      <Style id="thickRedLine">
+        <LineStyle><color>ff0000ff</color><width>5</width></LineStyle>
+      </Style>
+      <Style id="labelStyle">
+        <IconStyle><scale>1.2</scale><Icon><href>http://maps.google.com/mapfiles/kml/shapes/info.png</href></Icon></IconStyle>
+        <LabelStyle><color>ffffffff</color><scale>1.5</scale></LabelStyle>
+      </Style>
+      <Placemark>
+        <name>Cyclone Path</name>
+        <styleUrl>#thickRedLine</styleUrl>
+        <LineString>
+          <tessellate>1</tessellate>
+          <coordinates>
+            87.0,10.4,0 86.4,14.5,0 87.2,18.4,0 88.3,21.65,0 88.6,22.7,0 89.6,25.4,0
+          </coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <name>Genesis: 16 May 2020</name>
+        <styleUrl>#labelStyle</styleUrl>
+        <Point><coordinates>87.0,10.4,0</coordinates></Point>
+      </Placemark>
+      <Placemark>
+        <name>Landfall: Sundarbans (155-165 kmph)</name>
+        <styleUrl>#labelStyle</styleUrl>
+        <Point><coordinates>88.3,21.65,0</coordinates></Point>
+      </Placemark>
+      <Placemark>
+        <name>Dissipation: North Bangladesh</name>
+        <styleUrl>#labelStyle</styleUrl>
+        <Point><coordinates>89.6,25.4,0</coordinates></Point>
+      </Placemark>
+</Folder>
+    <Folder><name>Wind Intensity Layer</name>
+      <Style id="orangePoly">
+        <PolyStyle><color>8000a5ff</color></PolyStyle>
+      </Style>
+      <Style id="alertStyle">
+        <IconStyle><scale>1.5</scale><Icon><href>http://maps.google.com/mapfiles/kml/shapes/caution.png</href></Icon></IconStyle>
+        <LabelStyle><color>ff00a5ff</color><scale>1.5</scale></LabelStyle>
+      </Style>
+      <Placemark>
+        <name>High Wind Intensity Zone</name>
+        <styleUrl>#orangePoly</styleUrl>
+        <Polygon>
+          <outerBoundaryIs><LinearRing><coordinates>
+            88.0,21.0,0 89.2,21.0,0 89.2,22.8,0 88.0,22.8,0 88.0,21.0,0
+          </coordinates></LinearRing></outerBoundaryIs>
+        </Polygon>
+      </Placemark>
+      <Placemark>
+        <name>Max Wind Speed: ~185 kmph (West Bengal Coast)</name>
+        <styleUrl>#alertStyle</styleUrl>
+        <Point><coordinates>88.6,21.9,0</coordinates></Point>
+      </Placemark>
+</Folder>
+    <Folder><name>Rainfall Severity Layer</name>
+      <Style id="bluePoly"><PolyStyle><color>80ff0000</color></PolyStyle></Style>
+      <Style id="rainStyle">
+        <IconStyle><scale>1.5</scale><Icon><href>http://maps.google.com/mapfiles/kml/shapes/water.png</href></Icon></IconStyle>
+        <LabelStyle><color>ffffffff</color><scale>1.4</scale></LabelStyle>
+      </Style>
+      <Placemark>
+        <name>Heavy Precipitation Region</name>
+        <styleUrl>#bluePoly</styleUrl>
+        <Polygon>
+          <outerBoundaryIs><LinearRing><coordinates>
+            86.5,19.5,0 88.5,19.5,0 88.5,21.5,0 86.5,21.5,0 86.5,19.5,0
+          </coordinates></LinearRing></outerBoundaryIs>
+        </Polygon>
+      </Placemark>
+      <Placemark>
+        <name>Odisha Coastal Districts: ~300 mm Rainfall</name>
+        <styleUrl>#rainStyle</styleUrl>
+        <Point><coordinates>87.3,20.5,0</coordinates></Point>
+      </Placemark>
+</Folder>
+    <Folder><name>Power Grid Outage Layer</name>
+      <Style id="yellowPoly"><PolyStyle><color>9900ffff</color></PolyStyle></Style>
+      <Style id="powerStyle">
+        <IconStyle><scale>1.5</scale><Icon><href>http://maps.google.com/mapfiles/kml/shapes/target.png</href></Icon></IconStyle>
+        <LabelStyle><color>ff00ffff</color><scale>1.4</scale></LabelStyle>
+      </Style>
+      <Placemark>
+        <name>Grid Failure Area</name>
+        <styleUrl>#yellowPoly</styleUrl>
+        <Polygon>
+          <outerBoundaryIs><LinearRing><coordinates>
+            86.8,20.5,0 87.6,20.5,0 87.6,21.3,0 86.8,21.3,0 86.8,20.5,0
+          </coordinates></LinearRing></outerBoundaryIs>
+        </Polygon>
+      </Placemark>
+      <Placemark>
+        <name>Power Grid Damage: 3.2 Billion INR (Odisha)</name>
+        <styleUrl>#powerStyle</styleUrl>
+        <Point><coordinates>87.2,20.9,0</coordinates></Point>
+      </Placemark>
+</Folder>
+    <Folder><name>Infrastructure Damage Layer</name>
+      <Style id="darkRedPoly"><PolyStyle><color>cc00008b</color></PolyStyle></Style>
+      <Style id="infraStyle">
+        <IconStyle><scale>1.5</scale><Icon><href>http://maps.google.com/mapfiles/kml/shapes/hospitals.png</href></Icon></IconStyle>
+        <LabelStyle><color>ff0000ff</color><scale>1.4</scale></LabelStyle>
+      </Style>
+      <Placemark>
+        <name>Structural Loss Zone</name>
+        <styleUrl>#darkRedPoly</styleUrl>
+        <Polygon>
+          <outerBoundaryIs><LinearRing><coordinates>
+            87.8,21.2,0 88.6,21.2,0 88.6,22.2,0 87.8,22.2,0 87.8,21.2,0
+          </coordinates></LinearRing></outerBoundaryIs>
+        </Polygon>
+      </Placemark>
+      <Placemark>
+        <name>WB: 1.02 Trillion INR Damage, 15,000+ Homes Destroyed</name>
+        <styleUrl>#infraStyle</styleUrl>
+        <Point><coordinates>88.2,21.6,0</coordinates></Point>
+      </Placemark>
+</Folder>
+    <Folder><name>Agriculture Impact Layer</name>
+      <Style id="brownPoly"><PolyStyle><color>9913458b</color></PolyStyle></Style>
+      <Style id="agriStyle">
+        <IconStyle><scale>1.5</scale><Icon><href>http://maps.google.com/mapfiles/kml/shapes/parks.png</href></Icon></IconStyle>
+        <LabelStyle><color>ff336699</color><scale>1.4</scale></LabelStyle>
+      </Style>
+      <Placemark>
+        <name>Crop Destruction Area</name>
+        <styleUrl>#brownPoly</styleUrl>
+        <Polygon>
+          <outerBoundaryIs><LinearRing><coordinates>
+            88.1,21.5,0 88.9,21.5,0 88.9,22.1,0 88.1,22.1,0 88.1,21.5,0
+          </coordinates></LinearRing></outerBoundaryIs>
+        </Polygon>
+      </Placemark>
+      <Placemark>
+        <name>Severe Agriculture Loss: 4,000+ Livestock Dead, Ganges Delta Damaged</name>
+        <styleUrl>#agriStyle</styleUrl>
+        <Point><coordinates>88.5,21.8,0</coordinates></Point>
+      </Placemark>
+</Folder>
+    <Folder><name>Safe Zones Layer</name>
+      <Style id="greenPin">
+        <IconStyle><scale>1.5</scale><Icon><href>http://maps.google.com/mapfiles/kml/pushpin/grn-pushpin.png</href></Icon></IconStyle>
+        <LabelStyle><color>ff00ff00</color><scale>1.4</scale></LabelStyle>
+      </Style>
+      <Placemark>
+        <name>Relief Camp: 400,000+ Evacuated (West Bengal)</name>
+        <styleUrl>#greenPin</styleUrl>
+        <Point><coordinates>88.36,22.57,0</coordinates></Point>
+      </Placemark>
+      <Placemark>
+        <name>IRCS: 62 Active Cyclone Shelters (Odisha)</name>
+        <styleUrl>#greenPin</styleUrl>
+        <Point><coordinates>86.92,21.49,0</coordinates></Point>
+      </Placemark>
+</Folder>
+    <Folder><name>Evacuation Routes Layer</name>
+      <Style id="greenLine"><LineStyle><color>ff00ff00</color><width>5</width></LineStyle></Style>
+      <Style id="routeStyle">
+        <IconStyle><scale>1.2</scale><Icon><href>http://maps.google.com/mapfiles/kml/shapes/cabs.png</href></Icon></IconStyle>
+        <LabelStyle><color>ff00ff00</color><scale>1.3</scale></LabelStyle>
+      </Style>
+      <Placemark>
+        <name>Coastal Evacuation Corridor</name>
+        <styleUrl>#greenLine</styleUrl>
+        <LineString>
+          <tessellate>1</tessellate>
+          <coordinates>
+            88.30,21.65,0 88.32,22.00,0 88.36,22.57,0
+          </coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <name>Primary Evacuation Route to Shelters</name>
+        <styleUrl>#routeStyle</styleUrl>
+        <Point><coordinates>88.32,22.00,0</coordinates></Point>
+      </Placemark>
+</Folder>
+
+  </Document>
+</kml>

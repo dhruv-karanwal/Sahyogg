@@ -7,8 +7,13 @@ import 'rescue_demand_overview_screen.dart';
 
 class RescueRequestsScreen extends StatefulWidget {
   final LGController lgController;
+  final String disasterType;
 
-  const RescueRequestsScreen({super.key, required this.lgController});
+  const RescueRequestsScreen({
+    super.key, 
+    required this.lgController,
+    required this.disasterType,
+  });
 
   @override
   State<RescueRequestsScreen> createState() => _RescueRequestsScreenState();
@@ -31,7 +36,7 @@ class _RescueRequestsScreenState extends State<RescueRequestsScreen> {
       batch.update(doc.reference, {'status': 'ACKNOWLEDGED'});
 
       // 2. Decrement Pending Count in Summary
-      final summaryRef = db.doc('rescue_summary/$district/cities/$city/areas/$area');
+      final summaryRef = db.doc('Disasters/${widget.disasterType}/rescue_summary/$district/cities/$city/areas/$area');
       batch.set(summaryRef, {
         'pending': FieldValue.increment(-1),
         'lastUpdated': FieldValue.serverTimestamp(),
@@ -154,8 +159,7 @@ class _RescueRequestsScreenState extends State<RescueRequestsScreen> {
               context,
               MaterialPageRoute(builder: (context) => RescueDemandOverviewScreen(
                 lgController: widget.lgController,
-                // Passing empty list or handling it differently since we now stream directly
-                // For now, let's keep it simple or update that screen later if it needs live data too
+                disasterType: widget.disasterType,
                 requests: [], 
               )),
             ),
@@ -200,6 +204,12 @@ class _RescueRequestsScreenState extends State<RescueRequestsScreen> {
                       .orderBy('createdAt', descending: true)
                       .snapshots(),
                   builder: (context, snapshot) {
+          child: StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance
+                .collection('Disasters').doc(widget.disasterType).collection('rescue_requests')
+                .orderBy('createdAt', descending: true)
+                .snapshots(),
+            builder: (context, snapshot) {
               if (snapshot.hasError) {
                 return Center(child: Text('Error: ${snapshot.error}', style: const TextStyle(color: Colors.white)));
               }

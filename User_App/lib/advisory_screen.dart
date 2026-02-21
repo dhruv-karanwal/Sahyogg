@@ -12,6 +12,11 @@ class AdvisoryScreen extends StatefulWidget {
 
 class _AdvisoryScreenState extends State<AdvisoryScreen> {
   @override
+class AdvisoryScreen extends StatelessWidget {
+  final String scenarioId;
+  const AdvisoryScreen({super.key, required this.scenarioId});
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -33,15 +38,20 @@ class _AdvisoryScreenState extends State<AdvisoryScreen> {
         children: [
           // 1. Current Active Advisory
           StreamBuilder<DocumentSnapshot>(
-            stream: FirebaseFirestore.instance.collection('Disasters').doc('Flood').collection('advisories').doc('current').snapshots(),
+            stream: FirebaseFirestore.instance
+                .collection('Disasters')
+                .doc(scenarioId)
+                .collection('advisories')
+                .doc('current')
+                .snapshots(),
             builder: (context, snapshot) {
-              if (snapshot.hasError) return SizedBox.shrink();
-              if (!snapshot.hasData || !snapshot.data!.exists) return SizedBox.shrink();
+              if (snapshot.hasError) return const SizedBox.shrink();
+              if (!snapshot.hasData || !snapshot.data!.exists) return const SizedBox.shrink();
 
               final data = snapshot.data!.data() as Map<String, dynamic>;
               final isActive = data['isActive'] == true || data['isActive'].toString().toLowerCase() == 'true';
               
-              if (!isActive) return SizedBox.shrink();
+              if (!isActive) return const SizedBox.shrink();
 
               return Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -93,7 +103,9 @@ class _AdvisoryScreenState extends State<AdvisoryScreen> {
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
-                  .collection('Disasters').doc('Flood').collection('advisories_history')
+                  .collection('Disasters')
+                  .doc(scenarioId)
+                  .collection('advisories_history')
                   .orderBy('sentAt', descending: true)
                   .limit(20)
                   .snapshots(),
