@@ -1,6 +1,17 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+class AdvisoryScreen extends StatefulWidget {
+  const AdvisoryScreen({super.key});
+
+  @override
+  State<AdvisoryScreen> createState() => _AdvisoryScreenState();
+}
+
+class _AdvisoryScreenState extends State<AdvisoryScreen> {
+  @override
 class AdvisoryScreen extends StatelessWidget {
   final String scenarioId;
   const AdvisoryScreen({super.key, required this.scenarioId});
@@ -8,7 +19,21 @@ class AdvisoryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Advisories')),
+      appBar: AppBar(
+        title: const Text('Advisories'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            tooltip: 'Refresh Advisories',
+            onPressed: () {
+              setState(() {});
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Refreshed advisories manually')),
+              );
+            },
+          ),
+        ],
+      ),
       body: Column(
         children: [
           // 1. Current Active Advisory
@@ -38,6 +63,29 @@ class AdvisoryScreen extends StatelessWidget {
                     _buildAdvisoryCard(data, isLarge: true),
                   ],
                 ),
+              );
+            },
+          ),
+
+          // 1.5 Offline Cached Advisories
+          FutureBuilder<List<Map<String, dynamic>>>(
+            future: _getOfflineAdvisories(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData || snapshot.data!.isEmpty) return const SizedBox.shrink();
+              final offlineDocs = snapshot.data!;
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                    child: Text('Offline SMS Broadcasts', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.orange)),
+                  ),
+                  ...offlineDocs.map((data) => Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6.0),
+                    child: _buildAdvisoryCard(data, isLarge: false),
+                  )),
+                  const Divider(height: 32),
+                ],
               );
             },
           ),
@@ -166,5 +214,11 @@ class AdvisoryScreen extends StatelessWidget {
       default:
         return Colors.blue;
     }
+  }
+
+  Future<List<Map<String, dynamic>>> _getOfflineAdvisories() async {
+    final prefs = await SharedPreferences.getInstance();
+    final cached = prefs.getStringList('offline_advisories') ?? [];
+    return cached.map((e) => jsonDecode(e) as Map<String, dynamic>).toList();
   }
 }

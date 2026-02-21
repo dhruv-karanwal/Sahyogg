@@ -14,6 +14,7 @@ import 'package:user_gdg/advisory_screen.dart';
 import 'package:user_gdg/widgets/live_advisory_banner.dart';
 import 'package:user_gdg/widgets/sos_dialog.dart';
 import 'package:user_gdg/services/google_vision_service.dart';
+import 'package:user_gdg/services/nlp_triage_service.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
@@ -429,6 +430,7 @@ class _FloodMapScreenState extends State<FloodMapScreen>
         builder: (context) => SOSDialog(
           isSending: _sendingSOS,
           onSubmit: (data) async {
+            // Close dialog FIRST before starting the heavy async task so context is preserved for the main screen
             Navigator.pop(context);
             await _submitSOSData(
               position: position,
@@ -456,9 +458,19 @@ class _FloodMapScreenState extends State<FloodMapScreen>
     try {
       setState(() => _sendingSOS = true);
 
+      // Analyze the SOS description using NLP Triage Service
+      final description = userProvidedData['description'] ?? '';
+      final emergencyType = userProvidedData['emergencyType'] ?? '';
+      final triageResult = NLPTriageService.analyzeSOS(description, emergencyType);
+
       final db = FirebaseFirestore.instance;
       final batch = db.batch();
 
+      final priority = triageResult['priority'];
+      final triageTag = triageResult['tag'];
+      final phone = userProvidedData['phone'] ?? '';
+
+      final newDocRef = db.collection('Disasters').doc('Flood').collection('rescue_requests').doc();
       // Use the active scenario if passed, else fallback
       final activeScenario = widget.scenarioId ?? 'flood_kerala'; 
 
@@ -471,17 +483,19 @@ class _FloodMapScreenState extends State<FloodMapScreen>
         'area': area,
         'lat': position.latitude,
         'lng': position.longitude,
-        'description': userProvidedData['description'],
-        'peopleCount': userProvidedData['peopleCount'],
-        'emergencyType': userProvidedData['emergencyType'],
-        'priority': 'HIGH',
+        'description': description,
+        'peopleCount': userProvidedData['peopleCount'] ?? 1,
+        'emergencyType': emergencyType,
+        'priority': priority,
+        'triageTag': triageTag,
+        'phone': phone,
         'status': 'PENDING',
         'source': 'MOBILE_USER',
         'createdAt': FieldValue.serverTimestamp(),
       });
 
       final summaryRef =
-          db.doc('rescue_summary/$district/cities/$city/areas/$area');
+          db.doc('Disasters/Flood/rescue_summary/$district/cities/$city/areas/$area');
 
       batch.set(
           summaryRef,
@@ -497,7 +511,9 @@ class _FloodMapScreenState extends State<FloodMapScreen>
           },
           SetOptions(merge: true));
 
-      await batch.commit();
+      batch.commit().catchError((e) {
+        print('Offline sync error: $e');
+      });
 
       setState(() {
         _activeSOSId = newDocRef.id;
@@ -571,7 +587,7 @@ class _FloodMapScreenState extends State<FloodMapScreen>
       final reason = analysis['reason'] ?? 'unknown';
 
       // 6. Store Result in Firestore (flood_reports)
-      await FirebaseFirestore.instance.collection('flood_reports').add({
+      await FirebaseFirestore.instance.collection('Disasters').doc('Flood').collection('flood_reports').add({
         'imageUrl': downloadUrl,
         'lat': lat,
         'lng': lng,
@@ -593,7 +609,7 @@ class _FloodMapScreenState extends State<FloodMapScreen>
         _showSnackBar('Flood report verified ✅ (Confidence: $confidence%)', isError: false);
 
         // Save to crowdsourced_reports for map display
-        await FirebaseFirestore.instance.collection('crowdsourced_reports').add({
+        await FirebaseFirestore.instance.collection('Disasters').doc('Flood').collection('crowdsourced_reports').add({
           'imageUrl': downloadUrl,
           'lat': lat,
           'lng': lng,
@@ -1091,6 +1107,12 @@ class _FloodMapScreenState extends State<FloodMapScreen>
              ),
              
            if (!_sendingSOS && _activeSOSId != null)
+             Positioned(
+                bottom: 24, left: 20, right: 120,
+                child: StreamBuilder<DocumentSnapshot>(
+                  stream: FirebaseFirestore.instance.collection('Disasters').doc('Flood').collection('rescue_requests').doc(_activeSOSId).snapshots(),
+                  builder: (context, snapshot) {
+                     if (!snapshot.hasData || !snapshot.data!.exists) return const SizedBox.shrink();
               Positioned(
                  bottom: 24, left: 20, right: 120,
                  child: StreamBuilder<DocumentSnapshot>(

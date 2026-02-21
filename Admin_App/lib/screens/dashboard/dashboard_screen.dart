@@ -85,6 +85,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Stream<QuerySnapshot> get _safeZonesStream =>
       FirebaseFirestore.instance.collection('Disasters').doc(widget.disasterType).collection('safe_zones').snapshots();
 
+  Stream<QuerySnapshot> get _incomingSmsStream => FirebaseFirestore.instance
+      .collection('incoming_sms')
+      .snapshots();
+
   Stream<QuerySnapshot> get _routesStream => FirebaseFirestore.instance
       .collection('floods')
       .doc('kerela-flood')
@@ -114,6 +118,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     _buildSmartInsights(),
                     const SizedBox(height: 24),
                     _buildLiveSosFeed(),
+                    const SizedBox(height: 24),
+                    _buildLiveSmsFeed(),
                     const SizedBox(height: 24),
                     _buildTopRiskZones(),
                     const SizedBox(height: 24),
@@ -519,8 +525,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
                        
                        final docs = snapshot.data!.docs;
                        docs.sort((a,b) {
-                           final tA = (a.data() as Map)['timestamp'] as Timestamp?;
-                           final tB = (b.data() as Map)['timestamp'] as Timestamp?;
+                           final dataA = a.data() as Map<String, dynamic>;
+                           final dataB = b.data() as Map<String, dynamic>;
+                           
+                           // 1. Sort by Priority (RED > ORANGE > YELLOW > WHITE)
+                           final priorityA = _getPriorityValue(dataA['priority'] as String?);
+                           final priorityB = _getPriorityValue(dataB['priority'] as String?);
+                           
+                           if (priorityA != priorityB) {
+                             return priorityA.compareTo(priorityB); // Lower number = higher priority
+                           }
+                           
+                           // 2. Sort by Timestamp (Newest first)
+                           final tA = dataA['timestamp'] as Timestamp?;
+                           final tB = dataB['timestamp'] as Timestamp?;
+                           
                            if(tA == null) return 1; 
                            if(tB == null) return -1;
                            return tB.compareTo(tA);
@@ -550,10 +569,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                    if (status == 'PENDING') statusColor = Colors.orange;
                                    if (status == 'RESOLVED') statusColor = Colors.green;
                                    
+                                   Color avatarColor = Colors.grey;
+                                   if (priority == 'RED') avatarColor = Colors.red;
+                                   if (priority == 'ORANGE') avatarColor = Colors.orange;
+                                   if (priority == 'YELLOW') avatarColor = Colors.yellow;
+                                   if (priority == 'WHITE') avatarColor = Colors.white;
+
                                    return ListTile(
                                        leading: CircleAvatar(
-                                           backgroundColor: Colors.red.withOpacity(0.2),
-                                           child: const Icon(Icons.sos, color: Colors.red, size: 18),
+                                           backgroundColor: avatarColor.withOpacity(0.2),
+                                           child: Icon(Icons.sos, color: avatarColor, size: 18),
                                        ),
                                        title: Text(area, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
                                        subtitle: Text('$priority • $time', style: TextStyle(color: Colors.grey[400], fontSize: 12)),
@@ -576,6 +601,78 @@ class _DashboardScreenState extends State<DashboardScreen> {
       );
   }
   
+  Widget _buildLiveSmsFeed() {
+      return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+              const Row(
+                children: [
+                  Icon(Icons.sms, color: Colors.blueAccent, size: 20),
+                  SizedBox(width: 8),
+                  Text('Raw Incoming SMS Feed', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                ],
+              ),
+              const SizedBox(height: 12),
+              StreamBuilder<QuerySnapshot>(
+                  stream: _incomingSmsStream,
+                  builder: (context, snapshot) {
+                       if(!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+                       if(snapshot.data!.docs.isEmpty) return const Text('No incoming SMS records yet.', style: TextStyle(color: Colors.grey));
+                       
+                       final docs = snapshot.data!.docs;
+                       docs.sort((a,b) {
+                           final dataA = a.data() as Map<String, dynamic>;
+                           final dataB = b.data() as Map<String, dynamic>;
+                           
+                           final tA = dataA['timestamp'] as Timestamp?;
+                           final tB = dataB['timestamp'] as Timestamp?;
+                           
+                           if(tA == null) return 1; 
+                           if(tB == null) return -1;
+                           return tB.compareTo(tA);
+                       });
+                       
+                       // Show max 10 recent messages
+                       final latest = docs.take(10).toList();
+                       
+                       return Container(
+                           decoration: BoxDecoration(
+                               color: const Color(0xFF141A26),
+                               borderRadius: BorderRadius.circular(16),
+                           ),
+                           child: ListView.separated(
+                               padding: EdgeInsets.zero,
+                               shrinkWrap: true,
+                               physics: const NeverScrollableScrollPhysics(),
+                               itemCount: latest.length,
+                               separatorBuilder: (_, __) => const Divider(height: 1, color: Colors.white10),
+                               itemBuilder: (context, index) {
+                                   final data = latest[index].data() as Map<String, dynamic>;
+                                   final sender = data['sender'] ?? 'Unknown Sender';
+                                   final body = data['body'] ?? '';
+                                   final time = _formatTimestamp(data['timestamp']);
+
+                                   return ListTile(
+                                       leading: CircleAvatar(
+                                           backgroundColor: Colors.blueAccent.withOpacity(0.2),
+                                           child: const Icon(Icons.chat_bubble_outline, color: Colors.blueAccent, size: 18),
+                                       ),
+                                       title: Text(sender, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
+                                       subtitle: Padding(
+                                         padding: const EdgeInsets.only(top: 4.0),
+                                         child: Text(body, style: TextStyle(color: Colors.grey[400], fontSize: 12), maxLines: 3, overflow: TextOverflow.ellipsis),
+                                       ),
+                                       trailing: Text(time, style: TextStyle(color: Colors.grey[500], fontSize: 10)),
+                                   );
+                               },
+                           ),
+                       );
+                  },
+              ),
+          ],
+      );
+  }
+
   String _formatTimestamp(dynamic timestamp) {
       if (timestamp == null) return 'Just now';
       if (timestamp is Timestamp) {
@@ -583,6 +680,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
           return '${dt.hour}:${dt.minute.toString().padLeft(2, '0')}';
       }
       return 'Just now';
+  }
+
+  int _getPriorityValue(String? priority) {
+    if (priority == null) return 2; // Default to Medium
+    
+    final p = priority.toUpperCase();
+    if (p == 'RED') return 0;
+    if (p == 'ORANGE') return 1;
+    if (p == 'YELLOW') return 2;
+    if (p == 'WHITE') return 3;
+    
+    return 2; // Default
   }
 
   Widget _buildTopRiskZones() {
@@ -714,7 +823,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       }
                     }
                   })),
-                   const Spacer(flex: 3),
+                  const SizedBox(width: 12),
+                  Expanded(child: _buildActionButton('Migrate SOS DB', Icons.upgrade, Colors.purple, () async {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Migrating Old SOS Tickets...')));
+                    try {
+                      final service = SOSManagementService();
+                      await service.migrateOldSOSToNewPriorityTiers();
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Legacy SOS DB Migrated!'), backgroundColor: Colors.green));
+                      }
+                    } catch (e) {
+                       if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Migration failed: $e'), backgroundColor: Colors.red));
+                      }
+                    }
+                  })),
+                  const Spacer(flex: 2),
                 ],
               ),
             ],

@@ -5,6 +5,8 @@ import 'firebase_options.dart';
 import 'controllers/ssh_controller.dart';
 import 'controllers/settings_controller.dart';
 import 'controllers/lg_controller.dart';
+import 'screens/home_screen.dart';
+import 'services/sms_receiver_service.dart';
 import 'screens/scenario_selection_screen.dart';
 
 void main() async {
@@ -15,6 +17,9 @@ void main() async {
   
   final settingsController = SettingsController();
   await settingsController.loadSettings();
+  
+  // Start listening for Offline SOS SMS texts
+  await SMSReceiverService.startListening();
   
   final sshController = SSHController();
   final lgController = LGController(
