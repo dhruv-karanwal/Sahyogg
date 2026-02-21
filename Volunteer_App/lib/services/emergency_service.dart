@@ -11,7 +11,11 @@ class EmergencyService {
     String? description,
     bool hasVoiceNote = false,
   }) async {
-    await _firestore.collection('emergency_alerts').add({
+    await _firestore
+        .collection('Disasters')
+        .doc('Flood')
+        .collection('emergency_alerts')
+        .add({
       'volunteerId': volunteerId,
       'location': {
         'latitude': location.latitude,

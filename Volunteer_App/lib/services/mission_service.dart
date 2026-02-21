@@ -6,7 +6,12 @@ class MissionService {
 
   // READ ONLY: Get all rescue requests
   Stream<List<Map<String, dynamic>>> getRescueRequests() {
-    return _firestore.collection('rescue_requests').snapshots().map((snapshot) {
+    return _firestore
+        .collection('Disasters')
+        .doc('Flood')
+        .collection('rescue_requests')
+        .snapshots()
+        .map((snapshot) {
       return snapshot.docs.map((doc) {
         final data = doc.data();
         data['id'] = doc.id;
@@ -17,7 +22,11 @@ class MissionService {
 
   // CREATE: New mission doc in 'missions' collection
   Future<void> acceptMission(String volunteerId, String rescueRequestId) async {
-    await _firestore.collection('missions').add({
+    await _firestore
+        .collection('Disasters')
+        .doc('Flood')
+        .collection('missions')
+        .add({
       'volunteerId': volunteerId,
       'rescueRequestId': rescueRequestId,
       'status': 'assigned',
@@ -25,7 +34,12 @@ class MissionService {
     });
 
     // UPDATE: Status and citizenMessage in rescue_requests
-    await _firestore.collection('rescue_requests').doc(rescueRequestId).update({
+    await _firestore
+        .collection('Disasters')
+        .doc('Flood')
+        .collection('rescue_requests')
+        .doc(rescueRequestId)
+        .update({
       'status': 'accepted',
       'citizenMessage': 'Volunteer is on the way',
     });
@@ -33,7 +47,12 @@ class MissionService {
 
   // UPDATE: Mission status lifecycle
   Future<void> updateMissionStatus(String missionId, MissionStatus status) async {
-    await _firestore.collection('missions').doc(missionId).update({
+    await _firestore
+        .collection('Disasters')
+        .doc('Flood')
+        .collection('missions')
+        .doc(missionId)
+        .update({
       'status': status.toString().split('.').last,
       'updateTimestamp': FieldValue.serverTimestamp(),
     });
@@ -41,6 +60,8 @@ class MissionService {
 
   Stream<List<MissionModel>> getActiveMissions(String volunteerId) {
     return _firestore
+        .collection('Disasters')
+        .doc('Flood')
         .collection('missions')
         .where('volunteerId', isEqualTo: volunteerId)
         .snapshots()
