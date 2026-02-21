@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../flood_map_screen.dart';
 
 class RegistrationScreen extends StatefulWidget {
@@ -30,6 +31,18 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       await prefs.setBool('isRegistered', true);
       await prefs.setString('userPhone', phone);
       await prefs.setString('userName', _nameController.text.trim());
+
+      // Push to central Firestore users collection for Admin SMS Broadcasting
+      try {
+        await FirebaseFirestore.instance.collection('users').doc(phone).set({
+          'phone': phone,
+          'name': _nameController.text.trim(),
+          'registeredAt': FieldValue.serverTimestamp(),
+        });
+      } catch (e) {
+        print('Could not sync user to Firestore: $e');
+        // We still continue to the app even if offline sync fails initially
+      }
 
       if (mounted) {
         Navigator.pushReplacement(

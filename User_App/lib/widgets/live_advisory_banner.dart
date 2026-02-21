@@ -41,9 +41,9 @@ class _LiveAdvisoryBannerState extends State<LiveAdvisoryBanner>
   void _listenToAdvisories() {
     print('LiveAdvisoryBanner: Initializing Firestore listener...');
     
-    // Listen to the 'current' document in the 'advisories' collection
+    // Listen to the 'current' document in the 'advisories' subcollection under 'Disasters/Flood'
     // This matches what we updated the Admin App to write to.
-    final advisoryRef = FirebaseFirestore.instance.collection('advisories').doc('current');
+    final advisoryRef = FirebaseFirestore.instance.collection('Disasters').doc('Flood').collection('advisories').doc('current');
     
     // Note: We use snapshots() for Firestore
     _subscription = advisoryRef.snapshots().listen((snapshot) {

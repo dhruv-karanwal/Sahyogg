@@ -422,6 +422,7 @@ class _FloodMapScreenState extends State<FloodMapScreen>
         builder: (context) => SOSDialog(
           isSending: _sendingSOS,
           onSubmit: (data) async {
+            // Close dialog FIRST before starting the heavy async task so context is preserved for the main screen
             Navigator.pop(context);
             await _submitSOSData(
               position: position,
@@ -461,7 +462,7 @@ class _FloodMapScreenState extends State<FloodMapScreen>
       final triageTag = triageResult['tag'];
       final phone = userProvidedData['phone'] ?? '';
 
-      final newDocRef = db.collection('rescue_requests').doc();
+      final newDocRef = db.collection('Disasters').doc('Flood').collection('rescue_requests').doc();
 
       batch.set(newDocRef, {
         'district': district,
@@ -481,7 +482,7 @@ class _FloodMapScreenState extends State<FloodMapScreen>
       });
 
       final summaryRef =
-          db.doc('rescue_summary/$district/cities/$city/areas/$area');
+          db.doc('Disasters/Flood/rescue_summary/$district/cities/$city/areas/$area');
 
       batch.set(
           summaryRef,
@@ -497,7 +498,9 @@ class _FloodMapScreenState extends State<FloodMapScreen>
           },
           SetOptions(merge: true));
 
-      await batch.commit();
+      batch.commit().catchError((e) {
+        print('Offline sync error: $e');
+      });
 
       setState(() {
         _activeSOSId = newDocRef.id;
@@ -571,7 +574,7 @@ class _FloodMapScreenState extends State<FloodMapScreen>
       final reason = analysis['reason'] ?? 'unknown';
 
       // 6. Store Result in Firestore (flood_reports)
-      await FirebaseFirestore.instance.collection('flood_reports').add({
+      await FirebaseFirestore.instance.collection('Disasters').doc('Flood').collection('flood_reports').add({
         'imageUrl': downloadUrl,
         'lat': lat,
         'lng': lng,
@@ -593,7 +596,7 @@ class _FloodMapScreenState extends State<FloodMapScreen>
         _showSnackBar('Flood report verified ✅ (Confidence: $confidence%)', isError: false);
 
         // Save to crowdsourced_reports for map display
-        await FirebaseFirestore.instance.collection('crowdsourced_reports').add({
+        await FirebaseFirestore.instance.collection('Disasters').doc('Flood').collection('crowdsourced_reports').add({
           'imageUrl': downloadUrl,
           'lat': lat,
           'lng': lng,
@@ -661,7 +664,7 @@ class _FloodMapScreenState extends State<FloodMapScreen>
       _safeZoneSubscription?.cancel();
 
       _safeZoneSubscription = FirebaseFirestore.instance
-          .collection('safe_zones')
+          .collection('Disasters').doc('Flood').collection('safe_zones')
           .where('status', isEqualTo: 'ACTIVE')
           .snapshots()
           .listen((snapshot) {
@@ -1090,7 +1093,7 @@ class _FloodMapScreenState extends State<FloodMapScreen>
              Positioned(
                 bottom: 24, left: 20, right: 120,
                 child: StreamBuilder<DocumentSnapshot>(
-                  stream: FirebaseFirestore.instance.collection('rescue_requests').doc(_activeSOSId).snapshots(),
+                  stream: FirebaseFirestore.instance.collection('Disasters').doc('Flood').collection('rescue_requests').doc(_activeSOSId).snapshots(),
                   builder: (context, snapshot) {
                      if (!snapshot.hasData || !snapshot.data!.exists) return const SizedBox.shrink();
                      final data = snapshot.data!.data() as Map<String, dynamic>;
