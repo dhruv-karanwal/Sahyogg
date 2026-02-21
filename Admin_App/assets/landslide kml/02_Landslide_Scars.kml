@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2">
+    <Document id="24">
+        <Style id="29">
+            <LineStyle id="31">
+                <color>ff2a2aa5</color>
+                <colorMode>normal</colorMode>
+                <width>4</width>
+            </LineStyle>
+            <PolyStyle id="30">
+                <color>c813458b</color>
+                <colorMode>normal</colorMode>
+                <fill>1</fill>
+                <outline>1</outline>
+            </PolyStyle>
+        </Style>
+        <Style id="36">
+            <PolyStyle id="37">
+                <color>9613458b</color>
+                <colorMode>normal</colorMode>
+                <fill>1</fill>
+                <outline>1</outline>
+            </PolyStyle>
+        </Style>
+        <name>Landslide Scars</name>
+        <Placemark id="26">
+            <name>Primary Crown &amp; Scar</name>
+            <description>Origin point of failure where over 3 million cubic meters of earth detached.</description>
+            <styleUrl>#29</styleUrl>
+            <Polygon id="25">
+                <outerBoundaryIs>
+                    <LinearRing id="27">
+                        <coordinates>73.687,19.162,0.0 73.689,19.163,0.0 73.69,19.162,0.0 73.691,19.16,0.0 73.69,19.158,0.0 73.689,19.156,0.0 73.688,19.155,0.0 73.686,19.156,0.0 73.685,19.158,0.0 73.686,19.16,0.0 73.687,19.162,0.0</coordinates>
+                    </LinearRing>
+                </outerBoundaryIs>
+            </Polygon>
+        </Placemark>
+        <Placemark id="33">
+            <name>Secondary Scar A</name>
+            <styleUrl>#36</styleUrl>
+            <Polygon id="32">
+                <outerBoundaryIs>
+                    <LinearRing id="34">
+                        <coordinates>73.693,19.158,0.0 73.694,19.157,0.0 73.693,19.155,0.0 73.692,19.156,0.0 73.693,19.158,0.0</coordinates>
+                    </LinearRing>
+                </outerBoundaryIs>
+            </Polygon>
+        </Placemark>
+    </Document>
+</kml>

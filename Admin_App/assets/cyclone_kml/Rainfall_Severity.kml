@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Rainfall Severity</name>
+    <Folder>
+      <name>Rainfall Severity</name>
+
+      <Style id="rainExtreme"><PolyStyle><color>aa990000</color></PolyStyle><LineStyle><color>ffff0000</color><width>2</width></LineStyle></Style>
+      <Style id="rainHigh"><PolyStyle><color>aaff9900</color></PolyStyle><LineStyle><color>ffff9900</color><width>2</width></LineStyle></Style>
+      <Placemark>
+        <name>Kolkata & Sundarbans (>300mm)</name>
+        <styleUrl>#rainExtreme</styleUrl>
+        <Polygon><outerBoundaryIs><LinearRing><coordinates>
+          88.0,21.5,0 89.0,21.5,0 89.0,23.0,0 88.0,23.0,0 88.0,21.5,0
+        </coordinates></LinearRing></outerBoundaryIs></Polygon>
+      </Placemark>
+      <Placemark>
+        <name>North Odisha (>200mm)</name>
+        <styleUrl>#rainHigh</styleUrl>
+        <Polygon><outerBoundaryIs><LinearRing><coordinates>
+          86.5,20.5,0 87.5,20.5,0 87.5,21.5,0 86.5,21.5,0 86.5,20.5,0
+        </coordinates></LinearRing></outerBoundaryIs></Polygon>
+      </Placemark>
+
+    </Folder>
+  </Document>
+</kml>

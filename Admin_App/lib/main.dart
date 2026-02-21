@@ -5,7 +5,7 @@ import 'firebase_options.dart';
 import 'controllers/ssh_controller.dart';
 import 'controllers/settings_controller.dart';
 import 'controllers/lg_controller.dart';
-import 'screens/home_screen.dart';
+import 'screens/scenario_selection_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -51,7 +51,7 @@ class MyApp extends StatelessWidget {
       title: 'LG Controller',
       debugShowCheckedModeBanner: false,
       theme: _buildDarkTheme(),
-      home: HomeScreen(
+      home: ScenarioSelectionScreen(
         sshController: sshController,
         settingsController: settingsController,
         lgController: lgController,

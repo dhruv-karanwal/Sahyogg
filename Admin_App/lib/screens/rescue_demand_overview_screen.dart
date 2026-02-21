@@ -4,11 +4,13 @@ import 'package:google_fonts/google_fonts.dart' as google_fonts;
 
 class RescueDemandOverviewScreen extends StatefulWidget {
   final LGController lgController;
+  final String disasterType;
   final List<Map<String, dynamic>> requests; // Pass data from parent
 
   const RescueDemandOverviewScreen({
     super.key,
     required this.lgController,
+    required this.disasterType,
     required this.requests,
   });
 

@@ -69,8 +69,11 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/
-    - "assets/test 2/"
     - "assets/kml files/"
+    - "assets/flood-kml/"
+    - "assets/Forest_Fire_KMLs/"
+    - "assets/cyclone_kml/"
+    - "assets/landslide kml/"
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

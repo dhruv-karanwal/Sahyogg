@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Smoke Plume Dispersion</name>
+    <Folder>
+      <name>Smoke Plume Dispersion</name>
+
+      <Style id="smokeDark"><PolyStyle><color>70333333</color></PolyStyle><LineStyle><color>aa333333</color><width>1</width></LineStyle></Style>
+      <Style id="smokeLight"><PolyStyle><color>50777777</color></PolyStyle><LineStyle><color>aa777777</color><width>1</width></LineStyle></Style>
+      <Placemark>
+        <name>Dense Smoke / High Black Carbon Concentration</name>
+        <styleUrl>#smokeDark</styleUrl>
+        <Polygon><outerBoundaryIs><LinearRing><coordinates>
+          77.8,29.5,0 79.8,29.5,0 80.2,30.8,0 78.2,30.8,0 77.8,29.5,0
+        </coordinates></LinearRing></outerBoundaryIs></Polygon>
+      </Placemark>
+      <Placemark>
+        <name>Light Smoke Dispersion / Poor Visibility</name>
+        <styleUrl>#smokeLight</styleUrl>
+        <Polygon><outerBoundaryIs><LinearRing><coordinates>
+          77.0,28.5,0 80.5,28.5,0 80.8,29.5,0 77.2,29.5,0 77.0,28.5,0
+        </coordinates></LinearRing></outerBoundaryIs></Polygon>
+      </Placemark>
+
+    </Folder>
+  </Document>
+</kml>

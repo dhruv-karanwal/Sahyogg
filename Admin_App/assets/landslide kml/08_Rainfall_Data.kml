@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2">
+    <Document id="121">
+        <Style id="126">
+            <LineStyle id="128">
+                <color>ffff0000</color>
+                <colorMode>normal</colorMode>
+                <width>2</width>
+            </LineStyle>
+            <PolyStyle id="127">
+                <color>50ff0000</color>
+                <colorMode>normal</colorMode>
+                <fill>1</fill>
+                <outline>1</outline>
+            </PolyStyle>
+        </Style>
+        <name>Rainfall &amp; Topography</name>
+        <Placemark id="123">
+            <name>Extreme Precipitation Cell</name>
+            <description>Region exceeding 600mm of cumulative rainfall measured by NASA TRMM in the preceding week.</description>
+            <styleUrl>#126</styleUrl>
+            <Polygon id="122">
+                <outerBoundaryIs>
+                    <LinearRing id="124">
+                        <coordinates>73.65,19.19,0.0 73.72,19.19,0.0 73.72,19.13,0.0 73.65,19.13,0.0 73.65,19.19,0.0</coordinates>
+                    </LinearRing>
+                </outerBoundaryIs>
+            </Polygon>
+        </Placemark>
+    </Document>
+</kml>

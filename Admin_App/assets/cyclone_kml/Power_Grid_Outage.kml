@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Power Grid Outage</name>
+    <Folder>
+      <name>Power Grid Outage</name>
+
+      <Style id="powerFail">
+        <IconStyle><scale>1.5</scale><Icon><href>http://maps.google.com/mapfiles/kml/shapes/forbidden.png</href></Icon></IconStyle>
+        <LabelStyle><color>ff0000ff</color><scale>1.2</scale></LabelStyle>
+      </Style>
+
+      <Placemark>
+        <name>CESC Kolkata Area Grid Failure</name>
+        <description>Urban power disrupted for 48+ hours</description>
+        <styleUrl>#powerFail</styleUrl>
+        <Point><coordinates>88.36,22.57,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>South 24 Parganas Substations</name>
+        <description>Widespread failure due to fallen trees</description>
+        <styleUrl>#powerFail</styleUrl>
+        <Point><coordinates>88.42,22.35,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>East Midnapore Grid</name>
+        <description>Coastline stations submerged</description>
+        <styleUrl>#powerFail</styleUrl>
+        <Point><coordinates>87.85,21.95,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>Bhadrak Grid (Odisha)</name>
+        <description>High tension wires snapped (~3.2B INR damage)</description>
+        <styleUrl>#powerFail</styleUrl>
+        <Point><coordinates>86.92,21.05,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>Kendrapara Distribution</name>
+        <description>Infrastructure critically damaged</description>
+        <styleUrl>#powerFail</styleUrl>
+        <Point><coordinates>86.36,20.32,0</coordinates></Point>
+      </Placemark>
+
+      <Style id="powerPoly"><PolyStyle><color>80800080</color></PolyStyle><LineStyle><color>ff800080</color><width>2</width></LineStyle></Style>
+      <Placemark>
+        <name>Total Blackout Region</name>
+        <styleUrl>#powerPoly</styleUrl>
+        <Polygon><outerBoundaryIs><LinearRing><coordinates>
+          86.0,20.0,0 89.5,20.0,0 89.5,23.5,0 86.0,23.5,0 86.0,20.0,0
+        </coordinates></LinearRing></outerBoundaryIs></Polygon>
+      </Placemark>
+
+    </Folder>
+  </Document>
+</kml>

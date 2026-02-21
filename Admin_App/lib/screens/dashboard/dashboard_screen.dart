@@ -10,7 +10,8 @@ import 'package:apps/services/safe_zone_ingestion_service.dart';
 import 'package:apps/services/sos_management_service.dart';
 
 class DashboardScreen extends StatefulWidget {
-  const DashboardScreen({super.key});
+  final String disasterType;
+  const DashboardScreen({super.key, required this.disasterType});
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
@@ -79,10 +80,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   // Firestore Streams
   Stream<QuerySnapshot> get _sosStream =>
-      FirebaseFirestore.instance.collection('rescue_requests').snapshots();
+      FirebaseFirestore.instance.collection('Disasters').doc(widget.disasterType).collection('rescue_requests').snapshots();
 
   Stream<QuerySnapshot> get _safeZonesStream =>
-      FirebaseFirestore.instance.collection('safe_zones').snapshots();
+      FirebaseFirestore.instance.collection('Disasters').doc(widget.disasterType).collection('safe_zones').snapshots();
 
   Stream<QuerySnapshot> get _routesStream => FirebaseFirestore.instance
       .collection('floods')
@@ -445,6 +446,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       MaterialPageRoute(
         builder: (context) => AnalyticsDetailScreen(
           type: type,
+          disasterType: widget.disasterType,
           lgController: _lgController,
           sshController: _sshController,
         ),
@@ -681,7 +683,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   Expanded(child: _buildActionButton('Ingest Data', Icons.cloud_upload, Colors.teal, () async {
                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Ingesting authoritative safe zones...')));
                       try {
-                        final service = SafeZoneIngestionService();
+                        final service = SafeZoneIngestionService(widget.disasterType);
                         final count = await service.ingestSafeZones();
                             if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Successfully ingested $count safe zones!'), backgroundColor: Colors.green));
@@ -700,7 +702,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   Expanded(child: _buildActionButton('Reset SOS DB', Icons.restore, Colors.orange, () async {
                     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Resetting SOS Database...')));
                     try {
-                      final service = SOSManagementService();
+                      final service = SOSManagementService(widget.disasterType);
                       await service.cleanupSOSRequests();
                       await service.seedRealisticSOSData();
                       if (context.mounted) {
