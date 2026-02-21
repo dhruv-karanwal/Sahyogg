@@ -13,6 +13,7 @@ import 'package:http/http.dart' as http;
 import 'package:user_gdg/widgets/live_advisory_banner.dart';
 import 'package:user_gdg/widgets/sos_dialog.dart';
 import 'package:user_gdg/services/google_vision_service.dart';
+import 'package:user_gdg/services/nlp_triage_service.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
@@ -448,8 +449,17 @@ class _FloodMapScreenState extends State<FloodMapScreen>
     try {
       setState(() => _sendingSOS = true);
 
+      // Analyze the SOS description using NLP Triage Service
+      final description = userProvidedData['description'] ?? '';
+      final emergencyType = userProvidedData['emergencyType'] ?? '';
+      final triageResult = NLPTriageService.analyzeSOS(description, emergencyType);
+
       final db = FirebaseFirestore.instance;
       final batch = db.batch();
+
+      final priority = triageResult['priority'];
+      final triageTag = triageResult['tag'];
+      final phone = userProvidedData['phone'] ?? '';
 
       final newDocRef = db.collection('rescue_requests').doc();
 
@@ -459,10 +469,12 @@ class _FloodMapScreenState extends State<FloodMapScreen>
         'area': area,
         'lat': position.latitude,
         'lng': position.longitude,
-        'description': userProvidedData['description'],
-        'peopleCount': userProvidedData['peopleCount'],
-        'emergencyType': userProvidedData['emergencyType'],
-        'priority': 'HIGH',
+        'description': description,
+        'peopleCount': userProvidedData['peopleCount'] ?? 1,
+        'emergencyType': emergencyType,
+        'priority': priority,
+        'triageTag': triageTag,
+        'phone': phone,
         'status': 'PENDING',
         'source': 'MOBILE_USER',
         'createdAt': FieldValue.serverTimestamp(),

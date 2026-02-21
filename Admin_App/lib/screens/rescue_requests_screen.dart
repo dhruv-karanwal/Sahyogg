@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../controllers/lg_controller.dart';
 import '../widgets/neu_button.dart';
 import 'rescue_demand_overview_screen.dart';
@@ -19,6 +20,7 @@ class RescueRequestsScreen extends StatefulWidget {
 }
 
 class _RescueRequestsScreenState extends State<RescueRequestsScreen> {
+  String _selectedFilter = 'ALL';
   
   Future<void> _acknowledgeRequest(DocumentSnapshot doc) async {
     final data = doc.data() as Map<String, dynamic>;
@@ -205,10 +207,39 @@ class _RescueRequestsScreenState extends State<RescueRequestsScreen> {
                 return const Center(child: CircularProgressIndicator());
               }
 
-              final docs = snapshot.data?.docs ?? [];
-              if (docs.isEmpty) {
-                return const Center(child: Text('No rescue requests active.', style: TextStyle(color: Colors.white54)));
+              var docs = snapshot.data?.docs ?? [];
+              
+              if (_selectedFilter != 'ALL') {
+                docs = docs.where((doc) {
+                  final data = doc.data() as Map<String, dynamic>;
+                  final priority = data['priority'] as String? ?? '';
+                  return priority.toUpperCase() == _selectedFilter;
+                }).toList();
               }
+
+              if (docs.isEmpty) {
+                return const Center(child: Text('No rescue requests active for this filter.', style: TextStyle(color: Colors.white54)));
+              }
+
+              // Client-side sort by priority then timestamp since Firestore requires composite indexes for complex sorting
+              docs.sort((a,b) {
+                  final dataA = a.data() as Map<String, dynamic>;
+                  final dataB = b.data() as Map<String, dynamic>;
+                  
+                  final priorityA = _getPriorityValue(dataA['priority'] as String?);
+                  final priorityB = _getPriorityValue(dataB['priority'] as String?);
+                  
+                  if (priorityA != priorityB) {
+                    return priorityA.compareTo(priorityB);
+                  }
+                  
+                  final tA = dataA['createdAt'] as Timestamp?;
+                  final tB = dataB['createdAt'] as Timestamp?;
+                  
+                  if(tA == null) return 1; 
+                  if(tB == null) return -1;
+                  return tB.compareTo(tA);
+              });
 
               return ListView.builder(
                 padding: const EdgeInsets.all(16),
@@ -219,9 +250,65 @@ class _RescueRequestsScreenState extends State<RescueRequestsScreen> {
               );
             },
           ),
+              ),
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  Widget _buildFilterRow() {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        children: [
+          _buildFilterChip('ALL', Colors.blue),
+          const SizedBox(width: 8),
+          _buildFilterChip('RED', Colors.red),
+          const SizedBox(width: 8),
+          _buildFilterChip('ORANGE', Colors.orange),
+          const SizedBox(width: 8),
+          _buildFilterChip('YELLOW', Colors.yellow),
+          const SizedBox(width: 8),
+          _buildFilterChip('WHITE', Colors.white),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFilterChip(String label, Color baseColor) {
+    final isSelected = _selectedFilter == label;
+    final color = label == 'WHITE' ? Colors.grey.shade300 : baseColor;
+    
+    return ChoiceChip(
+      label: Text(label, style: TextStyle(
+        color: isSelected ? Colors.black : color,
+        fontWeight: FontWeight.bold,
+      )),
+      selected: isSelected,
+      selectedColor: color,
+      backgroundColor: Colors.transparent,
+      side: BorderSide(color: color),
+      onSelected: (selected) {
+        if (selected) {
+          setState(() => _selectedFilter = label);
+        }
+      },
+    );
+  }
+
+  int _getPriorityValue(String? priority) {
+    if (priority == null) return 2; // Default to Medium
+    
+    final p = priority.toUpperCase();
+    if (p == 'CRITICAL') return 0;
+    if (p == 'HIGH') return 1;
+    if (p == 'MEDIUM') return 2;
+    if (p == 'LOW') return 3;
+    
+    return 2; // Default
   }
 
   Widget _buildRequestCard(DocumentSnapshot doc) {
@@ -234,22 +321,23 @@ class _RescueRequestsScreenState extends State<RescueRequestsScreen> {
     final location = '${req['area'] ?? 'Unknown Area'}, ${req['city'] ?? 'Unknown City'}';
     
     Color priorityColor;
-    switch(priority) {
-      case 'High': priorityColor = Colors.red; break;
-      case 'Medium': priorityColor = Colors.orange; break;
-      case 'Low': priorityColor = Colors.yellow; break;
+    switch(priority.toString().toUpperCase()) {
+      case 'RED': priorityColor = Colors.red; break;
+      case 'ORANGE': priorityColor = Colors.orange; break;
+      case 'YELLOW': priorityColor = Colors.yellow; break;
+      case 'WHITE': priorityColor = Colors.grey.shade300; break;
       default: priorityColor = Colors.blue;
     }
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: priorityColor.withOpacity(0.15), // Color the whole block
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: statusColor.withOpacity(0.3)),
+        border: Border.all(color: priorityColor.withOpacity(0.5), width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: statusColor.withOpacity(0.05),
+            color: priorityColor.withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -285,11 +373,11 @@ class _RescueRequestsScreenState extends State<RescueRequestsScreen> {
             ),
             title: Text(
               location,
-              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              style: TextStyle(color: priorityColor, fontWeight: FontWeight.bold, fontSize: 16),
             ),
             subtitle: Text(
               '${_formatTimeAgo(req['createdAt'])} • Priority: $priority\n${req['description'] ?? "No description"}',
-              style: TextStyle(color: Colors.white.withOpacity(0.7)),
+              style: TextStyle(color: Colors.white.withOpacity(0.9)),
             ),
             trailing: Column( // Use Column for stacking status and acknowledge button
               mainAxisAlignment: MainAxisAlignment.center,
@@ -306,6 +394,38 @@ class _RescueRequestsScreenState extends State<RescueRequestsScreen> {
                     style: TextStyle(color: statusColor, fontSize: 10, fontWeight: FontWeight.bold),
                   ),
                 ),
+                if (req['phone'] != null && req['phone'].toString().isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  InkWell(
+                    onTap: () async {
+                      final Uri smsUri = Uri(scheme: 'sms', path: req['phone']);
+                      if (await canLaunchUrl(smsUri)) {
+                        await launchUrl(smsUri);
+                      } else {
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Could not open SMS app')),
+                          );
+                        }
+                      }
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.sms, color: Colors.blue, size: 12),
+                          const SizedBox(width: 4),
+                          Text('Reply', style: const TextStyle(color: Colors.blue, fontSize: 10, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
