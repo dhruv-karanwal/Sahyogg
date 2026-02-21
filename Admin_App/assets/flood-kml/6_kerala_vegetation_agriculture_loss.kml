@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Kerala - Agriculture &amp; Vegetation Loss</name>
+    <description>Visualization of agricultural damage, focusing on the "Rice Bowl of Kerala" - Kuttanad.</description>
+
+    <Style id="cropDamageSevere">
+      <PolyStyle>
+        <color>aa0000ff</color> <!-- Red -->
+        <fill>1</fill>
+        <outline>0</outline>
+      </PolyStyle>
+    </Style>
+     <Style id="cropDamageModerate">
+      <PolyStyle>
+        <color>aa00ffff</color> <!-- Yellow -->
+        <fill>1</fill>
+        <outline>0</outline>
+      </PolyStyle>
+    </Style>
+
+    <Folder>
+      <name>Crop Damage Zones</name>
+      
+      <Placemark>
+        <name>Kuttanad Paddy Fields (Severe)</name>
+        <description>Total submersion of below-sea-level paddy fields led to complete crop loss.</description>
+        <styleUrl>#cropDamageSevere</styleUrl>
+        <Polygon>
+          <tessellate>1</tessellate>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                76.35,9.30,0
+                76.45,9.30,0
+                76.50,9.50,0
+                76.30,9.55,0
+                76.35,9.30,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+      </Placemark>
+
+      <Placemark>
+        <name>Upper Kuttanad (Moderate)</name>
+        <description>Partial damage to coconut and banana plantations.</description>
+        <styleUrl>#cropDamageModerate</styleUrl>
+         <Polygon>
+          <tessellate>1</tessellate>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                76.50,9.30,0
+                76.60,9.35,0
+                76.55,9.45,0
+                76.50,9.40,0
+                76.50,9.30,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+      </Placemark>
+      
+      <Placemark>
+        <name>Palakkad Gap (Moderate)</name>
+        <description>Wind and rain damage to diverse crops.</description>
+        <styleUrl>#cropDamageModerate</styleUrl>
+         <Polygon>
+          <tessellate>1</tessellate>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                76.60,10.60,0
+                76.80,10.70,0
+                76.70,10.80,0
+                76.50,10.70,0
+                76.60,10.60,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+      </Placemark>
+
+    </Folder>
+  </Document>
+</kml>

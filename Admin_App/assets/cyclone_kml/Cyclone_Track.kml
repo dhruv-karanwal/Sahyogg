@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Cyclone Track</name>
+    <Folder>
+      <name>Cyclone Track</name>
+
+      <Style id="trackLine"><LineStyle><color>ff0000ff</color><width>6</width></LineStyle></Style>
+      <Style id="trackPoint">
+        <IconStyle><scale>0.8</scale><Icon><href>http://maps.google.com/mapfiles/kml/shapes/placemark_circle.png</href></Icon></IconStyle>
+        <LabelStyle><color>ffffffff</color><scale>0.9</scale></LabelStyle>
+      </Style>
+
+      <Placemark>
+        <name>Amphan Trajectory</name>
+        <styleUrl>#trackLine</styleUrl>
+        <LineString><tessellate>1</tessellate><coordinates>87.0,10.4,0 86.3,10.9,0 86.0,11.4,0 86.0,12.0,0 86.3,13.2,0 86.3,14.0,0 86.7,15.6,0 87.0,17.4,0 87.5,19.1,0 88.4,21.9,0 89.3,24.2,0 89.6,25.4,0</coordinates></LineString>
+      </Placemark>
+
+      <Placemark>
+        <name>16 May 00:00 UTC</name>
+        <description>Depression | Wind: 25 kt | Min Pressure: 1000 hPa</description>
+        <styleUrl>#trackPoint</styleUrl>
+        <Point><coordinates>87.0,10.4,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>16 May 12:00 UTC</name>
+        <description>Cyclonic Storm | Wind: 35 kt | Min Pressure: 996 hPa</description>
+        <styleUrl>#trackPoint</styleUrl>
+        <Point><coordinates>86.3,10.9,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>17 May 00:00 UTC</name>
+        <description>Cyclonic Storm | Wind: 45 kt | Min Pressure: 992 hPa</description>
+        <styleUrl>#trackPoint</styleUrl>
+        <Point><coordinates>86.0,11.4,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>17 May 12:00 UTC</name>
+        <description>Very Severe CS | Wind: 70 kt | Min Pressure: 978 hPa</description>
+        <styleUrl>#trackPoint</styleUrl>
+        <Point><coordinates>86.0,12.0,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>18 May 00:00 UTC</name>
+        <description>Extremely Severe CS | Wind: 100 kt | Min Pressure: 952 hPa</description>
+        <styleUrl>#trackPoint</styleUrl>
+        <Point><coordinates>86.3,13.2,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>18 May 12:00 UTC</name>
+        <description>Super Cyclonic Storm | Wind: 125 kt | Min Pressure: 926 hPa</description>
+        <styleUrl>#trackPoint</styleUrl>
+        <Point><coordinates>86.3,14.0,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>19 May 00:00 UTC</name>
+        <description>Super Cyclonic Storm | Wind: 125 kt | Min Pressure: 926 hPa</description>
+        <styleUrl>#trackPoint</styleUrl>
+        <Point><coordinates>86.7,15.6,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>19 May 12:00 UTC</name>
+        <description>Extremely Severe CS | Wind: 105 kt | Min Pressure: 946 hPa</description>
+        <styleUrl>#trackPoint</styleUrl>
+        <Point><coordinates>87.0,17.4,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>20 May 00:00 UTC</name>
+        <description>Extremely Severe CS | Wind: 95 kt | Min Pressure: 954 hPa</description>
+        <styleUrl>#trackPoint</styleUrl>
+        <Point><coordinates>87.5,19.1,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>20 May 12:00 UTC</name>
+        <description>Very Severe CS (Landfall) | Wind: 80 kt | Min Pressure: 968 hPa</description>
+        <styleUrl>#trackPoint</styleUrl>
+        <Point><coordinates>88.4,21.9,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>21 May 00:00 UTC</name>
+        <description>Cyclonic Storm | Wind: 40 kt | Min Pressure: 988 hPa</description>
+        <styleUrl>#trackPoint</styleUrl>
+        <Point><coordinates>89.3,24.2,0</coordinates></Point>
+      </Placemark>
+
+      <Placemark>
+        <name>21 May 12:00 UTC</name>
+        <description>Depression | Wind: 20 kt | Min Pressure: 995 hPa</description>
+        <styleUrl>#trackPoint</styleUrl>
+        <Point><coordinates>89.6,25.4,0</coordinates></Point>
+      </Placemark>
+
+    </Folder>
+  </Document>
+</kml>

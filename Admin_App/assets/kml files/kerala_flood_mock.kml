@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+<Document>
+  <name>Flood Affected Areas of Kerala (Mock)</name>
+
+  <!-- ================= STYLES ================= -->
+
+  <!-- Flood Corridor Style with Glow -->
+  <Style id="floodLine">
+    <LineStyle>
+      <color>80ff00ff</color> <!-- Red with transparency for glow -->
+      <width>12</width>
+    </LineStyle>
+  </Style>
+
+  <!-- Flood Corridor Inner Style (bright) -->
+  <Style id="floodLineInner">
+    <LineStyle>
+      <color>ff0000ff</color> <!-- Bright Red -->
+      <width>6</width>
+    </LineStyle>
+  </Style>
+
+  <!-- River Style -->
+  <Style id="riverLine">
+    <LineStyle>
+      <color>ffff0000</color> <!-- Blue -->
+      <width>4</width>
+    </LineStyle>
+  </Style>
+
+  <!-- Rectangle Border Style -->
+  <Style id="rectangleBorder">
+    <LineStyle>
+      <color>ffccccff</color> <!-- Light red/pink outline -->
+      <width>2</width>
+    </LineStyle>
+    <PolyStyle>
+      <color>00000000</color> <!-- Transparent fill -->
+    </PolyStyle>
+  </Style>
+
+  <!-- ================= FLOOD AFFECTED CORRIDORS ================= -->
+  <Folder>
+    <name>Flood Affected Corridors</name>
+
+    <!-- North Kerala -->
+    <Placemark>
+      <name>Kannur – Kozhikode Flood Zone (Glow)</name>
+      <styleUrl>#floodLine</styleUrl>
+      <LineString>
+        <coordinates>
+          75.3704,11.8745,0
+          75.7804,11.2588,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+
+    <Placemark>
+      <name>Kannur – Kozhikode Flood Zone (Bright)</name>
+      <styleUrl>#floodLineInner</styleUrl>
+      <LineString>
+        <coordinates>
+          75.3704,11.8745,0
+          75.7804,11.2588,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+
+    <!-- Central Kerala -->
+    <Placemark>
+      <name>Kochi – Thrissur Flood Zone (Glow)</name>
+      <styleUrl>#floodLine</styleUrl>
+      <LineString>
+        <coordinates>
+          76.2673,9.9312,0
+          76.2144,10.5201,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+
+    <Placemark>
+      <name>Kochi – Thrissur Flood Zone (Bright)</name>
+      <styleUrl>#floodLineInner</styleUrl>
+      <LineString>
+        <coordinates>
+          76.2673,9.9312,0
+          76.2144,10.5201,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+
+    <!-- Mid Kerala -->
+    <Placemark>
+      <name>Alappuzha – Kottayam Flood Zone (Glow)</name>
+      <styleUrl>#floodLine</styleUrl>
+      <LineString>
+        <coordinates>
+          76.3291,9.4923,0
+          76.5222,9.5916,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+
+    <Placemark>
+      <name>Alappuzha – Kottayam Flood Zone (Bright)</name>
+      <styleUrl>#floodLineInner</styleUrl>
+      <LineString>
+        <coordinates>
+          76.3291,9.4923,0
+          76.5222,9.5916,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+
+    <!-- South Kerala -->
+    <Placemark>
+      <name>Kollam – Thiruvananthapuram Flood Zone (Glow)</name>
+      <styleUrl>#floodLine</styleUrl>
+      <LineString>
+        <coordinates>
+          76.5907,8.8871,0
+          76.9366,8.5241,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+
+    <Placemark>
+      <name>Kollam – Thiruvananthapuram Flood Zone (Bright)</name>
+      <styleUrl>#floodLineInner</styleUrl>
+      <LineString>
+        <coordinates>
+          76.5907,8.8871,0
+          76.9366,8.5241,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+
+    <!-- Western Ghats belt -->
+    <Placemark>
+      <name>Idukki – Palakkad Flood Zone (Glow)</name>
+      <styleUrl>#floodLine</styleUrl>
+      <LineString>
+        <coordinates>
+          76.9710,9.8496,0
+          76.6548,10.7868,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+
+    <Placemark>
+      <name>Idukki – Palakkad Flood Zone (Bright)</name>
+      <styleUrl>#floodLineInner</styleUrl>
+      <LineString>
+        <coordinates>
+          76.9710,9.8496,0
+          76.6548,10.7868,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+
+  </Folder>
+
+  <!-- ================= FLOOD ZONE BORDERS ================= -->
+  <Folder>
+    <name>Flood Zone Borders</name>
+
+    <!-- North Kerala Border -->
+    <Placemark>
+      <name>Kannur – Kozhikode Border</name>
+      <styleUrl>#rectangleBorder</styleUrl>
+      <Polygon>
+        <outerBoundaryIs><LinearRing><coordinates>
+          75.3504,11.8945,0
+          75.8004,11.8945,0
+          75.8004,11.2388,0
+          75.3504,11.2388,0
+          75.3504,11.8945,0
+        </coordinates></LinearRing></outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+
+    <!-- Central Kerala Border -->
+    <Placemark>
+      <name>Kochi – Thrissur Border</name>
+      <styleUrl>#rectangleBorder</styleUrl>
+      <Polygon>
+        <outerBoundaryIs><LinearRing><coordinates>
+          76.2044,10.5401,0
+          76.3273,10.5401,0
+          76.3273,9.9112,0
+          76.2044,9.9112,0
+          76.2044,10.5401,0
+        </coordinates></LinearRing></outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+
+    <!-- Mid Kerala Border -->
+    <Placemark>
+      <name>Alappuzha – Kottayam Border</name>
+      <styleUrl>#rectangleBorder</styleUrl>
+      <Polygon>
+        <outerBoundaryIs><LinearRing><coordinates>
+          76.3091,9.5716,0
+          76.5422,9.5716,0
+          76.5422,9.4723,0
+          76.3091,9.4723,0
+          76.3091,9.5716,0
+        </coordinates></LinearRing></outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+
+    <!-- South Kerala Border -->
+    <Placemark>
+      <name>Kollam – Thiruvananthapuram Border</name>
+      <styleUrl>#rectangleBorder</styleUrl>
+      <Polygon>
+        <outerBoundaryIs><LinearRing><coordinates>
+          76.5707,8.9071,0
+          76.9566,8.9071,0
+          76.9566,8.5041,0
+          76.5707,8.5041,0
+          76.5707,8.9071,0
+        </coordinates></LinearRing></outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+
+    <!-- Western Ghats Border -->
+    <Placemark>
+      <name>Idukki – Palakkad Border</name>
+      <styleUrl>#rectangleBorder</styleUrl>
+      <Polygon>
+        <outerBoundaryIs><LinearRing><coordinates>
+          76.6348,10.8068,0
+          76.9910,10.8068,0
+          76.9910,9.8296,0
+          76.6348,9.8296,0
+          76.6348,10.8068,0
+        </coordinates></LinearRing></outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+
+  </Folder>
+  <Folder>
+    <name>Major Rivers (Reference)</name>
+
+    <Placemark>
+      <name>Periyar River</name>
+      <styleUrl>#riverLine</styleUrl>
+      <LineString>
+        <coordinates>
+          76.3500,10.2000,0
+          76.2673,9.9312,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+
+    <Placemark>
+      <name>Bharathapuzha</name>
+      <styleUrl>#riverLine</styleUrl>
+      <LineString>
+        <coordinates>
+          76.2000,10.9000,0
+          75.9000,10.8000,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+
+    <Placemark>
+      <name>Pamba River</name>
+      <styleUrl>#riverLine</styleUrl>
+      <LineString>
+        <coordinates>
+          76.5500,9.6000,0
+          76.3291,9.4923,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+
+  </Folder>
+
+</Document>
+</kml>

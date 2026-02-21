@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2">
+    <Document id="89">
+        <Style id="92">
+            <IconStyle id="93">
+                <color>ff008000</color>
+                <colorMode>normal</colorMode>
+                <scale>1.4</scale>
+                <heading>0</heading>
+                <Icon id="94">
+                    <href>http://maps.google.com/mapfiles/kml/shapes/hospitals.png</href>
+                </Icon>
+            </IconStyle>
+        </Style>
+        <Style id="97">
+            <IconStyle id="98">
+                <color>ff008000</color>
+                <colorMode>normal</colorMode>
+                <scale>1.4</scale>
+                <heading>0</heading>
+                <Icon id="99">
+                    <href>http://maps.google.com/mapfiles/kml/shapes/hospitals.png</href>
+                </Icon>
+            </IconStyle>
+        </Style>
+        <Style id="102">
+            <IconStyle id="103">
+                <color>ff008000</color>
+                <colorMode>normal</colorMode>
+                <scale>1.4</scale>
+                <heading>0</heading>
+                <Icon id="104">
+                    <href>http://maps.google.com/mapfiles/kml/shapes/campground.png</href>
+                </Icon>
+            </IconStyle>
+        </Style>
+        <Style id="107">
+            <IconStyle id="108">
+                <color>ff008000</color>
+                <colorMode>normal</colorMode>
+                <scale>1.4</scale>
+                <heading>0</heading>
+                <Icon id="109">
+                    <href>http://maps.google.com/mapfiles/kml/shapes/convenience.png</href>
+                </Icon>
+            </IconStyle>
+        </Style>
+        <name>Relief Camps &amp; Safe Zones</name>
+        <Placemark id="91">
+            <name>NDRF Base Camp (Dimbhe Phata)</name>
+            <description>Primary staging area for 300+ NDRF personnel and heavy earthmovers.</description>
+            <styleUrl>#92</styleUrl>
+            <Point id="90">
+                <coordinates>73.67,19.145,0.0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark id="96">
+            <name>Medical Triage Tent</name>
+            <description>Emergency medical services and helicopter airlift staging.</description>
+            <styleUrl>#97</styleUrl>
+            <Point id="95">
+                <coordinates>73.675,19.148,0.0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark id="101">
+            <name>Temporary Shelter A</name>
+            <description>Evacuation shelter for Amade hamlet residents.</description>
+            <styleUrl>#102</styleUrl>
+            <Point id="100">
+                <coordinates>73.678,19.16,0.0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark id="106">
+            <name>Food &amp; Supply Depot</name>
+            <description>Logistics hub operated by local NGOs.</description>
+            <styleUrl>#107</styleUrl>
+            <Point id="105">
+                <coordinates>73.665,19.15,0.0</coordinates>
+            </Point>
+        </Placemark>
+    </Document>
+</kml>

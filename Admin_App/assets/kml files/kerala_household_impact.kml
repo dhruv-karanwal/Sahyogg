@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Kerala - Household Impact</name>
+    <description>Estimated households affected by district.</description>
+
+    <Style id="home_icon">
+      <IconStyle>
+        <scale>1.0</scale>
+        <Icon>
+           <href>http://maps.google.com/mapfiles/kml/shapes/homegardenbusiness.png</href>
+        </Icon>
+        <color>ff00ffff</color> <!-- Yellow tint -->
+      </IconStyle>
+      <LabelStyle><scale>0.0</scale></LabelStyle> <!-- Hide label by default to reduce clutter -->
+       <BalloonStyle>
+        <text><![CDATA[
+          <b>$[name]</b><br/><br/>
+          $[description]
+        ]]></text>
+      </BalloonStyle>
+    </Style>
+
+    <Folder>
+      <name>District Estimates</name>
+      
+      <!-- Alappuzha -->
+      <Placemark>
+        <name>Alappuzha District</name>
+        <description>Estimated Households Affected: >100,000</description>
+        <styleUrl>#home_icon</styleUrl>
+        <Point><coordinates>76.3388,9.4981,0</coordinates></Point>
+      </Placemark>
+
+      <!-- Ernakulam -->
+      <Placemark>
+        <name>Ernakulam District</name>
+        <description>Estimated Households Affected: >120,000</description>
+        <styleUrl>#home_icon</styleUrl>
+        <Point><coordinates>76.2999,9.9816,0</coordinates></Point>
+      </Placemark>
+
+      <!-- Pathanamthitta -->
+      <Placemark>
+        <name>Pathanamthitta District</name>
+        <description>Estimated Households Affected: >50,000</description>
+        <styleUrl>#home_icon</styleUrl>
+        <Point><coordinates>76.7870,9.2648,0</coordinates></Point>
+      </Placemark>
+
+      <!-- Thrissur -->
+      <Placemark>
+        <name>Thrissur District</name>
+        <description>Estimated Households Affected: >80,000</description>
+        <styleUrl>#home_icon</styleUrl>
+        <Point><coordinates>76.2144,10.5276,0</coordinates></Point>
+      </Placemark>
+      
+      <!-- Wayanad -->
+      <Placemark>
+        <name>Wayanad District</name>
+        <description>Estimated Households Affected: >15,000</description>
+        <styleUrl>#home_icon</styleUrl>
+        <Point><coordinates>76.1320,11.6854,0</coordinates></Point>
+      </Placemark>
+
+      <!-- Palakkad -->
+       <Placemark>
+        <name>Palakkad District</name>
+        <description>Estimated Households Affected: >30,000</description>
+        <styleUrl>#home_icon</styleUrl>
+        <Point><coordinates>76.6548,10.7867,0</coordinates></Point>
+      </Placemark>
+
+    </Folder>
+  </Document>
+</kml>

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Kerala - Flood Inundation Extent</name>
+    <description>
+       <![CDATA[
+      Flood Inundation Level<br>
+      <span style="color:#00FFFF;">█</span> Moderate Flooding (Low-lying)<br>
+      <span style="color:#0000FF;">█</span> Severe Flooding (River Banks & Kuttanad)
+      ]]>
+    </description>
+
+    <!-- Opacity 65% (A6) -->
+    <!-- Light Blue (Moderate) -->
+    <Style id="flood_moderate">
+      <LineStyle><color>00ffffff</color><width>0</width></LineStyle>
+      <PolyStyle><color>A6FFFF00</color></PolyStyle> <!-- Cyan/Light Blue -->
+    </Style>
+
+    <!-- Deep Blue (Severe) -->
+    <Style id="flood_severe">
+      <LineStyle><color>00ffffff</color><width>0</width></LineStyle>
+      <PolyStyle><color>A6FF0000</color></PolyStyle> <!-- Blue (KML is BGR) -->
+    </Style>
+
+    <Folder>
+      <name>Inundated Regions</name>
+      
+      <!-- Kuttanad Region (Severe) -->
+      <Placemark>
+        <name>Kuttanad (Submerged)</name>
+        <styleUrl>#flood_severe</styleUrl>
+        <Polygon>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                76.35,9.55,0
+                76.45,9.50,0
+                76.45,9.35,0
+                76.30,9.35,0
+                76.30,9.50,0
+                76.35,9.55,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+      </Placemark>
+
+      <!-- Aluva / Paravur (Severe) -->
+      <Placemark>
+        <name>Aluva &amp; Paravur</name>
+        <styleUrl>#flood_severe</styleUrl>
+        <Polygon>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                76.37,10.15,0
+                76.30,10.18,0
+                76.20,10.20,0
+                76.20,10.10,0
+                76.35,10.08,0
+                76.37,10.15,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+      </Placemark>
+
+      <!-- Chengannur Inundation (Severe) -->
+      <Placemark>
+        <name>Chengannur Region</name>
+        <styleUrl>#flood_severe</styleUrl>
+        <Polygon>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                76.58,9.35,0
+                76.65,9.35,0
+                76.65,9.28,0
+                76.58,9.28,0
+                76.58,9.35,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+      </Placemark>
+
+      <!-- Catchment Areas / Plains (Moderate) -->
+      <Placemark>
+        <name>Thrissur Lowlands</name>
+        <styleUrl>#flood_moderate</styleUrl>
+        <Polygon>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                76.30,10.35,0
+                76.40,10.30,0
+                76.30,10.25,0
+                76.25,10.30,0
+                76.30,10.35,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+      </Placemark>
+
+    </Folder>
+  </Document>
+</kml>
