@@ -14,6 +14,8 @@ import 'missions_screen.dart';
 import 'map_screen.dart';
 import 'emergency_screen.dart';
 import 'profile_screen.dart';
+import 'trust_score_screen.dart';
+import 'mission_history_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -187,7 +189,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         onTap: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const ProfileScreen()),
+                            MaterialPageRoute(builder: (context) => const TrustScoreScreen()),
                           );
                         },
                       ),
@@ -207,7 +209,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         onTap: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const ProfileScreen()),
+                            MaterialPageRoute(builder: (context) => const MissionHistoryScreen()),
                           );
                         },
                       ),

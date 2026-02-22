@@ -11,11 +11,10 @@ class EmergencyService {
     String? description,
     bool hasVoiceNote = false,
   }) async {
-    await _firestore
-        .collection('Disasters')
-        .doc('Flood')
-        .collection('rescue_requests')
-        .add({
+    final batch = _firestore.batch();
+    final newDocRef = _firestore.collection('Disasters').doc('Flood').collection('rescue_requests').doc();
+    
+    final newDoc = {
       'volunteerId': volunteerId,
       'lat': location.latitude,
       'lng': location.longitude,
@@ -25,6 +24,33 @@ class EmergencyService {
       'status': 'PENDING',
       'priority': 'High',
       'source': 'VOLUNTEER_FLARE',
-    });
+      'phone': 'VOLUNTEER_DISPATCH',
+      'emergencyType': 'Volunteer Emergency',
+      'district': 'Volunteer Operations',
+      'city': 'Mobile Field Unit',
+      'area': 'Ground Dispatch',
+    };
+
+    batch.set(newDocRef, newDoc);
+
+    // Sync with global Admin Analytics to guarantee it appears on dashboards
+    final summaryRef = _firestore.doc('Disasters/Flood/rescue_summary/${newDoc['district']}/cities/${newDoc['city']}/areas/${newDoc['area']}');
+    
+    batch.set(
+      summaryRef,
+      {
+        'district': newDoc['district'],
+        'city': newDoc['city'],
+        'area': newDoc['area'],
+        'lat': location.latitude,
+        'lng': location.longitude,
+        'totalSOS': FieldValue.increment(1),
+        'pending': FieldValue.increment(1),
+        'lastUpdated': FieldValue.serverTimestamp(),
+      },
+      SetOptions(merge: true),
+    );
+
+    await batch.commit();
   }
 }

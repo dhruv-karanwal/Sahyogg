@@ -50,4 +50,38 @@ class ResourceHubService {
       return resources;
     });
   }
+
+  // LOGISTICS TRACKING: Blinkit-style pickup/dropoff logic
+
+  Future<void> acceptLogisticsTask(String resourceId, String volunteerId) async {
+    await _firestore
+        .collection('Disasters')
+        .doc('Flood')
+        .collection('resource_points')
+        .doc(resourceId)
+        .update({
+      'status': 'IN_TRANSIT',
+      'assignedVolunteer': volunteerId,
+      'pickupTime': FieldValue.serverTimestamp(),
+    });
+  }
+
+  Future<void> completeLogisticsTask(String resourceId, String volunteerId) async {
+    // 1. Mark the resource point as delivered
+    await _firestore
+        .collection('Disasters')
+        .doc('Flood')
+        .collection('resource_points')
+        .doc(resourceId)
+        .update({
+      'status': 'DELIVERED',
+      'deliveryTime': FieldValue.serverTimestamp(),
+    });
+
+    // 2. Grant Trust Score + Mission points for completing a logistics task
+    await _firestore.collection('volunteers').doc(volunteerId).update({
+      'totalMissions': FieldValue.increment(1),
+      'rating': FieldValue.increment(0.1), // Bump trust score
+    });
+  }
 }

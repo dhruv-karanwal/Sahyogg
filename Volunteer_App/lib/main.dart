@@ -21,6 +21,8 @@ import 'screens/map_screen.dart';
 import 'screens/emergency_screen.dart';
 import 'screens/profile_screen.dart';
 
+import 'screens/volunteer_registration_screen.dart';
+
 import 'firebase_options.dart';
 
 void main() async {
@@ -42,34 +44,43 @@ class VolunteerApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-  final volunteerRepo = VolunteerRepository();
-  // Ensure profile exists for hackathon demo
-  volunteerRepo.ensureMockProfileExists('vol_001');
+    final volunteerRepo = VolunteerRepository();
 
-  return MultiProvider(
-    providers: [
-      Provider.value(value: volunteerRepo),
-      Provider(create: (_) => LocationService()),
-      Provider(create: (_) => MissionService()),
-      Provider(create: (_) => DispatchService()),
-      Provider(create: (_) => EmergencyService()),
-      ProxyProvider<VolunteerRepository, FatigueService>(
-        update: (BuildContext context, VolunteerRepository repo, FatigueService? previous) => 
-            FatigueService(repo),
+    return MultiProvider(
+      providers: [
+        Provider.value(value: volunteerRepo),
+        Provider(create: (_) => LocationService()),
+        Provider(create: (_) => MissionService()),
+        Provider(create: (_) => DispatchService()),
+        Provider(create: (_) => EmergencyService()),
+        ProxyProvider<VolunteerRepository, FatigueService>(
+          update: (BuildContext context, VolunteerRepository repo, FatigueService? previous) => 
+              FatigueService(repo),
+        ),
+        Provider(create: (_) => ResourceHubService()),
+        // Controller for bottom navigation to be accessible from children
+        ChangeNotifierProvider(create: (_) => ValueNotifier<int>(0)),
+      ],
+      child: MaterialApp(
+        title: 'Volunteer App',
+        debugShowCheckedModeBanner: false,
+        themeMode: ThemeMode.system,
+        theme: AppTheme.lightTheme,
+        darkTheme: AppTheme.darkTheme,
+        home: FutureBuilder<bool>(
+          future: volunteerRepo.hasProfile('vol_001'),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Scaffold(body: Center(child: CircularProgressIndicator()));
+            }
+            if (snapshot.hasData && snapshot.data == true) {
+              return const MainNavigation();
+            }
+            return const VolunteerRegistrationScreen();
+          },
+        ),
       ),
-      Provider(create: (_) => ResourceHubService()),
-      // Controller for bottom navigation to be accessible from children
-      ChangeNotifierProvider(create: (_) => ValueNotifier<int>(0)),
-    ],
-    child: MaterialApp(
-      title: 'Volunteer App',
-      debugShowCheckedModeBanner: false,
-      themeMode: ThemeMode.system,
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      home: const MainNavigation(),
-    ),
-  );
+    );
   }
 }
 

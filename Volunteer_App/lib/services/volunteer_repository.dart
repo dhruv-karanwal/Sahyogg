@@ -34,29 +34,9 @@ class VolunteerRepository {
     await _firestore.collection(_collection).doc(volunteerId).update(data);
   }
 
-  // Ensure mock profile exists for demo
-  Future<void> ensureMockProfileExists(String id) async {
-    final doc = await _firestore.collection(_collection).doc(id).get();
-    if (!doc.exists) {
-      await _firestore.collection(_collection).doc(id).set({
-        'name': 'John Doe',
-        'skills': ['Search & Rescue', 'First Aid', 'Boat Handling'],
-        'isOnDuty': false,
-        'rating': 4.8,
-        'totalMissions': 12,
-        'dutyStartTime': null,
-        'phone': '+91 98765 43210',
-        'email': 'john.doe@sahyog.org',
-        'bloodGroup': 'O+ Positive',
-        'volunteerId': 'VOL-JD77',
-        'preferredDisasterType': 'Flood Relief',
-        'operationRadius': 15.0,
-        'hasVehicle': true,
-        'emergencyContactName': 'Jane Doe',
-        'emergencyContactPhone': '+91 91234 56789',
-        'isDeadManAlertEnabled': false,
-        'isLocationSharingEnabled': true,
-      });
-    }
+  // Check if profile exists
+  Future<bool> hasProfile(String volunteerId) async {
+    final doc = await _firestore.collection(_collection).doc(volunteerId).get();
+    return doc.exists;
   }
 }
