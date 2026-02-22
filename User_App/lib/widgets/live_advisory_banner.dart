@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../advisory_screen.dart';
 
 class LiveAdvisoryBanner extends StatefulWidget {
-  const LiveAdvisoryBanner({super.key});
+  final String disasterType;
+  const LiveAdvisoryBanner({super.key, required this.disasterType});
 
   @override
   State<LiveAdvisoryBanner> createState() => _LiveAdvisoryBannerState();
@@ -41,9 +43,9 @@ class _LiveAdvisoryBannerState extends State<LiveAdvisoryBanner>
   void _listenToAdvisories() {
     print('LiveAdvisoryBanner: Initializing Firestore listener...');
     
-    // Listen to the 'current' document in the 'advisories' subcollection under 'Disasters/Flood'
+    // Listen to the 'current' document in the 'advisories' subcollection under 'Disasters/disasterType'
     // This matches what we updated the Admin App to write to.
-    final advisoryRef = FirebaseFirestore.instance.collection('Disasters').doc('Flood').collection('advisories').doc('current');
+    final advisoryRef = FirebaseFirestore.instance.collection('Disasters').doc(widget.disasterType).collection('advisories').doc('current');
     
     // Note: We use snapshots() for Firestore
     _subscription = advisoryRef.snapshots().listen((snapshot) {
@@ -168,7 +170,7 @@ class _LiveAdvisoryBannerState extends State<LiveAdvisoryBanner>
         axisAlignment: 1.0,
         child: GestureDetector(
           onTap: () {
-             Navigator.pushNamed(context, '/advisory');
+             Navigator.push(context, MaterialPageRoute(builder: (context) => AdvisoryScreen(disasterType: widget.disasterType)));
           },
           onVerticalDragEnd: (details) {
               if (details.primaryVelocity! < 0) { // Swipe Up
