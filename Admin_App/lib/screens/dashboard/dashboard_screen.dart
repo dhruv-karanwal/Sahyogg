@@ -7,6 +7,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:apps/screens/dashboard/widgets/kpi_card.dart';
 import 'package:apps/screens/dashboard/analytics_detail_screen.dart';
 import 'package:apps/services/safe_zone_ingestion_service.dart';
+import 'package:apps/services/resource_ingestion_service.dart';
 import 'package:apps/services/sos_management_service.dart';
 import 'package:apps/screens/broadcast_advisory_screen.dart';
 
@@ -801,14 +802,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     Expanded(child: _buildActionButton('Export Report', Icons.download, Colors.green, () {
                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Exporting summary report...')));
                   })),
-                  const SizedBox(width: 12),
                   Expanded(child: _buildActionButton('Ingest Data', Icons.cloud_upload, Colors.teal, () async {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Ingesting authoritative safe zones...')));
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Ingesting authoritative safe zones & Volunteer Resources...')));
                       try {
                         final service = SafeZoneIngestionService(widget.disasterType);
                         final count = await service.ingestSafeZones();
+
+                        // ALSO INGEST THE VOLUNTEER PUNE RESOURCES!
+                        final resourceService = ResourceIngestionService();
+                        final resourceCount = await resourceService.ingestPuneResources();
+
                             if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Successfully ingested $count safe zones!'), backgroundColor: Colors.green));
+                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Ingested $count scenario zones & $resourceCount Pune resources!'), backgroundColor: Colors.green));
                             }
                           } catch (e) {
                              if (context.mounted) {
