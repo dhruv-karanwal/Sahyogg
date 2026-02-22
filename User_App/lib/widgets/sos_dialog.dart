@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:telephony/telephony.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
+import '../providers/locale_provider.dart';
 
 class SOSDialog extends StatefulWidget {
   final Function(Map<String, dynamic> data) onSubmit;
@@ -37,9 +39,11 @@ class _SOSDialogState extends State<SOSDialog> {
   }
 
   Future<void> _submit() async {
+    final loc = Provider.of<LocaleProvider>(context, listen: false);
+
     if (_descriptionController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please describe the emergency')),
+        SnackBar(content: Text(loc.get('describe_emergency') ?? 'Please describe the emergency')),
       );
       return;
     }
@@ -57,9 +61,11 @@ class _SOSDialogState extends State<SOSDialog> {
   }
 
   Future<void> _sendOfflineSMS() async {
+    final loc = Provider.of<LocaleProvider>(context, listen: false);
+
     if (_descriptionController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please describe the emergency')),
+        SnackBar(content: Text(loc.get('describe_emergency') ?? 'Please describe the emergency')),
       );
       return;
     }
@@ -83,7 +89,7 @@ class _SOSDialogState extends State<SOSDialog> {
       if (permissionsGranted != null && permissionsGranted) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Sending SOS SMS in background...')),
+            SnackBar(content: Text(loc.get('sms_bg') ?? 'Sending SOS SMS in background...')),
           );
         }
         
@@ -94,14 +100,14 @@ class _SOSDialogState extends State<SOSDialog> {
         
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Offline SOS SMS Sent natively!'), backgroundColor: Colors.green),
+            SnackBar(content: Text(loc.get('sms_sent') ?? 'Offline SOS SMS Sent natively!'), backgroundColor: Colors.green),
           );
           Navigator.pop(context); // Close the dialog
         }
       } else {
         if (mounted) {
            ScaffoldMessenger.of(context).showSnackBar(
-             const SnackBar(content: Text('SMS permission denied. Cannot send offline SOS.'), backgroundColor: Colors.orange),
+             SnackBar(content: Text(loc.get('sms_denied') ?? 'SMS permission denied. Cannot send offline SOS.'), backgroundColor: Colors.orange),
            );
         }
       }
@@ -116,6 +122,8 @@ class _SOSDialogState extends State<SOSDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = Provider.of<LocaleProvider>(context);
+
     return AlertDialog(
       backgroundColor: const Color(0xFF1E1E1E),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -123,7 +131,7 @@ class _SOSDialogState extends State<SOSDialog> {
         children: [
           const Icon(Icons.sos, color: Colors.redAccent, size: 28),
           const SizedBox(width: 12),
-          const Text('Request Rescue', style: TextStyle(color: Colors.white)),
+          Text(loc.get('request_rescue') ?? 'Request Rescue', style: const TextStyle(color: Colors.white)),
         ],
       ),
       content: SingleChildScrollView(
@@ -131,9 +139,9 @@ class _SOSDialogState extends State<SOSDialog> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Please provide details to help rescue teams prioritize.',
-              style: TextStyle(color: Colors.white70, fontSize: 13),
+            Text(
+              loc.get('provide_details') ?? 'Please provide details to help rescue teams prioritize.',
+              style: const TextStyle(color: Colors.white70, fontSize: 13),
             ),
             const SizedBox(height: 20),
             
@@ -142,7 +150,7 @@ class _SOSDialogState extends State<SOSDialog> {
               value: _selectedType,
               dropdownColor: const Color(0xFF2C2C2C),
               style: const TextStyle(color: Colors.white),
-              decoration: _inputDecoration('Emergency Type', Icons.category),
+              decoration: _inputDecoration(loc.get('emergency_type') ?? 'Emergency Type', Icons.category),
               items: _types.map((t) => DropdownMenuItem(
                 value: t,
                 child: Text(t),
@@ -156,7 +164,7 @@ class _SOSDialogState extends State<SOSDialog> {
               controller: _peopleController,
               keyboardType: TextInputType.number,
               style: const TextStyle(color: Colors.white),
-              decoration: _inputDecoration('People Affected', Icons.group),
+              decoration: _inputDecoration(loc.get('people_affected') ?? 'People Affected', Icons.group),
             ),
             const SizedBox(height: 16),
 
@@ -165,7 +173,7 @@ class _SOSDialogState extends State<SOSDialog> {
               controller: _descriptionController,
               maxLines: 3,
               style: const TextStyle(color: Colors.white),
-              decoration: _inputDecoration('Description (e.g. stranded on roof)', Icons.description),
+              decoration: _inputDecoration(loc.get('description') ?? 'Description (e.g. stranded on roof)', Icons.description),
             ),
           ],
         ),
@@ -186,7 +194,7 @@ class _SOSDialogState extends State<SOSDialog> {
                 children: [
                   TextButton(
                     onPressed: () => Navigator.pop(context),
-                    child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+                    child: Text(loc.get('cancel') ?? 'Cancel', style: const TextStyle(color: Colors.grey)),
                   ),
                   const SizedBox(width: 8),
                   ElevatedButton(
@@ -195,7 +203,7 @@ class _SOSDialogState extends State<SOSDialog> {
                       backgroundColor: Colors.redAccent,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
-                    child: const Text('SEND SOS (ONLINE)', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    child: Text(loc.get('send_online') ?? 'SEND SOS (ONLINE)', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                   ),
                 ],
               ),
@@ -203,7 +211,7 @@ class _SOSDialogState extends State<SOSDialog> {
               OutlinedButton.icon(
                 onPressed: _sendOfflineSMS,
                 icon: const Icon(Icons.sms, color: Colors.orange),
-                label: const Text('SEND VIA SMS (OFFLINE)', style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)),
+                label: Text(loc.get('send_sms_offline') ?? 'SEND VIA SMS (OFFLINE)', style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)),
                 style: OutlinedButton.styleFrom(
                   side: const BorderSide(color: Colors.orange),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
