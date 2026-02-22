@@ -11,17 +11,20 @@ class EmergencyService {
     String? description,
     bool hasVoiceNote = false,
   }) async {
-    await _firestore.collection('emergency_alerts').add({
+    await _firestore
+        .collection('Disasters')
+        .doc('Flood')
+        .collection('rescue_requests')
+        .add({
       'volunteerId': volunteerId,
-      'location': {
-        'latitude': location.latitude,
-        'longitude': location.longitude,
-      },
+      'lat': location.latitude,
+      'lng': location.longitude,
       'description': description ?? 'Emergency Flare Triggered',
       'hasVoiceNote': hasVoiceNote,
-      'timestamp': FieldValue.serverTimestamp(),
-      'status': 'critical',
-      'priority': 'high', // High priority for Admin App
+      'createdAt': FieldValue.serverTimestamp(),
+      'status': 'PENDING',
+      'priority': 'High',
+      'source': 'VOLUNTEER_FLARE',
     });
   }
 }

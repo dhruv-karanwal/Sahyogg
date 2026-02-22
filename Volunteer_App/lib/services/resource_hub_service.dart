@@ -15,7 +15,12 @@ class ResourceHubService {
   }
 
   Stream<List<Map<String, dynamic>>> getResourcePoints(LatLng center, {String? typeFilter}) {
-    return _firestore.collection('resource_points').snapshots().map((snapshot) {
+    return _firestore
+        .collection('Disasters')
+        .doc('Flood')
+        .collection('resource_points')
+        .snapshots()
+        .map((snapshot) {
       final resources = snapshot.docs.map((doc) {
         final data = doc.data();
         data['id'] = doc.id;
