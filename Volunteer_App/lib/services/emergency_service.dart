@@ -12,29 +12,27 @@ class EmergencyService {
     bool hasVoiceNote = false,
   }) async {
     final batch = _firestore.batch();
-    final newDocRef = _firestore.collection('Disasters').doc('Flood').collection('rescue_requests').doc();
+    final newDocRef = _firestore.collection('emergency_alerts').doc();
     
     final newDoc = {
       'volunteerId': volunteerId,
-      'lat': location.latitude,
-      'lng': location.longitude,
+      'location': {
+        'latitude': location.latitude,
+        'longitude': location.longitude,
+      },
       'description': description ?? 'Emergency Flare Triggered',
       'hasVoiceNote': hasVoiceNote,
-      'createdAt': FieldValue.serverTimestamp(),
-      'status': 'PENDING',
-      'priority': 'High',
-      'source': 'VOLUNTEER_FLARE',
-      'phone': 'VOLUNTEER_DISPATCH',
-      'emergencyType': 'Volunteer Emergency',
-      'district': 'Volunteer Operations',
-      'city': 'Mobile Field Unit',
-      'area': 'Ground Dispatch',
+      'timestamp': FieldValue.serverTimestamp(),
+      'status': 'critical',
+      'priority': 'high',
     };
 
     batch.set(newDocRef, newDoc);
 
     // Sync with global Admin Analytics to guarantee it appears on dashboards
-    final summaryRef = _firestore.doc('Disasters/Flood/rescue_summary/${newDoc['district']}/cities/${newDoc['city']}/areas/${newDoc['area']}');
+    // Using default Admin App schema stubs just in case it's still needed,
+    // though the primary alert relies on emergency_alerts now.
+    final summaryRef = _firestore.doc('Disasters/Flood/rescue_summary/Volunteer Operations/cities/Mobile Field Unit/areas/Ground Dispatch');
     
     batch.set(
       summaryRef,

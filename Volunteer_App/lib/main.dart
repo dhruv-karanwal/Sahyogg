@@ -22,6 +22,7 @@ import 'screens/emergency_screen.dart';
 import 'screens/profile_screen.dart';
 
 import 'screens/volunteer_registration_screen.dart';
+import 'screens/volunteer_login_screen.dart';
 
 import 'firebase_options.dart';
 
@@ -67,18 +68,7 @@ class VolunteerApp extends StatelessWidget {
         themeMode: ThemeMode.system,
         theme: AppTheme.lightTheme,
         darkTheme: AppTheme.darkTheme,
-        home: FutureBuilder<bool>(
-          future: volunteerRepo.hasProfile('vol_001'),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Scaffold(body: Center(child: CircularProgressIndicator()));
-            }
-            if (snapshot.hasData && snapshot.data == true) {
-              return const MainNavigation();
-            }
-            return const VolunteerRegistrationScreen();
-          },
-        ),
+        home: const VolunteerLoginScreen(),
       ),
     );
   }

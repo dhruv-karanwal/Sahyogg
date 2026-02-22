@@ -92,7 +92,7 @@ class _VolunteerRegistrationScreenState extends State<VolunteerRegistrationScree
               Text(
                 'Volunteer Registration',
                 textAlign: TextAlign.center,
-                style: GoogleFonts.poppins(fontSize: 24, fontWeight: FontWeight.bold),
+                style: GoogleFonts.poppins(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87),
               ),
               const SizedBox(height: 8),
               const Text(
@@ -104,8 +104,10 @@ class _VolunteerRegistrationScreenState extends State<VolunteerRegistrationScree
               
               TextFormField(
                 controller: _nameController,
+                style: const TextStyle(color: Colors.black87),
                 decoration: InputDecoration(
                   labelText: 'Full Name',
+                  labelStyle: const TextStyle(color: Colors.black54),
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                   prefixIcon: const Icon(Icons.person),
                 ),
@@ -116,8 +118,10 @@ class _VolunteerRegistrationScreenState extends State<VolunteerRegistrationScree
               TextFormField(
                 controller: _phoneController,
                 keyboardType: TextInputType.phone,
+                style: const TextStyle(color: Colors.black87),
                 decoration: InputDecoration(
                   labelText: 'Phone Number',
+                  labelStyle: const TextStyle(color: Colors.black54),
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                   prefixIcon: const Icon(Icons.phone),
                 ),
@@ -127,13 +131,16 @@ class _VolunteerRegistrationScreenState extends State<VolunteerRegistrationScree
 
               DropdownButtonFormField<String>(
                 value: _selectedBloodGroup,
+                style: const TextStyle(color: Colors.black87),
+                dropdownColor: Colors.white,
                 decoration: InputDecoration(
                   labelText: 'Blood Group',
+                  labelStyle: const TextStyle(color: Colors.black54),
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                   prefixIcon: const Icon(Icons.bloodtype),
                 ),
                 items: _bloodGroups.map((bg) {
-                  return DropdownMenuItem(value: bg, child: Text(bg));
+                  return DropdownMenuItem(value: bg, child: Text(bg, style: const TextStyle(color: Colors.black87)));
                 }).toList(),
                 onChanged: (val) {
                   if (val != null) setState(() => _selectedBloodGroup = val);
@@ -143,9 +150,12 @@ class _VolunteerRegistrationScreenState extends State<VolunteerRegistrationScree
 
               TextFormField(
                 controller: _skillsController,
+                style: const TextStyle(color: Colors.black87),
                 decoration: InputDecoration(
                   labelText: 'Skills (comma separated)',
+                  labelStyle: const TextStyle(color: Colors.black54),
                   hintText: 'e.g., First Aid, Driving, Swimming',
+                  hintStyle: const TextStyle(color: Colors.black38),
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                   prefixIcon: const Icon(Icons.build),
                 ),

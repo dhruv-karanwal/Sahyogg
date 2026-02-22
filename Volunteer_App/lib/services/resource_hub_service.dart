@@ -16,8 +16,6 @@ class ResourceHubService {
 
   Stream<List<Map<String, dynamic>>> getResourcePoints(LatLng center, {String? typeFilter}) {
     return _firestore
-        .collection('Disasters')
-        .doc('Flood')
         .collection('resource_points')
         .snapshots()
         .map((snapshot) {
@@ -25,8 +23,23 @@ class ResourceHubService {
         final data = doc.data();
         data['id'] = doc.id;
         
-        final double lat = (data['latitude'] ?? 0.0).toDouble();
-        final double lng = (data['longitude'] ?? 0.0).toDouble();
+        // Handle new DB schema formatting vs old
+        var lat = 0.0;
+        var lng = 0.0;
+        
+        if (data['latitude'] != null) {
+          lat = (data['latitude'] ?? 0.0).toDouble();
+          lng = (data['longitude'] ?? 0.0).toDouble();
+        } else if (data['location'] != null && data['location'] is Map) {
+          lat = (data['location']['latitude'] ?? 0.0).toDouble();
+          lng = (data['location']['longitude'] ?? 0.0).toDouble();
+        }
+        
+        // Handle names that might be arrays (like 'items: [Rice Bags]')
+        if (data['name'] == null && data['items'] != null && data['items'] is List && (data['items'] as List).isNotEmpty) {
+           data['name'] = (data['items'] as List).first.toString();
+        }
+
         final resPos = LatLng(lat, lng);
         
         data['distance'] = calculateDistance(center, resPos);
@@ -55,8 +68,6 @@ class ResourceHubService {
 
   Future<void> acceptLogisticsTask(String resourceId, String volunteerId) async {
     await _firestore
-        .collection('Disasters')
-        .doc('Flood')
         .collection('resource_points')
         .doc(resourceId)
         .update({
@@ -69,8 +80,6 @@ class ResourceHubService {
   Future<void> completeLogisticsTask(String resourceId, String volunteerId) async {
     // 1. Mark the resource point as delivered
     await _firestore
-        .collection('Disasters')
-        .doc('Flood')
         .collection('resource_points')
         .doc(resourceId)
         .update({

@@ -98,18 +98,7 @@ class _ResourceHubScreenState extends State<ResourceHubScreen> {
   }
 
   void _showResourceDetails(Map<String, dynamic> resource, LatLng userPos) {
-    var lat = 0.0;
-    var lng = 0.0;
-    
-    if (resource['latitude'] != null) {
-      lat = (resource['latitude'] ?? 0.0).toDouble();
-      lng = (resource['longitude'] ?? 0.0).toDouble();
-    } else if (resource['location'] != null && resource['location'] is Map) {
-      lat = (resource['location']['latitude'] ?? 0.0).toDouble();
-      lng = (resource['location']['longitude'] ?? 0.0).toDouble();
-    }
-    
-    final destination = LatLng(lat, lng);
+    final destination = LatLng(resource['latitude'], resource['longitude']);
 
     setState(() {
       _activePolylines = {
@@ -243,54 +232,11 @@ class _ResourceHubScreenState extends State<ResourceHubScreen> {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   elevation: 2,
                 ),
-                onPressed: () => _launchDirections(userPos, LatLng(lat, lng)),
+                onPressed: () => _launchDirections(userPos, LatLng(resource['latitude'], resource['longitude'])),
                 icon: const Icon(Icons.directions),
                 label: const Text('GET DIRECTIONS', style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 0.5)),
               ),
             ),
-            
-            // BLINKIT-STYLE LOGISTICS BUTTONS
-            if (resource['status'] == 'PENDING' || resource['status'] == null) ...[
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange.shade600,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  ),
-                  onPressed: () {
-                     Provider.of<ResourceHubService>(context, listen: false).acceptLogisticsTask(resource['id'], 'vol_001');
-                     Navigator.pop(context);
-                     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Logistics Task Accepted! You are now in transit.')));
-                  },
-                  icon: const Icon(Icons.delivery_dining),
-                  label: const Text('ACCEPT PICKUP TASK', style: TextStyle(fontWeight: FontWeight.w900)),
-                ),
-              ),
-            ] else if (resource['status'] == 'IN_TRANSIT' && resource['assignedVolunteer'] == 'vol_001') ...[
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green.shade600,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  ),
-                  onPressed: () {
-                     Provider.of<ResourceHubService>(context, listen: false).completeLogisticsTask(resource['id'], 'vol_001');
-                     Navigator.pop(context);
-                     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Delivery Complete! Trust Score increased.')));
-                  },
-                  icon: const Icon(Icons.check_circle),
-                  label: const Text('CONFIRM DROPOFF', style: TextStyle(fontWeight: FontWeight.w900)),
-                ),
-              ),
-            ],
             const SizedBox(height: 12),
           ],
         ),
@@ -338,20 +284,9 @@ class _ResourceHubScreenState extends State<ResourceHubScreen> {
                 builder: (context, resSnapshot) {
                   final markers = (resSnapshot.data ?? []).map((res) {
                     final type = res['type'] ?? 'unknown';
-                    
-                    var lat = 0.0;
-                    var lng = 0.0;
-                    if (res['latitude'] != null) {
-                      lat = (res['latitude'] ?? 0.0).toDouble();
-                      lng = (res['longitude'] ?? 0.0).toDouble();
-                    } else if (res['location'] != null && res['location'] is Map) {
-                      lat = (res['location']['latitude'] ?? 0.0).toDouble();
-                      lng = (res['location']['longitude'] ?? 0.0).toDouble();
-                    }
-                    
                     return Marker(
                       markerId: MarkerId(res['id']),
-                      position: LatLng(lat, lng),
+                      position: LatLng(res['latitude'], res['longitude']),
                       icon: _customIcons[type] ?? BitmapDescriptor.defaultMarkerWithHue(_getMarkerHue(type)),
                       onTap: () => _showResourceDetails(res, pos),
                     );
