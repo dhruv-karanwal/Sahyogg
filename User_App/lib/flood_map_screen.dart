@@ -17,9 +17,13 @@ import 'package:user_gdg/services/nlp_triage_service.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
+import 'package:user_gdg/advisory_screen.dart'; // Missing import
 
 class FloodMapScreen extends StatefulWidget {
-  const FloodMapScreen({super.key});
+  final LatLng? targetLocation;
+  final String disasterType; // Added dynamic disaster type
+
+  const FloodMapScreen({super.key, this.targetLocation, required this.disasterType});
 
   @override
   State<FloodMapScreen> createState() => _FloodMapScreenState();
@@ -78,6 +82,10 @@ class _FloodMapScreenState extends State<FloodMapScreen>
     super.initState();
     _startLocationUpdates();
     _createCustomMarkerIcons();
+    
+    // Automatically load safe zones for this disaster!
+    _selectedLayer = 'safe_zones_relief';
+    _loadLayer(_selectedLayer);
 
     _fabAnimationController = AnimationController(
       vsync: this,
@@ -462,7 +470,7 @@ class _FloodMapScreenState extends State<FloodMapScreen>
       final triageTag = triageResult['tag'];
       final phone = userProvidedData['phone'] ?? '';
 
-      final newDocRef = db.collection('Disasters').doc('Flood').collection('rescue_requests').doc();
+      final newDocRef = db.collection('Disasters').doc(widget.disasterType).collection('rescue_requests').doc();
 
       batch.set(newDocRef, {
         'district': district,
@@ -482,7 +490,7 @@ class _FloodMapScreenState extends State<FloodMapScreen>
       });
 
       final summaryRef =
-          db.doc('Disasters/Flood/rescue_summary/$district/cities/$city/areas/$area');
+          db.doc('Disasters/${widget.disasterType}/rescue_summary/$district/cities/$city/areas/$area');
 
       batch.set(
           summaryRef,
@@ -574,7 +582,7 @@ class _FloodMapScreenState extends State<FloodMapScreen>
       final reason = analysis['reason'] ?? 'unknown';
 
       // 6. Store Result in Firestore (flood_reports)
-      await FirebaseFirestore.instance.collection('Disasters').doc('Flood').collection('flood_reports').add({
+      await FirebaseFirestore.instance.collection('Disasters').doc(widget.disasterType).collection('flood_reports').add({
         'imageUrl': downloadUrl,
         'lat': lat,
         'lng': lng,
@@ -596,7 +604,7 @@ class _FloodMapScreenState extends State<FloodMapScreen>
         _showSnackBar('Flood report verified ✅ (Confidence: $confidence%)', isError: false);
 
         // Save to crowdsourced_reports for map display
-        await FirebaseFirestore.instance.collection('Disasters').doc('Flood').collection('crowdsourced_reports').add({
+        await FirebaseFirestore.instance.collection('Disasters').doc(widget.disasterType).collection('crowdsourced_reports').add({
           'imageUrl': downloadUrl,
           'lat': lat,
           'lng': lng,
@@ -664,7 +672,7 @@ class _FloodMapScreenState extends State<FloodMapScreen>
       _safeZoneSubscription?.cancel();
 
       _safeZoneSubscription = FirebaseFirestore.instance
-          .collection('Disasters').doc('Flood').collection('safe_zones')
+          .collection('Disasters').doc(widget.disasterType).collection('safe_zones')
           .where('status', isEqualTo: 'ACTIVE')
           .snapshots()
           .listen((snapshot) {
@@ -1059,10 +1067,12 @@ class _FloodMapScreenState extends State<FloodMapScreen>
         children: [
            Column(
              children: [
-               const LiveAdvisoryBanner(),
+               LiveAdvisoryBanner(disasterType: widget.disasterType),
                Expanded(
                  child: GoogleMap(
-                   initialCameraPosition: _keralaDefault,
+                   initialCameraPosition: widget.targetLocation != null 
+                       ? CameraPosition(target: widget.targetLocation!, zoom: 10)
+                       : _keralaDefault,
                    onMapCreated: (controller) => _mapController = controller,
                    myLocationEnabled: true,
                    myLocationButtonEnabled: true,
@@ -1093,7 +1103,7 @@ class _FloodMapScreenState extends State<FloodMapScreen>
              Positioned(
                 bottom: 24, left: 20, right: 120,
                 child: StreamBuilder<DocumentSnapshot>(
-                  stream: FirebaseFirestore.instance.collection('Disasters').doc('Flood').collection('rescue_requests').doc(_activeSOSId).snapshots(),
+                  stream: FirebaseFirestore.instance.collection('Disasters').doc(widget.disasterType).collection('rescue_requests').doc(_activeSOSId).snapshots(),
                   builder: (context, snapshot) {
                      if (!snapshot.hasData || !snapshot.data!.exists) return const SizedBox.shrink();
                      final data = snapshot.data!.data() as Map<String, dynamic>;
@@ -1123,7 +1133,7 @@ class _FloodMapScreenState extends State<FloodMapScreen>
                           setState(() => _selectedLayer = 'safe_zones_relief');
                           _loadLayer('safe_zones_relief');
                        }),
-                       _buildFabAction(Icons.warning_amber_rounded, 'Advisories', Colors.orange, () => Navigator.pushNamed(context, '/advisory')),
+                       _buildFabAction(Icons.warning_amber_rounded, 'Advisories', Colors.orange, () => Navigator.push(context, MaterialPageRoute(builder: (context) => AdvisoryScreen(disasterType: widget.disasterType)))),
                        _buildFabAction(_sendingSOS ? Icons.hourglass_top : Icons.sos, 'Send SOS', Colors.red, _sendingSOS ? () {} : _sendSOSDialog),
                      ],
                    ),

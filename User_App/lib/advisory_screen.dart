@@ -4,7 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AdvisoryScreen extends StatefulWidget {
-  const AdvisoryScreen({super.key});
+  final String disasterType;
+  const AdvisoryScreen({super.key, required this.disasterType});
 
   @override
   State<AdvisoryScreen> createState() => _AdvisoryScreenState();
@@ -33,7 +34,7 @@ class _AdvisoryScreenState extends State<AdvisoryScreen> {
         children: [
           // 1. Current Active Advisory
           StreamBuilder<DocumentSnapshot>(
-            stream: FirebaseFirestore.instance.collection('Disasters').doc('Flood').collection('advisories').doc('current').snapshots(),
+            stream: FirebaseFirestore.instance.collection('Disasters').doc(widget.disasterType).collection('advisories').doc('current').snapshots(),
             builder: (context, snapshot) {
               if (snapshot.hasError) return SizedBox.shrink();
               if (!snapshot.hasData || !snapshot.data!.exists) return SizedBox.shrink();
@@ -93,7 +94,7 @@ class _AdvisoryScreenState extends State<AdvisoryScreen> {
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
-                  .collection('Disasters').doc('Flood').collection('advisories_history')
+                  .collection('Disasters').doc(widget.disasterType).collection('advisories_history')
                   .orderBy('sentAt', descending: true)
                   .limit(20)
                   .snapshots(),

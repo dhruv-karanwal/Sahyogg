@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../flood_map_screen.dart';
+import 'scenario_selection_screen.dart';
 
 class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({super.key});
@@ -47,7 +47,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       if (mounted) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => const FloodMapScreen()),
+          MaterialPageRoute(builder: (_) => const ScenarioSelectionScreen()),
         );
       }
     } catch (e) {
