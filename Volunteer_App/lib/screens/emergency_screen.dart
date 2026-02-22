@@ -81,7 +81,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
             TextField(
               controller: _descriptionController,
               maxLines: 3,
-              style: const TextStyle(fontWeight: FontWeight.bold),
+              style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black87), // Fix dark mode contrast
               decoration: InputDecoration(
                 hintText: 'Enter situation details (e.g., Heavy flood at Sector 4)',
                 hintStyle: TextStyle(color: Colors.grey.shade400, fontWeight: FontWeight.bold),
