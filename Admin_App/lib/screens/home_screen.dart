@@ -14,6 +14,7 @@ import 'send_kml_screen.dart';
 import 'update_safe_zone_screen.dart';
 import 'broadcast_advisory_screen.dart';
 import 'rescue_requests_screen.dart';
+import 'volunteer_alerts_screen.dart';
 
 import 'shelter_list_screen.dart';
 
@@ -461,6 +462,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 builder: (_) => RescueRequestsScreen(
                   lgController: widget.lgController,
                   disasterType: _selectedDisaster,
+                ),
+              ),
+            ),
+          ),
+          NeuButton(
+            icon: Icons.personal_injury,
+            label: 'Volunteer\nAlerts',
+            color: const Color(0xFFEF4444), // Scarlet Red
+            glowColor: glow,
+            outlineColor: outline,
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => VolunteerAlertsScreen(
+                  lgController: widget.lgController,
                 ),
               ),
             ),
