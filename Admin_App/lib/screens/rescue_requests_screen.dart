@@ -451,7 +451,7 @@ class _RescueRequestsScreenState extends State<RescueRequestsScreen> {
                   children: [
                     Expanded(
                       child: OutlinedButton.icon(
-                        onPressed: () => _viewOnMap(req, req['lat'], req['lng']),
+                        onPressed: () => _viewOnMap(req, (req['lat'] as num?)?.toDouble() ?? 0.0, (req['lng'] as num?)?.toDouble() ?? 0.0),
                         icon: const Icon(Icons.remove_red_eye_outlined, size: 18),
                         label: const Text('View'),
                         style: OutlinedButton.styleFrom(
@@ -463,7 +463,7 @@ class _RescueRequestsScreenState extends State<RescueRequestsScreen> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: ElevatedButton.icon(
-                        onPressed: () => _showOnLG(req['lat'], req['lng']),
+                        onPressed: () => _showOnLG((req['lat'] as num?)?.toDouble() ?? 0.0, (req['lng'] as num?)?.toDouble() ?? 0.0),
                         icon: const Icon(Icons.rocket_launch, size: 18),
                         label: const Text('LG Cast'),
                         style: ElevatedButton.styleFrom(

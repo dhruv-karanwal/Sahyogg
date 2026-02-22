@@ -1,10 +1,19 @@
+import 'package:flutter/widgets.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:telephony/telephony.dart';
+import '../firebase_options.dart';
 
 /// Top-level background message handler for the telephony plugin.
 /// Must be outside of any class.
 @pragma('vm:entry-point')
 void backgroundMessageHandler(SmsMessage message) async {
+  WidgetsFlutterBinding.ensureInitialized();
+  if (Firebase.apps.isEmpty) {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  }
   print("Background SMS Received: ${message.body}");
   await SMSReceiverService.processIncomingSOS(message);
 }
@@ -96,12 +105,30 @@ class SMSReceiverService {
         'createdAt': FieldValue.serverTimestamp(),
       };
 
-      await db
-          .collection('Disasters')
-          .doc('Flood')
-          .collection('rescue_requests')
-          .add(newDoc);
-      print('Offline SMS successfully injected into Firestore Rescue Requests!');
+      final batch = db.batch();
+      final newDocRef = db.collection('Disasters').doc('Flood').collection('rescue_requests').doc();
+      
+      batch.set(newDocRef, newDoc);
+
+      // Increment counters in the global area summary for accurate analytics syncing
+      final summaryRef = db.doc('Disasters/Flood/rescue_summary/${newDoc['district']}/cities/${newDoc['city']}/areas/${newDoc['area']}');
+      
+      batch.set(
+          summaryRef,
+          {
+            'district': newDoc['district'],
+            'city': newDoc['city'],
+            'area': newDoc['area'],
+            'lat': 0.0,
+            'lng': 0.0,
+            'totalSOS': FieldValue.increment(1),
+            'pending': FieldValue.increment(1),
+            'lastUpdated': FieldValue.serverTimestamp(),
+          },
+          SetOptions(merge: true));
+
+      await batch.commit();
+      print('Offline SMS successfully injected into Firebase & Synced with Analytics!');
       
     } catch (e) {
       print('Error parsing or pushing offline SOS: $e');
