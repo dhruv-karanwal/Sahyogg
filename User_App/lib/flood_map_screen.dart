@@ -408,16 +408,19 @@ class _FloodMapScreenState extends State<FloodMapScreen>
       String city = 'Unknown City';
       String area = 'Unknown Area';
 
+      String _safeString(String? val, String fallback) {
+        if (val == null || val.trim().isEmpty) return fallback;
+        return val.replaceAll('/', '_');
+      }
+
       try {
         List<Placemark> placemarks = await placemarkFromCoordinates(
             position.latitude, position.longitude);
         if (placemarks.isNotEmpty) {
           final place = placemarks.first;
-          district = place.subAdministrativeArea ??
-              place.administrativeArea ??
-              'Unknown District';
-          city = place.locality ?? place.subLocality ?? district;
-          area = place.name ?? place.street ?? city;
+          district = _safeString(place.subAdministrativeArea, _safeString(place.administrativeArea, 'Unknown District'));
+          city = _safeString(place.locality, _safeString(place.subLocality, district));
+          area = _safeString(place.name, _safeString(place.street, city));
         }
       } catch (e) {
         print('Geocoding error: $e');
@@ -509,9 +512,7 @@ class _FloodMapScreenState extends State<FloodMapScreen>
           },
           SetOptions(merge: true));
 
-      batch.commit().catchError((e) {
-        print('Offline sync error: $e');
-      });
+      await batch.commit();
 
       setState(() {
         _activeSOSId = newDocRef.id;
