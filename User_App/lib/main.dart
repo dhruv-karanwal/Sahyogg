@@ -5,8 +5,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'firebase_options.dart';
 
 import 'package:user_gdg/screens/registration_screen.dart';
+import 'package:user_gdg/screens/login_screen.dart';
 import 'package:user_gdg/screens/scenario_selection_screen.dart';
 import 'package:user_gdg/services/sms_receiver_service.dart';
+import 'package:provider/provider.dart';
+import 'package:user_gdg/providers/locale_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,22 +33,26 @@ class FloodCitizenApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flood Safety Portal',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        scaffoldBackgroundColor: Colors.white,
-        appBarTheme: const AppBarTheme(
-          centerTitle: true,
-          elevation: 2,
+    return ChangeNotifierProvider(
+      create: (_) => LocaleProvider(),
+      child: MaterialApp(
+        title: 'Flood Safety Portal',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+          scaffoldBackgroundColor: Colors.white,
+          appBarTheme: const AppBarTheme(
+            centerTitle: true,
+            elevation: 2,
+          ),
         ),
+        initialRoute: isRegistered ? '/scenario' : '/login',
+        routes: {
+          '/login': (context) => const LoginScreen(),
+          '/register': (context) => const RegistrationScreen(),
+          '/scenario': (context) => const ScenarioSelectionScreen(),
+        },
       ),
-      initialRoute: isRegistered ? '/scenario' : '/register',
-      routes: {
-        '/register': (context) => const RegistrationScreen(),
-        '/scenario': (context) => const ScenarioSelectionScreen(),
-      },
     );
   }
 }

@@ -1,0 +1,175 @@
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+class LocaleProvider extends ChangeNotifier {
+  String _locale = 'en';
+  String get locale => _locale;
+
+  LocaleProvider() {
+    _loadLocale();
+  }
+
+  Future<void> _loadLocale() async {
+    final prefs = await SharedPreferences.getInstance();
+    _locale = prefs.getString('app_locale') ?? 'en';
+    notifyListeners();
+  }
+
+  Future<void> setLocale(String newLocale) async {
+    _locale = newLocale;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('app_locale', newLocale);
+    notifyListeners();
+  }
+
+  static const Map<String, Map<String, String>> _localizedValues = {
+    'en': {
+      'welcome_floodguard': 'Welcome to FloodGuard',
+      'enter_details': 'Please enter your details.',
+      'login_title': 'Welcome Back',
+      'login_subtitle': 'Enter your phone number to login.',
+      'full_name': 'Full Name (Optional)',
+      'phone_number': 'Phone Number (Required)',
+      'required': 'Required',
+      'continue': 'CONTINUE',
+      'login': 'LOGIN',
+      'no_account': 'Don\'t have an account?',
+      'register': 'Register',
+      'already_account': 'Already have an account?',
+      'profile': 'Profile',
+      'language': 'Preferred Language',
+      'logout': 'Log Out',
+      'save': 'Save',
+      'invalid_phone': 'Please enter a valid phone number (min 10 digits)',
+      'error_saving': 'Error saving details:',
+      'safe_zones': 'Safe Zones Map',
+      'home': 'Home',
+      'sahyog': 'SAHYOG',
+      'select_scenario': 'Select Active Disaster Scenario',
+      'kerala_flood': 'Kerala Flood 2018',
+      'amphan': 'Cyclone Amphan - Bengal',
+      'wayanad': 'Wayanad Landslide 2024',
+      'uttarakhand': 'Uttarakhand Forest Fire',
+      'load_zones': 'Loads 12 Safe Zones & Evacuation Routes',
+      'safe_zone': 'Safe Zone',
+      'capacity': 'Capacity:',
+      'loading': 'LOADING...',
+      'get_directions': 'GET DIRECTIONS',
+      'advisories': 'Advisories',
+      'send_sos': 'Send SOS',
+      'sync_error': 'Error syncing',
+      'request_rescue': 'Request Rescue',
+      'provide_details': 'Please provide details to help rescue teams prioritize.',
+      'emergency_type': 'Emergency Type',
+      'people_affected': 'People Affected',
+      'description': 'Description (e.g. stranded on roof)',
+      'send_sms_offline': 'SEND VIA SMS (OFFLINE)',
+      'send_online': 'SEND SOS (ONLINE)',
+      'cancel': 'Cancel',
+      'describe_emergency': 'Please describe the emergency',
+      'sms_bg': 'Sending SOS SMS in background...',
+      'sms_sent': 'Offline SOS SMS Sent natively!',
+      'sms_denied': 'SMS permission denied. Cannot send offline SOS.',
+    },
+    'hi': {
+      'welcome_floodguard': 'फ्लडगार्ड में आपका स्वागत है',
+      'enter_details': 'कृपया अपना विवरण दर्ज करें।',
+      'login_title': 'वापसी पर स्वागत है',
+      'login_subtitle': 'लॉगिन करने के लिए अपना फोन नंबर दर्ज करें।',
+      'full_name': 'पूरा नाम (वैकल्पिक)',
+      'phone_number': 'फ़ोन नंबर (आवश्यक)',
+      'required': 'आवश्यक',
+      'continue': 'जारी रखें',
+      'login': 'लॉगिन करें',
+      'no_account': 'क्या आपका खाता नहीं है?',
+      'register': 'पंजीकरण करें',
+      'already_account': 'क्या आपके पास पहले से खाता है?',
+      'profile': 'प्रोफ़ाइल',
+      'language': 'पसंदीदा भाषा',
+      'logout': 'लॉग आउट',
+      'save': 'सहेजें',
+      'invalid_phone': 'कृपया एक वैध फोन नंबर दर्ज करें',
+      'error_saving': 'विवरण सहेजने में त्रुटि:',
+      'safe_zones': 'सुरक्षित क्षेत्र',
+      'home': 'होम',
+      'sahyog': 'सहयोग',
+      'select_scenario': 'सक्रिय आपदा परिदृश्य का चयन करें',
+      'kerala_flood': 'केरल बाढ़ 2018',
+      'amphan': 'चक्रवात अम्फान - बंगाल',
+      'wayanad': 'वायनाड भूस्खलन 2024',
+      'uttarakhand': 'उत्तराखंड जंगल की आग',
+      'load_zones': '12 सुरक्षित क्षेत्र और निकासी मार्ग लोड करता है',
+      'safe_zone': 'सुरक्षित क्षेत्र',
+      'capacity': 'क्षमता:',
+      'loading': 'लोड हो रहा है...',
+      'get_directions': 'दिशा-निर्देश प्राप्त करें',
+      'advisories': 'सलाह',
+      'send_sos': 'SOS भेजें',
+      'sync_error': 'सिंक करने में त्रुटि',
+      'request_rescue': 'बचाव का अनुरोध करें',
+      'provide_details': 'कृपया बचाव टीमों को प्राथमिकता देने में मदद करने के लिए विवरण प्रदान करें।',
+      'emergency_type': 'आपातकाल का प्रकार',
+      'people_affected': 'प्रभावित लोग',
+      'description': 'विवरण (उदा. छत पर फंसे)',
+      'send_sms_offline': 'एसएमएस (ऑफ़लाइन) के माध्यम से भेजें',
+      'send_online': 'एसएमएस (ऑनलाइन) भेजें',
+      'cancel': 'रद्द करें',
+      'describe_emergency': 'कृपया आपातकाल का वर्णन करें',
+      'sms_bg': 'बैकग्राउंड में SOS SMS भेजा जा रहा है...',
+      'sms_sent': 'ऑफ़लाइन SOS SMS सफलतापूर्वक भेजा गया!',
+      'sms_denied': 'SMS अनुमति अस्वीकृत। ऑफ़लाइन SOS नहीं भेज सकते।',
+    },
+    'mr': {
+      'welcome_floodguard': 'फ्लडगार्ड मध्ये आपले स्वागत आहे',
+      'enter_details': 'कृपया आपले तपशील प्रविष्ट करा.',
+      'login_title': 'परत स्वागत आहे',
+      'login_subtitle': 'लॉगिन करण्यासाठी तुमचा फोन नंबर प्रविष्ट करा.',
+      'full_name': 'पूर्ण नाव (पर्यायी)',
+      'phone_number': 'फोन नंबर (आवश्यक)',
+      'required': 'आवश्यक',
+      'continue': 'पुढे जा',
+      'login': 'लॉगिन करा',
+      'no_account': 'खाते नाहीये का?',
+      'register': 'नोंदणी करा',
+      'already_account': 'आधीच खाते आहे का?',
+      'profile': 'प्रोफाइल',
+      'language': 'आवडती भाषा',
+      'logout': 'लॉग आउट',
+      'save': 'जतन करा',
+      'invalid_phone': 'कृपया वैध फोन नंबर प्रविष्ट करा',
+      'error_saving': 'तपशील जतन करताना त्रुटी:',
+      'safe_zones': 'सुरक्षित क्षेत्रे',
+      'home': 'होम',
+      'sahyog': 'सहयोग',
+      'select_scenario': 'सक्रिय आपत्ती परिस्थिती निवडा',
+      'kerala_flood': 'केरळ महापूर 2018',
+      'amphan': 'चक्रीवादळ अम्फान - बंगाल',
+      'wayanad': 'वायनाड भूस्खलन 2024',
+      'uttarakhand': 'उत्तराखंड जंगलातील आग',
+      'load_zones': '12 सुरक्षित क्षेत्रे आणि निर्वासन मार्ग लोड करते',
+      'safe_zone': 'सुरक्षित क्षेत्र',
+      'capacity': 'क्षमता:',
+      'loading': 'लोड होत आहे...',
+      'get_directions': 'दिशा मिळवा',
+      'advisories': 'सल्ला',
+      'send_sos': 'SOS पाठवा',
+      'sync_error': 'सिंक करण्यात त्रुटी',
+      'request_rescue': 'बचावाची विनंती करा',
+      'provide_details': 'कृपया बचाव पथकांना प्राधान्य देण्यात मदत करण्यासाठी तपशील प्रदान करा.',
+      'emergency_type': 'आणीबाणीचा प्रकार',
+      'people_affected': 'प्रभावित लोक',
+      'description': 'वर्णन (उदा. छतावर अडकलेले)',
+      'send_sms_offline': 'SMS (ऑफलाइन) द्वारे पाठवा',
+      'send_online': 'SOS (ऑनलाइन) पाठवा',
+      'cancel': 'रद्द करा',
+      'describe_emergency': 'कृपया आणीबाणीचे वर्णन करा',
+      'sms_bg': 'पार्श्वभूमीत SOS SMS पाठवत आहे...',
+      'sms_sent': 'ऑफलाइन SOS SMS यशस्वीरित्या पाठवला!',
+      'sms_denied': 'SMS परवानगी नाकारली. ऑफलाइन SOS पाठवू शकत नाही.',
+    },
+  };
+
+  String get(String key) {
+    return _localizedValues[_locale]?[key] ?? _localizedValues['en']?[key] ?? key;
+  }
+}

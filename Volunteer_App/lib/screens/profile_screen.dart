@@ -161,7 +161,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(volunteer.name, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
+                Text(volunteer.name, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Colors.white)),
                 const SizedBox(height: 4),
                 Text(
                   volunteer.volunteerId,
@@ -207,7 +207,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       title: Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey, fontWeight: FontWeight.bold)),
       subtitle: TextField(
         controller: controller,
-        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.black87),
         decoration: const InputDecoration(border: InputBorder.none, isDense: true),
         onSubmitted: (val) => _updateProfile(volunteerId, {field: val}),
       ),
@@ -254,7 +254,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(skill, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+          Text(skill, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.black87)),
           const SizedBox(width: 8),
           const Icon(Icons.check_circle, color: Colors.green, size: 14),
         ],
@@ -263,6 +263,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildAvailabilitySection(BuildContext context, String volunteerId, VolunteerModel volunteer) {
+    const textStyle = TextStyle(color: Colors.black87);
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       elevation: 0,
@@ -273,15 +274,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
           children: [
             ListTile(
               leading: const Icon(Icons.emergency_outlined, color: Colors.orangeAccent),
-              title: const Text('Preferred Disaster', style: TextStyle(fontWeight: FontWeight.bold)),
-              subtitle: Text(volunteer.preferredDisasterType),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 14),
+              title: const Text('Preferred Disaster', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87)),
+              subtitle: Text(volunteer.preferredDisasterType, style: textStyle),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.black54),
             ),
             const Divider(),
             ListTile(
               leading: const Icon(Icons.radar, color: Colors.blueAccent),
-              title: const Text('Operation Radius', style: TextStyle(fontWeight: FontWeight.bold)),
-              subtitle: Text('${volunteer.operationRadius.toInt()} km'),
+              title: const Text('Operation Radius', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87)),
+              subtitle: Text('${volunteer.operationRadius.toInt()} km', style: textStyle),
               trailing: SizedBox(
                 width: 100,
                 child: Slider(
@@ -295,7 +296,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const Divider(),
             SwitchListTile(
               secondary: const Icon(Icons.directions_car_filled_outlined, color: Colors.purpleAccent),
-              title: const Text('Vehicle Available', style: TextStyle(fontWeight: FontWeight.bold)),
+              title: const Text('Vehicle Available', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87)),
               value: volunteer.hasVehicle,
               onChanged: (val) => _updateProfile(volunteerId, {'hasVehicle': val}),
             ),
@@ -306,6 +307,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildSafetySection(BuildContext context, String volunteerId, VolunteerModel volunteer) {
+    const textStyle = TextStyle(color: Colors.black87);
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       elevation: 0,
@@ -316,22 +318,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
           children: [
             ListTile(
               leading: const Icon(Icons.contact_phone_outlined, color: Colors.redAccent),
-              title: const Text('Emergency Contact', style: TextStyle(fontWeight: FontWeight.bold)),
-              subtitle: Text(volunteer.emergencyContactName.isEmpty ? 'Not Set' : '${volunteer.emergencyContactName} (${volunteer.emergencyContactPhone})'),
+              title: const Text('Emergency Contact', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87)),
+              subtitle: Text(volunteer.emergencyContactName.isEmpty ? 'Not Set' : '${volunteer.emergencyContactName} (${volunteer.emergencyContactPhone})', style: textStyle),
               onTap: () => _showEmergencyDialog(context, volunteerId),
             ),
             const Divider(),
             SwitchListTile(
               secondary: const Icon(Icons.health_and_safety_outlined, color: Colors.teal),
-              title: const Text('Dead-Man Alert', style: TextStyle(fontWeight: FontWeight.bold)),
-              subtitle: const Text('Auto-SOS if inactive during mission', style: TextStyle(fontSize: 10)),
+              title: const Text('Dead-Man Alert', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87)),
+              subtitle: const Text('Auto-SOS if inactive during mission', style: TextStyle(fontSize: 10, color: Colors.black54)),
               value: volunteer.isDeadManAlertEnabled,
               onChanged: (val) => _updateProfile(volunteerId, {'isDeadManAlertEnabled': val}),
             ),
             const Divider(),
             SwitchListTile(
               secondary: const Icon(Icons.share_location_outlined, color: Colors.blue),
-              title: const Text('Location Sharing', style: TextStyle(fontWeight: FontWeight.bold)),
+              title: const Text('Location Sharing', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87)),
               value: volunteer.isLocationSharingEnabled,
               onChanged: (val) => _updateProfile(volunteerId, {'isLocationSharingEnabled': val}),
             ),
@@ -348,7 +350,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       color: Colors.white,
       child: ListTile(
         leading: const Icon(Icons.language, color: Colors.blueGrey),
-        title: const Text('Preferred Language', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text('Preferred Language', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87)),
         trailing: DropdownButton<String>(
           value: _selectedLanguage,
           underline: const SizedBox(),
@@ -368,8 +370,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(controller: _emergencyNameController, decoration: const InputDecoration(labelText: 'Name')),
-            TextField(controller: _emergencyPhoneController, decoration: const InputDecoration(labelText: 'Phone')),
+            TextField(
+              controller: _emergencyNameController,
+              decoration: const InputDecoration(labelText: 'Name'),
+              style: const TextStyle(color: Colors.black87),
+            ),
+            TextField(
+              controller: _emergencyPhoneController, 
+              decoration: const InputDecoration(labelText: 'Phone'),
+              style: const TextStyle(color: Colors.black87),
+            ),
           ],
         ),
         actions: [

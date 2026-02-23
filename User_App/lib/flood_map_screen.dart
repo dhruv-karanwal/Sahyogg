@@ -18,6 +18,9 @@ import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
 import 'package:user_gdg/advisory_screen.dart'; // Missing import
+import 'package:url_launcher/url_launcher.dart';
+import 'package:provider/provider.dart';
+import 'package:user_gdg/providers/locale_provider.dart';
 
 class FloodMapScreen extends StatefulWidget {
   final LatLng? targetLocation;
@@ -405,16 +408,19 @@ class _FloodMapScreenState extends State<FloodMapScreen>
       String city = 'Unknown City';
       String area = 'Unknown Area';
 
+      String _safeString(String? val, String fallback) {
+        if (val == null || val.trim().isEmpty) return fallback;
+        return val.replaceAll('/', '_');
+      }
+
       try {
         List<Placemark> placemarks = await placemarkFromCoordinates(
             position.latitude, position.longitude);
         if (placemarks.isNotEmpty) {
           final place = placemarks.first;
-          district = place.subAdministrativeArea ??
-              place.administrativeArea ??
-              'Unknown District';
-          city = place.locality ?? place.subLocality ?? district;
-          area = place.name ?? place.street ?? city;
+          district = _safeString(place.subAdministrativeArea, _safeString(place.administrativeArea, 'Unknown District'));
+          city = _safeString(place.locality, _safeString(place.subLocality, district));
+          area = _safeString(place.name, _safeString(place.street, city));
         }
       } catch (e) {
         print('Geocoding error: $e');
@@ -506,9 +512,7 @@ class _FloodMapScreenState extends State<FloodMapScreen>
           },
           SetOptions(merge: true));
 
-      batch.commit().catchError((e) {
-        print('Offline sync error: $e');
-      });
+      await batch.commit();
 
       setState(() {
         _activeSOSId = newDocRef.id;
@@ -727,7 +731,8 @@ class _FloodMapScreenState extends State<FloodMapScreen>
       }, onError: (e) {
         print('Error listening to safe zones: $e');
         if (mounted) {
-          _showSnackBar('Error syncing Safe Zones: $e', isError: true);
+          final loc = Provider.of<LocaleProvider>(context, listen: false);
+          _showSnackBar('${loc.get('sync_error')} Safe Zones: $e', isError: true);
           setState(() => _isLoading = false);
         }
       });
@@ -884,7 +889,8 @@ class _FloodMapScreenState extends State<FloodMapScreen>
   }
   
   void _showSafeZoneDetails(LatLng point, Map<String, dynamic> data) {
-    final String name = data['name'] ?? 'Safe Zone';
+    final loc = Provider.of<LocaleProvider>(context, listen: false);
+    final String name = data['name'] ?? loc.get('safe_zone');
     final String status = data['status'] ?? 'Open';
     final String category = data['category'] ?? 'Emergency Shelter';
     final String capacity = data['capacity']?.toString() ?? 'N/A';
@@ -946,7 +952,7 @@ class _FloodMapScreenState extends State<FloodMapScreen>
                  const SizedBox(width: 24),
                  Icon(Icons.people, color: Colors.blue[200], size: 20),
                  const SizedBox(width: 8),
-                 Text('Capacity: $capacity', style: const TextStyle(color: Colors.white)),
+                 Text('${loc.get('capacity')} $capacity', style: const TextStyle(color: Colors.white)),
                ], 
              ),
              
@@ -994,7 +1000,7 @@ class _FloodMapScreenState extends State<FloodMapScreen>
                            )
                          : const Icon(Icons.directions),
                        label: Text(
-                         _isLoadingRoute ? 'LOADING...' : 'GET DIRECTIONS',
+                         _isLoadingRoute ? loc.get('loading') : loc.get('get_directions'),
                          style: const TextStyle(color: Colors.white),
                        ),
                      ),
@@ -1024,6 +1030,8 @@ class _FloodMapScreenState extends State<FloodMapScreen>
 
   @override
   Widget build(BuildContext context) {
+    final loc = Provider.of<LocaleProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blueAccent,
@@ -1129,6 +1137,16 @@ class _FloodMapScreenState extends State<FloodMapScreen>
                    child: Column(
                      crossAxisAlignment: CrossAxisAlignment.end,
                      children: [
+                       _buildFabAction(Icons.phone, 'Call 112', Colors.redAccent, () async {
+                         final Uri url = Uri(scheme: 'tel', path: '112');
+                         if (await canLaunchUrl(url)) {
+                           await launchUrl(url);
+                         } else {
+                           if (context.mounted) {
+                             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Could not launch phone dialer')));
+                           }
+                         }
+                       }),
                        _buildFabAction(Icons.shield_outlined, 'Safe Zones', Colors.green, () {
                           setState(() => _selectedLayer = 'safe_zones_relief');
                           _loadLayer('safe_zones_relief');

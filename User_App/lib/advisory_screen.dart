@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
+import '../providers/locale_provider.dart';
 
 class AdvisoryScreen extends StatefulWidget {
   final String disasterType;
@@ -14,17 +16,19 @@ class AdvisoryScreen extends StatefulWidget {
 class _AdvisoryScreenState extends State<AdvisoryScreen> {
   @override
   Widget build(BuildContext context) {
+    final loc = Provider.of<LocaleProvider>(context);
+    
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Advisories'),
+        title: Text(loc.get('advisories')),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            tooltip: 'Refresh Advisories',
+            tooltip: loc.get('refresh_advisories') ?? 'Refresh Advisories',
             onPressed: () {
               setState(() {});
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Refreshed advisories manually')),
+                SnackBar(content: Text(loc.get('refreshed') ?? 'Refreshed advisories manually')),
               );
             },
           ),
@@ -49,7 +53,7 @@ class _AdvisoryScreenState extends State<AdvisoryScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Current Advisory', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
+                    Text(loc.get('current_advisory') ?? 'Current Advisory', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
                     const SizedBox(height: 8),
                     _buildAdvisoryCard(data, isLarge: true),
                   ],
@@ -67,9 +71,9 @@ class _AdvisoryScreenState extends State<AdvisoryScreen> {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                    child: Text('Offline SMS Broadcasts', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.orange)),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                    child: Text(loc.get('offline_broadcasts') ?? 'Offline SMS Broadcasts', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.orange)),
                   ),
                   ...offlineDocs.map((data) => Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6.0),
@@ -81,12 +85,11 @@ class _AdvisoryScreenState extends State<AdvisoryScreen> {
             },
           ),
 
-          // 2. Past Advisories Header
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             child: Align(
               alignment: Alignment.centerLeft,
-              child: Text('Past Advisories', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              child: Text(loc.get('past_advisories') ?? 'Past Advisories', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
             ),
           ),
 
@@ -105,7 +108,7 @@ class _AdvisoryScreenState extends State<AdvisoryScreen> {
                 final docs = snapshot.data?.docs ?? [];
                 
                 if (docs.isEmpty) {
-                  return const Center(child: Text('No past advisories found.', style: TextStyle(color: Colors.grey)));
+                  return Center(child: Text(loc.get('no_past_advisories') ?? 'No past advisories found.', style: const TextStyle(color: Colors.grey)));
                 }
 
                 return ListView.builder(

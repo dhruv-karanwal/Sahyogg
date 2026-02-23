@@ -1,41 +1,68 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:provider/provider.dart';
+import '../providers/locale_provider.dart';
 import '../flood_map_screen.dart';
+import 'package:user_gdg/screens/user_profile_screen.dart';
 
 class ScenarioSelectionScreen extends StatelessWidget {
   const ScenarioSelectionScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final loc = Provider.of<LocaleProvider>(context);
+    
     // Scaffold background is already set via theme, but let's be explicit
     return Scaffold(
       backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const UserProfileScreen()),
+                );
+              },
+              child: const CircleAvatar(
+                radius: 20,
+                backgroundColor: Colors.blueAccent,
+                child: Icon(Icons.person, color: Colors.white),
+              ),
+            ),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Header Section
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
+              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'SAHYOG',
-                    style: TextStyle(
+                  Text(
+                    loc.get('sahyog'),
+                    style: const TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.w900,
                       letterSpacing: 1.5,
-                      color: const Color(0xFF1E293B),
+                      color: Color(0xFF1E293B),
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Select Active Disaster Scenario',
-                    style: TextStyle(
+                    loc.get('select_scenario'),
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w400,
-                      color: const Color(0xFF64748B),
+                      color: Color(0xFF64748B),
                     ),
                   ),
                 ],
@@ -50,8 +77,8 @@ class ScenarioSelectionScreen extends StatelessWidget {
                 children: [
                   _buildScenarioCard(
                     context,
-                    title: 'Kerala Flood 2018',
-                    subtitle: 'Loads 12 Safe Zones & Evacuation Routes',
+                    title: loc.get('kerala_flood'),
+                    subtitle: loc.get('load_zones'),
                     icon: Icons.water_drop,
                     accentColor: Colors.blue.shade600,
                     scenarioId: 'flood_kerala_2018',
@@ -60,8 +87,8 @@ class ScenarioSelectionScreen extends StatelessWidget {
                   ),
                   _buildScenarioCard(
                     context,
-                    title: 'Cyclone Amphan - Bengal',
-                    subtitle: 'Loads 12 Safe Zones & Evacuation Routes',
+                    title: loc.get('amphan'),
+                    subtitle: loc.get('load_zones'),
                     icon: Icons.cyclone,
                     accentColor: Colors.teal.shade500,
                     scenarioId: 'cyclone_amphan_bengal',
@@ -70,8 +97,8 @@ class ScenarioSelectionScreen extends StatelessWidget {
                   ),
                   _buildScenarioCard(
                     context,
-                    title: 'Wayanad Landslide 2024',
-                    subtitle: 'Loads 12 Safe Zones & Evacuation Routes',
+                    title: loc.get('wayanad'),
+                    subtitle: loc.get('load_zones'),
                     icon: Icons.landscape,
                     accentColor: Colors.brown.shade500,
                     scenarioId: 'landslide_wayanad_2024',
@@ -80,8 +107,8 @@ class ScenarioSelectionScreen extends StatelessWidget {
                   ),
                   _buildScenarioCard(
                     context,
-                    title: 'Uttarakhand Forest Fire',
-                    subtitle: 'Loads 12 Safe Zones & Evacuation Routes',
+                    title: loc.get('uttarakhand'),
+                    subtitle: loc.get('load_zones'),
                     icon: Icons.local_fire_department,
                     accentColor: Colors.deepOrange.shade600,
                     scenarioId: 'forest_fire_uttarakhand',
