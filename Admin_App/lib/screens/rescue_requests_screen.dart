@@ -159,6 +159,7 @@ class _RescueRequestsScreenState extends State<RescueRequestsScreen> {
             tooltip: 'Refresh Feed',
             onPressed: () {
               setState(() {});
+              ScaffoldMessenger.of(context).clearSnackBars();
               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Feed Refreshed Manually')));
             },
           ),

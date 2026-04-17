@@ -859,6 +859,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     const SizedBox(width: 12),
                     Expanded(child: _buildActionButton('Refresh Data', Icons.refresh, Colors.tealAccent, () {
                        setState(() {}); // Trigger stream rebuild
+                       ScaffoldMessenger.of(context).clearSnackBars();
                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Feed Refreshed Manually')));
                     })),
                 ],

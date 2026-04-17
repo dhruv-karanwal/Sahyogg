@@ -80,19 +80,19 @@ class _BroadcastAdvisoryScreenState extends State<BroadcastAdvisoryScreen> {
 
       // 1. Specific Type Doc (for overwriting previous of same type)
       await FirebaseFirestore.instance
-          .collection('Disasters').doc(widget.disasterType).collection('advisories')
+          .collection('advisories')
           .doc(_selectedAdvisoryType)
           .set(data);
 
       // 2. Current Active Doc (Live Banner Source)
       await FirebaseFirestore.instance
-          .collection('Disasters').doc(widget.disasterType).collection('advisories')
+          .collection('advisories')
           .doc('current')
           .set(data);
 
       // 3. History Log (New Request)
       // We assume the user wants a log of all sent advisories
-      await FirebaseFirestore.instance.collection('Disasters').doc(widget.disasterType).collection('advisories_history').add({
+      await FirebaseFirestore.instance.collection('advisories_history').add({
         ...data,
         'sentAt': FieldValue.serverTimestamp(), // Exact server time for sorting
       });
@@ -148,14 +148,14 @@ class _BroadcastAdvisoryScreenState extends State<BroadcastAdvisoryScreen> {
     try {
        // Clear the 'current' advisory
        await FirebaseFirestore.instance
-          .collection('Disasters').doc(widget.disasterType).collection('advisories')
+          .collection('advisories')
           .doc('current')
           .update({'isActive': false});
           
        // Optionally clear the specific type doc too, or leave it as history.
        // Let's mark it inactive.
        await FirebaseFirestore.instance
-          .collection('Disasters').doc(widget.disasterType).collection('advisories')
+          .collection('advisories')
           .doc(_selectedAdvisoryType)
           .update({'isActive': false});
        
@@ -226,109 +226,118 @@ class _BroadcastAdvisoryScreenState extends State<BroadcastAdvisoryScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.05),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Colors.white.withOpacity(0.1)),
-                  ),
-                  child: Column(
-                    children: [
-                      Icon(Icons.warning_amber_rounded, size: 48, color: Colors.amber.shade500),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Emergency Advisory',
-                        style: theme.textTheme.headlineSmall?.copyWith(
-                          color: Colors.amber.shade500,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Broadcast urgent messages to all citizen apps immediately.',
-                        textAlign: TextAlign.center,
-                        style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white60),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 32),
-                
-                // Active Advisory Status Card
-                if (_isActive && _lastPostedMessage != null) ...[
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(16),
-                    margin: const EdgeInsets.only(bottom: 24),
-                    decoration: BoxDecoration(
-                      color: Colors.amber.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.amber.withOpacity(0.3)),
-                    ),
+                Expanded(
+                  child: SingleChildScrollView(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          children: [
-                            const Icon(Icons.podcasts, color: Colors.amber, size: 20),
-                            const SizedBox(width: 8),
-                            Text('LIVE BROADCAST • $_selectedAdvisoryType'.toUpperCase(), style: TextStyle(color: Colors.amber.shade400, fontWeight: FontWeight.bold)),
-                          ],
+                        Container(
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.05),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: Colors.white.withOpacity(0.1)),
+                          ),
+                          child: Column(
+                            children: [
+                              Icon(Icons.warning_amber_rounded, size: 48, color: Colors.amber.shade500),
+                              const SizedBox(height: 16),
+                              Text(
+                                'Emergency Advisory',
+                                style: theme.textTheme.headlineSmall?.copyWith(
+                                  color: Colors.amber.shade500,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Broadcast urgent messages to all citizen apps immediately.',
+                                textAlign: TextAlign.center,
+                                style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white60),
+                              ),
+                            ],
+                          ),
                         ),
-                        const SizedBox(height: 8),
-                        Text(
-                          _lastPostedMessage!,
-                          style: const TextStyle(color: Colors.white, fontSize: 16),
+                        const SizedBox(height: 32),
+                        
+                        // Active Advisory Status Card
+                        if (_isActive && _lastPostedMessage != null) ...[
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(16),
+                            margin: const EdgeInsets.only(bottom: 24),
+                            decoration: BoxDecoration(
+                              color: Colors.amber.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Colors.amber.withOpacity(0.3)),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(Icons.podcasts, color: Colors.amber, size: 20),
+                                    const SizedBox(width: 8),
+                                    Text('LIVE BROADCAST • $_selectedAdvisoryType'.toUpperCase(), style: TextStyle(color: Colors.amber.shade400, fontWeight: FontWeight.bold)),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  _lastPostedMessage!,
+                                  style: const TextStyle(color: Colors.white, fontSize: 16),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+
+                        // New Advisory Input Section
+                        Text('New Message', style: theme.textTheme.titleMedium?.copyWith(color: theme.colorScheme.primary)),
+                        const SizedBox(height: 12),
+                        
+                        // Advisory Type Dropdown
+                        DropdownButtonFormField<String>(
+                          value: _selectedAdvisoryType,
+                          dropdownColor: const Color(0xFF1E1E1E),
+                           decoration: InputDecoration(
+                            labelText: 'Advisory Type', // Added Label
+                            prefixIcon: const Icon(Icons.category, color: Colors.white70),
+                            filled: true,
+                            fillColor: Colors.white.withOpacity(0.05), // Matches input field
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none), // Matches input field
+                            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: Colors.amber.shade500)),
+                           ),
+                          items: _advisoryTypes.map((t) => DropdownMenuItem(value: t, child: Text(t, style: const TextStyle(color: Colors.white)))).toList(),
+                          onChanged: (v) => setState(() => _selectedAdvisoryType = v!),
+                        ),
+                        const SizedBox(height: 16),
+
+                        TextField(
+                          controller: _messageController,
+                          maxLength: _charLimit,
+                          maxLines: 4,
+                          style: const TextStyle(color: Colors.white),
+                          decoration: InputDecoration(
+                            hintText: 'Enter advisory message (e.g., "Heavy rain alert in Aluva. Move to higher ground.")',
+                            hintStyle: const TextStyle(color: Colors.white30),
+                            filled: true,
+                            fillColor: Colors.white.withOpacity(0.05),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16),
+                              borderSide: BorderSide.none,
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16),
+                              borderSide: BorderSide(color: Colors.amber.shade500),
+                            ),
+                          ),
                         ),
                       ],
                     ),
                   ),
-                ],
-
-                // New Advisory Input Section
-                Text('New Message', style: theme.textTheme.titleMedium?.copyWith(color: theme.colorScheme.primary)),
-                const SizedBox(height: 12),
-                
-                // Advisory Type Dropdown
-                DropdownButtonFormField<String>(
-                  value: _selectedAdvisoryType,
-                  dropdownColor: const Color(0xFF1E1E1E),
-                   decoration: InputDecoration(
-                    labelText: 'Advisory Type', // Added Label
-                    prefixIcon: const Icon(Icons.category, color: Colors.white70),
-                    filled: true,
-                    fillColor: Colors.white.withOpacity(0.05), // Matches input field
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none), // Matches input field
-                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: Colors.amber.shade500)),
-                   ),
-                  items: _advisoryTypes.map((t) => DropdownMenuItem(value: t, child: Text(t, style: const TextStyle(color: Colors.white)))).toList(),
-                  onChanged: (v) => setState(() => _selectedAdvisoryType = v!),
                 ),
                 const SizedBox(height: 16),
-
-                TextField(
-                  controller: _messageController,
-                  maxLength: _charLimit,
-                  maxLines: 4,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    hintText: 'Enter advisory message (e.g., "Heavy rain alert in Aluva. Move to higher ground.")',
-                    hintStyle: const TextStyle(color: Colors.white30),
-                    filled: true,
-                    fillColor: Colors.white.withOpacity(0.05),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide.none,
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(color: Colors.amber.shade500),
-                    ),
-                  ),
-                ),
-                const Spacer(),
                 Row(
                   children: [
                     Expanded(
